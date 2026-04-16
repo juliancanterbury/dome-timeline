@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dome Timeline + Slot Live</title>
+  <style>
+    :root {
+      --bg: #e9e2d3;
+      --panel: #d8cfbe;
+      --text: #2f261d;
+      --muted: #7b6e5f;
+      --line: #b5aa97;
+      --accent: #8d7558;
+      --shadow: 0 1px 0 rgba(47, 38, 29, 0.03);
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+        "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .wrap {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 14px 18px 18px;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+      flex: 0 0 auto;
+    }
+
+    .title-wrap {
+      min-width: 0;
+    }
+
+    .mode-badge {
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+
+    .title {
+      font-size: clamp(22px, 2.4vw, 34px);
+      line-height: 1;
+      margin: 0;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+    }
+
+    .controls,
+    .slot-controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    button, input {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: inherit;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      box-shadow: var(--shadow);
+    }
+
+    input {
+      min-width: 220px;
+      background: rgba(255,255,255,0.35);
+      font-weight: 400;
+    }
+
+    button {
+      cursor: pointer;
+      transition: background 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
+    }
+
+    button:hover {
+      background: #cec3b0;
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .loading {
+      color: var(--muted);
+      padding: 20px 0;
+      font-size: 14px;
+      letter-spacing: -0.01em;
+    }
+
+    #appShell {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #timelineMode {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      flex: 1 1 auto;
+    }
+
+    .timeline-top-controls {
+      margin-bottom: 10px;
+      flex: 0 0 auto;
+    }
+
+    .timeline-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.8fr);
+      gap: 14px;
+      align-items: start;
+      min-height: 0;
+      flex: 0 0 auto;
+    }
+
+    .panel {
+      background: var(--panel);
+      border-radius: 20px;
+      padding: 12px;
+      min-width: 0;
+    }
+
+    .image-frame {
+      width: 100%;
+      height: clamp(320px, 58vh, 640px);
+      overflow: hidden;
+      border-radius: 18px;
+      background: #c8bead;
+      position: relative;
+    }
+
+    .image-frame img,
+    .reel-window img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transform: translateX(0) scale(1);
+      opacity: 1;
+    }
+
+    .date {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .headline {
+      font-size: clamp(28px, 3vw, 56px);
+      line-height: 0.95;
+      margin: 0 0 12px 0;
+      font-weight: 600;
+      letter-spacing: -0.045em;
+      word-break: break-word;
+    }
+
+    .text {
+      font-size: clamp(15px, 1.2vw, 18px);
+      line-height: 1.4;
+      margin-bottom: 10px;
+      font-weight: 400;
+      letter-spacing: -0.012em;
+    }
+
+    .caption {
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: -0.01em;
+    }
+
+    .timeline-strip {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: thin;
+      flex: 0 0 auto;
+    }
+
+    .timeline-track {
+      display: flex;
+      gap: 12px;
+      min-width: max-content;
+      padding-bottom: 8px;
+    }
+
+    .timeline-item {
+      width: 98px;
+      flex: 0 0 auto;
+      cursor: pointer;
+      position: relative;
+      padding-top: 12px;
+    }
+
+    .timeline-item::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: var(--line);
+    }
+
+    .timeline-item::after {
+      content: "";
+      position: absolute;
+      top: -4px;
+      left: 0;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .timeline-item.active .mini-headline {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .mini-date {
+      font-size: 9px;
+      color: var(--muted);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      line-height: 1.15;
+      letter-spacing: 0.06em;
+      font-weight: 500;
+    }
+
+    .mini-headline {
+      font-size: 11px;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      font-weight: 500;
+      word-break: break-word;
+    }
+
+    #slotMode {
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+
+    .slot-controls {
+      margin-bottom: 16px;
+    }
+
+    .slot-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .reel {
+      background: var(--panel);
+      border-radius: 18px;
+      padding: 10px;
+      min-width: 0;
+    }
+
+    .reel-window {
+      aspect-ratio: 4 / 5;
+      overflow: hidden;
+      border-radius: 14px;
+      background: #c8bead;
+      position: relative;
+    }
+
+    .reel-caption {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 8px;
+      min-height: 32px;
+      line-height: 1.25;
+      letter-spacing: -0.01em;
+    }
+
+    .hold-btn {
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .hold-btn.held {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    @media (max-width: 1100px) {
+      .timeline-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .image-frame {
+        height: clamp(280px, 52vh, 560px);
+      }
+
+      .slot-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
+      .wrap {
+        padding: 12px;
+      }
+
+      .topbar {
+        gap: 10px;
+      }
+
+      .title {
+        font-size: 22px;
+      }
+
+      .timeline-layout {
+        gap: 12px;
+      }
+
+      .panel {
+        padding: 12px;
+      }
+
+      .image-frame {
+        height: 46vh;
+        min-height: 260px;
+        max-height: 460px;
+      }
+
+      .headline {
+        font-size: 34px;
+      }
+
+      .text {
+        font-size: 15px;
+      }
+
+      .timeline-item {
+        width: 90px;
+      }
+
+      .slot-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      input {
+        min-width: 0;
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .wrap {
+        padding: 10px;
+      }
+
+      .controls,
+      .slot-controls {
+        width: 100%;
+      }
+
+      .controls button,
+      .slot-controls button {
+        flex: 1 1 auto;
+      }
+
+      .image-frame {
+        height: 40vh;
+        min-height: 220px;
+      }
+
+      .headline {
+        font-size: 28px;
+      }
+
+      .timeline-item {
+        width: 82px;
+      }
+
+      .mini-headline {
+        font-size: 10px;
+      }
+
+      .slot-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="title-wrap">
+        <div class="mode-badge" id="modeBadge">Timeline Mode</div>
+        <h1 class="title">Dome Archive Prototype</h1>
+      </div>
+
+      <div class="controls">
+        <button id="timelineModeBtn">Timeline</button>
+        <button id="slotModeBtn">Explore / Slot</button>
+      </div>
+    </div>
+
+    <div id="loadingMessage" class="loading">Loading data…</div>
+
+    <div id="appShell" class="hidden">
+      <div id="timelineMode">
+        <div class="controls timeline-top-controls">
+          <button id="prevBtn">Previous</button>
+          <button id="nextBtn">Next</button>
+        </div>
+
+        <div class="timeline-layout">
+          <div class="panel">
+            <div class="image-frame">
+              <img id="mainImage" src="" alt="" />
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="date" id="dateText"></div>
+            <h2 class="headline" id="headlineText"></h2>
+            <div class="text" id="bodyText"></div>
+            <div class="caption" id="captionText"></div>
+          </div>
+        </div>
+
+        <div class="timeline-strip">
+          <div class="timeline-track" id="timelineTrack"></div>
+        </div>
+      </div>
+
+      <div id="slotMode" class="hidden">
+        <div class="slot-controls">
+          <input id="searchInput" type="text" placeholder="Search/category" value="" />
+          <button id="spinBtn">Spin</button>
+          <button id="hardSpinBtn">Hard Spin</button>
+          <button id="clearHoldsBtn">Clear Holds</button>
+        </div>
+
+        <div class="slot-grid" id="slotGrid"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SHEET_ID = "1NMuYR_V3aQGbiBd4kfkBCdTxe6R_Apn6TisCfn40dyc";
+
+    let entries = [];
+    let currentIndex = 0;
+    const reelCount = 5;
+    const imageCache = new Map();
+    let slotPreviewPool = [];
+
+    let reelState = Array.from({ length: reelCount }, () => ({
+      held: false,
+      entry: null
+    }));
+
+    async function loadSheetData() {
+      const url = `https://opensheet.elk.sh/${SHEET_ID}/PUBLISH`;
+      const res = await fetch(url);
+      const data = await res.json();
+
+      return data
+        .map(row => ({
+          year: Number(row.Year ?? row.YEAR ?? ""),
+          month: Number(row.Month ?? row.MONTH ?? ""),
+          day: Number(row.Day ?? row.DAY ?? ""),
+          headline: row.Headline ?? row.HEADLINE ?? "",
+          text: row.Text ?? row.TEXT ?? "",
+          media: row.Media ?? row.MEDIA ?? "",
+          caption: row.Caption ?? row.CAPTION ?? ""
+        }))
+        .filter(row =>
+          row.year &&
+          row.month &&
+          row.day &&
+          row.headline &&
+          row.media
+        );
+    }
+
+    function formatDate(entry) {
+      const d = new Date(entry.year, entry.month - 1, entry.day);
+      return d.toLocaleDateString("en-AU", {
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      });
+    }
+
+    function sampleEntries(list, count) {
+      const copy = [...list];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy.slice(0, Math.min(count, copy.length));
+    }
+
+    function preloadImage(src) {
+      return new Promise((resolve) => {
+        if (!src) {
+          resolve();
+          return;
+        }
+
+        if (imageCache.has(src)) {
+          resolve();
+          return;
+        }
+
+        const img = new Image();
+
+        img.onload = async () => {
+          try {
+            if (img.decode) {
+              await img.decode();
+            }
+          } catch (e) {
+          }
+
+          imageCache.set(src, img);
+          resolve();
+        };
+
+        img.onerror = () => {
+          resolve();
+        };
+
+        img.src = src;
+      });
+    }
+
+    async function preloadEntriesImages(list, limit = 80) {
+      const targets = list.slice(0, Math.min(limit, list.length));
+      await Promise.all(targets.map(entry => preloadImage(entry.media)));
+    }
+
+    async function ensureEntryImage(entry) {
+      if (!entry || !entry.media) return;
+      await preloadImage(entry.media);
+    }
+
+    function animateImageSwap(imgEl, newSrc, newAlt = "") {
+      if (!newSrc) return;
+
+      if (imgEl.dataset.currentSrc === newSrc) {
+        imgEl.alt = newAlt;
+        return;
+      }
+
+      imgEl.style.transition = "none";
+      imgEl.style.transform = "translateX(18px) scale(0.985)";
+      imgEl.style.opacity = "0";
+
+      setTimeout(() => {
+        imgEl.onload = null;
+        imgEl.src = newSrc;
+        imgEl.alt = newAlt;
+        imgEl.dataset.currentSrc = newSrc;
+
+        imgEl.onload = () => {
+          imgEl.style.transition = "all 0.32s cubic-bezier(0.22, 1, 0.36, 1)";
+          imgEl.style.transform = "translateX(0px) scale(1.01)";
+          imgEl.style.opacity = "1";
+
+          setTimeout(() => {
+            imgEl.style.transition = "all 0.16s ease-out";
+            imgEl.style.transform = "translateX(0px) scale(1)";
+          }, 180);
+        };
+      }, 50);
+    }
+
+    function renderEntry(index) {
+      if (!entries.length) return;
+
+      const entry = entries[index];
+      const mainImage = document.getElementById("mainImage");
+
+      animateImageSwap(mainImage, entry.media, entry.headline);
+      document.getElementById("dateText").textContent = formatDate(entry);
+      document.getElementById("headlineText").textContent = entry.headline;
+      document.getElementById("bodyText").textContent = entry.text || "";
+      document.getElementById("captionText").textContent = entry.caption || "";
+
+      document.querySelectorAll(".timeline-item").forEach((el, i) => {
+        el.classList.toggle("active", i === index);
+      });
+    }
+
+    function buildTimeline() {
+      const track = document.getElementById("timelineTrack");
+      track.innerHTML = "";
+
+      entries.forEach((entry, i) => {
+        const item = document.createElement("div");
+        item.className = "timeline-item";
+        item.innerHTML = `
+          <div class="mini-date">${formatDate(entry)}</div>
+          <div class="mini-headline">${entry.headline}</div>
+        `;
+        item.addEventListener("click", () => {
+          currentIndex = i;
+          renderEntry(currentIndex);
+        });
+        track.appendChild(item);
+      });
+    }
+
+    function filteredEntries(term) {
+      const t = term.trim().toLowerCase();
+      if (!t) return [...entries];
+
+      return entries.filter(entry =>
+        (entry.headline || "").toLowerCase().includes(t) ||
+        (entry.text || "").toLowerCase().includes(t) ||
+        (entry.caption || "").toLowerCase().includes(t)
+      );
+    }
+
+    function randomEntryFrom(list) {
+      return list[Math.floor(Math.random() * list.length)];
+    }
+
+    function buildSlotGrid() {
+      const grid = document.getElementById("slotGrid");
+      grid.innerHTML = "";
+
+      for (let i = 0; i < reelCount; i++) {
+        const reel = document.createElement("div");
+        reel.className = "reel";
+        reel.innerHTML = `
+          <div class="reel-window">
+            <img id="reelImg${i}" src="" alt="" />
+          </div>
+          <div class="reel-caption" id="reelCaption${i}"></div>
+          <button class="hold-btn" id="holdBtn${i}">Hold</button>
+        `;
+        grid.appendChild(reel);
+      }
+
+      for (let i = 0; i < reelCount; i++) {
+        document.getElementById(`holdBtn${i}`).addEventListener("click", () => {
+          reelState[i].held = !reelState[i].held;
+          updateHoldButtons();
+        });
+      }
+    }
+
+    function updateHoldButtons() {
+      for (let i = 0; i < reelCount; i++) {
+        const btn = document.getElementById(`holdBtn${i}`);
+        btn.textContent = reelState[i].held ? "Held" : "Hold";
+        btn.classList.toggle("held", reelState[i].held);
+      }
+    }
+
+    function setReelVisual(index, entry) {
+      const img = document.getElementById(`reelImg${index}`);
+      const caption = document.getElementById(`reelCaption${index}`);
+      animateImageSwap(img, entry.media, entry.headline);
+      caption.textContent = `${entry.headline} — ${formatDate(entry)}`;
+    }
+
+    async function animateReelSpin(index, pool) {
+      const finalEntry = randomEntryFrom(pool);
+      await ensureEntryImage(finalEntry);
+
+      const previewPool = slotPreviewPool.length
+        ? slotPreviewPool
+        : pool.slice(0, Math.min(pool.length, 16));
+
+      return new Promise(resolve => {
+        const totalFrames = 8 + Math.floor(Math.random() * 4);
+        let frame = 0;
+
+        const interval = setInterval(() => {
+          const candidate = randomEntryFrom(previewPool);
+          setReelVisual(index, candidate);
+          frame++;
+
+          if (frame >= totalFrames) {
+            clearInterval(interval);
+            reelState[index].entry = finalEntry;
+            setReelVisual(index, finalEntry);
+            setTimeout(resolve, 80);
+          }
+        }, 70);
+      });
+    }
+
+    async function spinSlot(forceAll = false) {
+      const search = document.getElementById("searchInput").value;
+      let pool = filteredEntries(search);
+      if (!pool.length) pool = [...entries];
+
+      const activePreviewSource = pool.length <= 24 ? pool : sampleEntries(pool, 24);
+      slotPreviewPool = activePreviewSource;
+      preloadEntriesImages(slotPreviewPool, slotPreviewPool.length).catch(() => {});
+
+      const spinPromises = [];
+
+      for (let i = 0; i < reelCount; i++) {
+        if (reelState[i].held && !forceAll) continue;
+        spinPromises.push(animateReelSpin(i, pool));
+      }
+
+      await Promise.all(spinPromises);
+    }
+
+    document.getElementById("prevBtn").addEventListener("click", () => {
+      currentIndex = Math.max(0, currentIndex - 1);
+      renderEntry(currentIndex);
+      scrollTimelineItemIntoView(currentIndex);
+    });
+
+    document.getElementById("nextBtn").addEventListener("click", () => {
+      currentIndex = Math.min(entries.length - 1, currentIndex + 1);
+      renderEntry(currentIndex);
+      scrollTimelineItemIntoView(currentIndex);
+    });
+
+    document.getElementById("spinBtn").addEventListener("click", () => {
+      spinSlot(false);
+    });
+
+    document.getElementById("hardSpinBtn").addEventListener("click", () => {
+      spinSlot(true);
+    });
+
+    document.getElementById("clearHoldsBtn").addEventListener("click", () => {
+      reelState.forEach(r => r.held = false);
+      updateHoldButtons();
+    });
+
+    const timelineMode = document.getElementById("timelineMode");
+    const slotMode = document.getElementById("slotMode");
+    const modeBadge = document.getElementById("modeBadge");
+
+    document.getElementById("timelineModeBtn").addEventListener("click", () => {
+      timelineMode.classList.remove("hidden");
+      slotMode.classList.add("hidden");
+      modeBadge.textContent = "Timeline Mode";
+    });
+
+    document.getElementById("slotModeBtn").addEventListener("click", () => {
+      slotMode.classList.remove("hidden");
+      timelineMode.classList.add("hidden");
+      modeBadge.textContent = "Explore / Slot Mode";
+    });
+
+    function scrollTimelineItemIntoView(index) {
+      const items = document.querySelectorAll(".timeline-item");
+      const target = items[index];
+      if (!target) return;
+      target.scrollIntoView({
+        inline: "center",
+        block: "nearest",
+        behavior: "smooth"
+      });
+    }
+
+    async function init() {
+      try {
+        entries = await loadSheetData();
+
+        if (!entries.length) {
+          document.getElementById("loadingMessage").textContent = "No rows found in PUBLISH.";
+          return;
+        }
+
+        slotPreviewPool = sampleEntries(entries, 24);
+        await preloadEntriesImages(slotPreviewPool, 24);
+        await preloadEntriesImages(entries, 12);
+
+        document.getElementById("loadingMessage").classList.add("hidden");
+        document.getElementById("appShell").classList.remove("hidden");
+
+        buildTimeline();
+        renderEntry(0);
+        buildSlotGrid();
+
+        for (let i = 0; i < reelCount; i++) {
+          const entry = entries[i % entries.length];
+          reelState[i].entry = entry;
+          setReelVisual(i, entry);
+        }
+
+        updateHoldButtons();
+        scrollTimelineItemIntoView(0);
+      } catch (err) {
+        document.getElementById("loadingMessage").textContent = "Failed to load sheet data.";
+        console.error(err);
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
