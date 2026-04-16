@@ -146,7 +146,7 @@
 
     .timeline-layout {
       display: grid;
-      grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.8fr);
+      grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
       gap: 14px;
       align-items: start;
       min-height: 0;
@@ -160,13 +160,20 @@
       min-width: 0;
     }
 
+    .image-shell {
+      width: min(100%, 540px);
+      margin: 0 auto;
+    }
+
     .image-frame {
       width: 100%;
-      height: clamp(320px, 58vh, 640px);
+      aspect-ratio: 0.72;
+      max-height: 70vh;
       overflow: hidden;
       border-radius: 18px;
       background: #c8bead;
       position: relative;
+      cursor: zoom-in;
     }
 
     .image-frame img,
@@ -174,6 +181,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      object-position: center center;
       display: block;
       transform: translateX(0) scale(1);
       opacity: 1;
@@ -303,11 +311,13 @@
     }
 
     .reel-window {
-      aspect-ratio: 4 / 5;
+      width: 100%;
+      aspect-ratio: 0.72;
       overflow: hidden;
       border-radius: 14px;
       background: #c8bead;
       position: relative;
+      cursor: zoom-in;
     }
 
     .reel-caption {
@@ -330,13 +340,70 @@
       border-color: var(--accent);
     }
 
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(20, 16, 12, 0.96);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      z-index: 9999;
+    }
+
+    .lightbox.open {
+      display: flex;
+    }
+
+    .lightbox-inner {
+      position: relative;
+      width: min(96vw, 1700px);
+      height: min(96vh, 1200px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lightbox img {
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      display: block;
+      border-radius: 12px;
+      background: transparent;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.14);
+      color: white;
+      font-size: 24px;
+      line-height: 1;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      box-shadow: none;
+    }
+
+    .lightbox-close:hover {
+      background: rgba(255,255,255,0.22);
+    }
+
     @media (max-width: 1100px) {
       .timeline-layout {
         grid-template-columns: 1fr;
       }
 
-      .image-frame {
-        height: clamp(280px, 52vh, 560px);
+      .image-shell {
+        width: min(100%, 500px);
       }
 
       .slot-grid {
@@ -365,10 +432,12 @@
         padding: 12px;
       }
 
+      .image-shell {
+        width: min(100%, 420px);
+      }
+
       .image-frame {
-        height: 46vh;
-        min-height: 260px;
-        max-height: 460px;
+        max-height: 62vh;
       }
 
       .headline {
@@ -408,9 +477,12 @@
         flex: 1 1 auto;
       }
 
+      .image-shell {
+        width: min(100%, 360px);
+      }
+
       .image-frame {
-        height: 40vh;
-        min-height: 220px;
+        max-height: 56vh;
       }
 
       .headline {
@@ -456,8 +528,10 @@
 
         <div class="timeline-layout">
           <div class="panel">
-            <div class="image-frame">
-              <img id="mainImage" src="" alt="" />
+            <div class="image-shell">
+              <div class="image-frame">
+                <img id="mainImage" src="" alt="" />
+              </div>
             </div>
           </div>
 
@@ -487,6 +561,13 @@
     </div>
   </div>
 
+  <div id="lightbox" class="lightbox hidden" aria-hidden="true">
+    <div class="lightbox-inner">
+      <button id="lightboxClose" class="lightbox-close" aria-label="Close image">×</button>
+      <img id="lightboxImage" src="" alt="" />
+    </div>
+  </div>
+
   <script>
     const SHEET_ID = "1NMuYR_V3aQGbiBd4kfkBCdTxe6R_Apn6TisCfn40dyc";
 
@@ -502,27 +583,43 @@
     }));
 
     async function loadSheetData() {
-      const url = `https://opensheet.elk.sh/${SHEET_ID}/PUBLISH`;
-      const res = await fetch(url);
-      const data = await res.json();
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 12000);
 
-      return data
-        .map(row => ({
-          year: Number(row.Year ?? row.YEAR ?? ""),
-          month: Number(row.Month ?? row.MONTH ?? ""),
-          day: Number(row.Day ?? row.DAY ?? ""),
-          headline: row.Headline ?? row.HEADLINE ?? "",
-          text: row.Text ?? row.TEXT ?? "",
-          media: row.Media ?? row.MEDIA ?? "",
-          caption: row.Caption ?? row.CAPTION ?? ""
-        }))
-        .filter(row =>
-          row.year &&
-          row.month &&
-          row.day &&
-          row.headline &&
-          row.media
-        );
+      try {
+        const url = `https://opensheet.elk.sh/${SHEET_ID}/PUBLISH`;
+        const res = await fetch(url, {
+          method: "GET",
+          cache: "no-store",
+          signal: controller.signal
+        });
+
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+
+        const data = await res.json();
+
+        return data
+          .map(row => ({
+            year: Number(row.Year ?? row.YEAR ?? ""),
+            month: Number(row.Month ?? row.MONTH ?? ""),
+            day: Number(row.Day ?? row.DAY ?? ""),
+            headline: row.Headline ?? row.HEADLINE ?? "",
+            text: row.Text ?? row.TEXT ?? "",
+            media: row.Media ?? row.MEDIA ?? "",
+            caption: row.Caption ?? row.CAPTION ?? ""
+          }))
+          .filter(row =>
+            row.year &&
+            row.month &&
+            row.day &&
+            row.headline &&
+            row.media
+          );
+      } finally {
+        clearTimeout(timeout);
+      }
     }
 
     function formatDate(entry) {
@@ -541,6 +638,19 @@
         [copy[i], copy[j]] = [copy[j], copy[i]];
       }
       return copy.slice(0, Math.min(count, copy.length));
+    }
+
+    function shuffledCopy(list) {
+      const copy = [...list];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function randomEntryFrom(list) {
+      return list[Math.floor(Math.random() * list.length)];
     }
 
     function preloadImage(src) {
@@ -596,7 +706,7 @@
       }
 
       imgEl.style.transition = "none";
-      imgEl.style.transform = "translateX(18px) scale(0.985)";
+      imgEl.style.transform = "translateX(10px) scale(0.992)";
       imgEl.style.opacity = "0";
 
       setTimeout(() => {
@@ -606,16 +716,16 @@
         imgEl.dataset.currentSrc = newSrc;
 
         imgEl.onload = () => {
-          imgEl.style.transition = "all 0.32s cubic-bezier(0.22, 1, 0.36, 1)";
-          imgEl.style.transform = "translateX(0px) scale(1.01)";
+          imgEl.style.transition = "all 0.24s cubic-bezier(0.22, 1, 0.36, 1)";
+          imgEl.style.transform = "translateX(0px) scale(1.002)";
           imgEl.style.opacity = "1";
 
           setTimeout(() => {
-            imgEl.style.transition = "all 0.16s ease-out";
+            imgEl.style.transition = "all 0.12s ease-out";
             imgEl.style.transform = "translateX(0px) scale(1)";
-          }, 180);
+          }, 140);
         };
-      }, 50);
+      }, 30);
     }
 
     function renderEntry(index) {
@@ -649,6 +759,7 @@
         item.addEventListener("click", () => {
           currentIndex = i;
           renderEntry(currentIndex);
+          scrollTimelineItemIntoView(currentIndex);
         });
         track.appendChild(item);
       });
@@ -663,10 +774,6 @@
         (entry.text || "").toLowerCase().includes(t) ||
         (entry.caption || "").toLowerCase().includes(t)
       );
-    }
-
-    function randomEntryFrom(list) {
-      return list[Math.floor(Math.random() * list.length)];
     }
 
     function buildSlotGrid() {
@@ -691,6 +798,13 @@
           reelState[i].held = !reelState[i].held;
           updateHoldButtons();
         });
+
+        const reelImg = document.getElementById(`reelImg${i}`);
+        reelImg.addEventListener("click", () => {
+          const entry = reelState[i].entry;
+          if (!entry) return;
+          openLightbox(entry.media, entry.headline);
+        });
       }
     }
 
@@ -709,30 +823,31 @@
       caption.textContent = `${entry.headline} — ${formatDate(entry)}`;
     }
 
-    async function animateReelSpin(index, pool) {
-      const finalEntry = randomEntryFrom(pool);
+    async function animateReelSpin(index, previewPool, finalEntry, stopDelay = 0) {
       await ensureEntryImage(finalEntry);
 
-      const previewPool = slotPreviewPool.length
-        ? slotPreviewPool
-        : pool.slice(0, Math.min(pool.length, 16));
+      const localPreviewPool = previewPool.length ? previewPool : [finalEntry];
 
       return new Promise(resolve => {
-        const totalFrames = 8 + Math.floor(Math.random() * 4);
+        const totalFrames = 10 + Math.floor(Math.random() * 4);
         let frame = 0;
 
-        const interval = setInterval(() => {
-          const candidate = randomEntryFrom(previewPool);
-          setReelVisual(index, candidate);
-          frame++;
+        const startSpin = () => {
+          const interval = setInterval(() => {
+            const candidate = localPreviewPool[frame % localPreviewPool.length];
+            setReelVisual(index, candidate);
+            frame++;
 
-          if (frame >= totalFrames) {
-            clearInterval(interval);
-            reelState[index].entry = finalEntry;
-            setReelVisual(index, finalEntry);
-            setTimeout(resolve, 80);
-          }
-        }, 70);
+            if (frame >= totalFrames) {
+              clearInterval(interval);
+              reelState[index].entry = finalEntry;
+              setReelVisual(index, finalEntry);
+              setTimeout(resolve, 90);
+            }
+          }, 75);
+        };
+
+        setTimeout(startSpin, stopDelay);
       });
     }
 
@@ -741,18 +856,96 @@
       let pool = filteredEntries(search);
       if (!pool.length) pool = [...entries];
 
-      const activePreviewSource = pool.length <= 24 ? pool : sampleEntries(pool, 24);
-      slotPreviewPool = activePreviewSource;
-      preloadEntriesImages(slotPreviewPool, slotPreviewPool.length).catch(() => {});
-
-      const spinPromises = [];
-
+      const reelIndexesToSpin = [];
       for (let i = 0; i < reelCount; i++) {
         if (reelState[i].held && !forceAll) continue;
-        spinPromises.push(animateReelSpin(i, pool));
+        reelIndexesToSpin.push(i);
       }
 
+      if (!reelIndexesToSpin.length) return;
+
+      const uniquePool = shuffledCopy(pool);
+      let chosenFinals = [];
+
+      if (!forceAll && uniquePool.length >= reelIndexesToSpin.length) {
+        chosenFinals = uniquePool.slice(0, reelIndexesToSpin.length);
+      } else if (!forceAll) {
+        chosenFinals = [...uniquePool];
+        while (chosenFinals.length < reelIndexesToSpin.length) {
+          chosenFinals.push(randomEntryFrom(pool));
+        }
+      } else {
+        for (let i = 0; i < reelIndexesToSpin.length; i++) {
+          chosenFinals.push(randomEntryFrom(pool));
+        }
+      }
+
+      const previewSource = uniquePool.length >= 24
+        ? uniquePool.slice(0, 24)
+        : uniquePool;
+
+      slotPreviewPool = previewSource;
+      preloadEntriesImages(slotPreviewPool, slotPreviewPool.length).catch(() => {});
+      await Promise.all(chosenFinals.map(entry => ensureEntryImage(entry)));
+
+      const spinPromises = reelIndexesToSpin.map((reelIndex, i) => {
+        let previewPool;
+
+        if (forceAll) {
+          previewPool = sampleEntries(pool, Math.min(10, pool.length));
+        } else {
+          const rotatedPreview = shuffledCopy(
+            slotPreviewPool.filter(entry => entry.media !== chosenFinals[i].media)
+          );
+          previewPool = rotatedPreview.length ? rotatedPreview.slice(0, 10) : [chosenFinals[i]];
+        }
+
+        return animateReelSpin(
+          reelIndex,
+          previewPool,
+          chosenFinals[i],
+          i * 140
+        );
+      });
+
       await Promise.all(spinPromises);
+    }
+
+    function openLightbox(src, alt = "") {
+      if (!src) return;
+
+      const lightbox = document.getElementById("lightbox");
+      const lightboxImage = document.getElementById("lightboxImage");
+
+      lightboxImage.src = src;
+      lightboxImage.alt = alt;
+      lightbox.classList.remove("hidden");
+      lightbox.classList.add("open");
+      lightbox.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeLightbox() {
+      const lightbox = document.getElementById("lightbox");
+      const lightboxImage = document.getElementById("lightboxImage");
+
+      lightbox.classList.remove("open");
+      lightbox.classList.add("hidden");
+      lightbox.setAttribute("aria-hidden", "true");
+      lightboxImage.src = "";
+      lightboxImage.alt = "";
+      document.body.style.overflow = "";
+    }
+
+    function scrollTimelineItemIntoView(index) {
+      const items = document.querySelectorAll(".timeline-item");
+      const target = items[index];
+      if (!target) return;
+      target.scrollIntoView({
+        inline: "center",
+        block: "nearest",
+        behavior: "smooth"
+      });
     }
 
     document.getElementById("prevBtn").addEventListener("click", () => {
@@ -796,16 +989,19 @@
       modeBadge.textContent = "Explore / Slot Mode";
     });
 
-    function scrollTimelineItemIntoView(index) {
-      const items = document.querySelectorAll(".timeline-item");
-      const target = items[index];
-      if (!target) return;
-      target.scrollIntoView({
-        inline: "center",
-        block: "nearest",
-        behavior: "smooth"
-      });
-    }
+    document.getElementById("lightboxClose").addEventListener("click", closeLightbox);
+
+    document.getElementById("lightbox").addEventListener("click", (e) => {
+      if (e.target.id === "lightbox") {
+        closeLightbox();
+      }
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        closeLightbox();
+      }
+    });
 
     async function init() {
       try {
@@ -815,10 +1011,6 @@
           document.getElementById("loadingMessage").textContent = "No rows found in PUBLISH.";
           return;
         }
-
-        slotPreviewPool = sampleEntries(entries, 24);
-        await preloadEntriesImages(slotPreviewPool, 24);
-        await preloadEntriesImages(entries, 12);
 
         document.getElementById("loadingMessage").classList.add("hidden");
         document.getElementById("appShell").classList.remove("hidden");
@@ -835,8 +1027,22 @@
 
         updateHoldButtons();
         scrollTimelineItemIntoView(0);
+
+        document.getElementById("mainImage").addEventListener("click", () => {
+          if (!entries.length) return;
+          const entry = entries[currentIndex];
+          openLightbox(entry.media, entry.headline);
+        });
+
+        slotPreviewPool = sampleEntries(entries, 24);
+        preloadEntriesImages(slotPreviewPool, 24).catch(() => {});
+        preloadEntriesImages(entries, 12).catch(() => {});
       } catch (err) {
-        document.getElementById("loadingMessage").textContent = "Failed to load sheet data.";
+        const msg =
+          err.name === "AbortError"
+            ? "Timed out loading sheet data."
+            : "Failed to load sheet data.";
+        document.getElementById("loadingMessage").textContent = msg;
         console.error(err);
       }
     }
