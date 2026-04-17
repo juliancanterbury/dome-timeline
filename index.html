@@ -13,6 +13,7 @@
       --line: #b5aa97;
       --accent: #8d7558;
       --shadow: 0 1px 0 rgba(47, 38, 29, 0.03);
+      --frame-pad: 18px;
     }
 
     * { box-sizing: border-box; }
@@ -75,7 +76,8 @@
     }
 
     .controls,
-    .slot-controls {
+    .slot-controls,
+    .photos-controls {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
@@ -114,6 +116,13 @@
       transform: translateY(1px);
     }
 
+    .active-mode-btn,
+    .view-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
     .hidden {
       display: none !important;
     }
@@ -132,11 +141,16 @@
       flex-direction: column;
     }
 
+    #timelineMode,
+    #slotMode,
+    #photosMode {
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+
     #timelineMode {
       display: flex;
       flex-direction: column;
-      min-height: 0;
-      flex: 1 1 auto;
     }
 
     .timeline-top-controls {
@@ -146,7 +160,7 @@
 
     .timeline-layout {
       display: grid;
-      grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
+      grid-template-columns: auto minmax(320px, 1fr);
       gap: 14px;
       align-items: start;
       min-height: 0;
@@ -160,24 +174,43 @@
       min-width: 0;
     }
 
+    .image-panel {
+      width: fit-content;
+      justify-self: start;
+    }
+
     .image-shell {
       width: min(100%, 540px);
-      margin: 0 auto;
+      padding: var(--frame-pad);
     }
 
     .image-frame {
-      width: 100%;
+      width: 540px;
+      max-width: min(100vw - 120px, 540px);
       aspect-ratio: 0.72;
       max-height: 70vh;
       overflow: hidden;
       border-radius: 18px;
-      background: #c8bead;
+      background: transparent;
       position: relative;
       cursor: zoom-in;
+      padding: 0;
     }
 
-    .image-frame img,
-    .reel-window img {
+    .image-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      display: block;
+      transform: translateX(0) scale(1);
+      opacity: 1;
+      border-radius: 18px;
+    }
+
+    .reel-window img,
+    .photo-card-image img,
+    .photo-group-card img {
       width: 100%;
       height: 100%;
       object-fit: cover;
@@ -288,11 +321,6 @@
       word-break: break-word;
     }
 
-    #slotMode {
-      flex: 1 1 auto;
-      min-height: 0;
-    }
-
     .slot-controls {
       margin-bottom: 16px;
     }
@@ -338,6 +366,149 @@
       background: var(--accent);
       color: white;
       border-color: var(--accent);
+    }
+
+    .photos-controls {
+      margin-bottom: 14px;
+      justify-content: center;
+    }
+
+    .photos-segmented {
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      background: rgba(255,255,255,0.22);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px;
+    }
+
+    .view-btn {
+      border-radius: 999px;
+      box-shadow: none;
+      padding: 8px 14px;
+      background: transparent;
+    }
+
+    .photos-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .photos-breadcrumb {
+      font-size: 14px;
+      color: var(--muted);
+      letter-spacing: -0.01em;
+    }
+
+    .photos-back-btn {
+      padding: 8px 12px;
+    }
+
+    .photos-content {
+      min-height: 0;
+    }
+
+    .photos-grid-years,
+    .photos-grid-all {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .photo-group-card {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      border-radius: 18px;
+      overflow: hidden;
+      cursor: pointer;
+      background: #c8bead;
+      box-shadow: var(--shadow);
+    }
+
+    .photo-group-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.28), rgba(0,0,0,0.02));
+      pointer-events: none;
+    }
+
+    .photo-group-label {
+      position: absolute;
+      left: 16px;
+      top: 16px;
+      z-index: 2;
+      color: #fff;
+      font-size: clamp(28px, 3vw, 54px);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      text-shadow: 0 1px 6px rgba(0,0,0,0.25);
+    }
+
+    .photos-section {
+      margin-bottom: 28px;
+    }
+
+    .photos-section-title {
+      font-size: clamp(28px, 3vw, 46px);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      margin: 0 0 14px 0;
+    }
+
+    .photos-section-subtle {
+      color: #8b8172;
+      font-weight: 600;
+    }
+
+    .photos-grid-months {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .photos-grid-days {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .photo-card {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .photo-card-image {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #c8bead;
+    }
+
+    .photo-card-image.tall {
+      aspect-ratio: 0.8;
+    }
+
+    .photo-card-meta {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.25;
+    }
+
+    .photo-card-meta strong {
+      color: var(--text);
+      display: block;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+      margin-bottom: 2px;
     }
 
     .lightbox {
@@ -402,12 +573,35 @@
         grid-template-columns: 1fr;
       }
 
+      .image-panel {
+        width: 100%;
+      }
+
       .image-shell {
         width: min(100%, 500px);
+        margin: 0 auto;
+      }
+
+      .image-frame {
+        width: 100%;
+        max-width: 100%;
       }
 
       .slot-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .photos-grid-years,
+      .photos-grid-all {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .photos-grid-days {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .photos-grid-months {
+        grid-template-columns: 1fr;
       }
     }
 
@@ -456,6 +650,15 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
+      .photos-grid-years,
+      .photos-grid-all {
+        grid-template-columns: 1fr;
+      }
+
+      .photos-grid-days {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
       input {
         min-width: 0;
         width: 100%;
@@ -468,13 +671,18 @@
       }
 
       .controls,
-      .slot-controls {
+      .slot-controls,
+      .photos-controls {
         width: 100%;
       }
 
       .controls button,
       .slot-controls button {
         flex: 1 1 auto;
+      }
+
+      .photos-controls {
+        justify-content: flex-start;
       }
 
       .image-shell {
@@ -497,8 +705,14 @@
         font-size: 10px;
       }
 
-      .slot-grid {
+      .slot-grid,
+      .photos-grid-days {
         grid-template-columns: 1fr;
+      }
+
+      .photos-segmented {
+        width: 100%;
+        justify-content: space-between;
       }
     }
   </style>
@@ -512,8 +726,9 @@
       </div>
 
       <div class="controls">
-        <button id="timelineModeBtn">Timeline</button>
+        <button id="timelineModeBtn" class="active-mode-btn">Timeline</button>
         <button id="slotModeBtn">Explore / Slot</button>
+        <button id="photosModeBtn">Photos</button>
       </div>
     </div>
 
@@ -527,7 +742,7 @@
         </div>
 
         <div class="timeline-layout">
-          <div class="panel">
+          <div class="panel image-panel">
             <div class="image-shell">
               <div class="image-frame">
                 <img id="mainImage" src="" alt="" />
@@ -558,6 +773,20 @@
 
         <div class="slot-grid" id="slotGrid"></div>
       </div>
+
+      <div id="photosMode" class="hidden">
+        <div class="photos-controls">
+          <div class="photos-segmented">
+            <button class="view-btn active" data-view="years">Years</button>
+            <button class="view-btn" data-view="months">Months</button>
+            <button class="view-btn" data-view="days">Days</button>
+            <button class="view-btn" data-view="all">All Photos</button>
+          </div>
+        </div>
+
+        <div id="photosToolbar" class="photos-toolbar hidden"></div>
+        <div id="photosContent" class="photos-content"></div>
+      </div>
     </div>
   </div>
 
@@ -576,6 +805,13 @@
     const reelCount = 5;
     const imageCache = new Map();
     let slotPreviewPool = [];
+    let currentPhotoView = "years";
+
+    let photoNav = {
+      year: null,
+      month: null,
+      day: null
+    };
 
     let reelState = Array.from({ length: reelCount }, () => ({
       held: false,
@@ -601,7 +837,8 @@
         const data = await res.json();
 
         return data
-          .map(row => ({
+          .map((row, index) => ({
+            id: `${row.Media ?? row.MEDIA ?? ""}-${index}`,
             year: Number(row.Year ?? row.YEAR ?? ""),
             month: Number(row.Month ?? row.MONTH ?? ""),
             day: Number(row.Day ?? row.DAY ?? ""),
@@ -629,6 +866,35 @@
         month: "long",
         day: "numeric"
       });
+    }
+
+    function formatMonthTitle(year, month) {
+      const d = new Date(year, month - 1, 1);
+      return d.toLocaleDateString("en-AU", {
+        month: "long",
+        year: "numeric"
+      });
+    }
+
+    function formatDayTitle(entry) {
+      const d = new Date(entry.year, entry.month - 1, entry.day);
+      return d.toLocaleDateString("en-AU", {
+        weekday: "short",
+        day: "numeric",
+        month: "short"
+      });
+    }
+
+    function groupKeyYear(entry) {
+      return `${entry.year}`;
+    }
+
+    function groupKeyMonth(entry) {
+      return `${entry.year}-${String(entry.month).padStart(2, "0")}`;
+    }
+
+    function groupKeyDay(entry) {
+      return `${entry.year}-${String(entry.month).padStart(2, "0")}-${String(entry.day).padStart(2, "0")}`;
     }
 
     function sampleEntries(list, count) {
@@ -672,8 +938,7 @@
             if (img.decode) {
               await img.decode();
             }
-          } catch (e) {
-          }
+          } catch (e) {}
 
           imageCache.set(src, img);
           resolve();
@@ -948,6 +1213,209 @@
       });
     }
 
+    function groupEntriesBy(entriesList, keyFn) {
+      const map = new Map();
+      entriesList.forEach(entry => {
+        const key = keyFn(entry);
+        if (!map.has(key)) map.set(key, []);
+        map.get(key).push(entry);
+      });
+      return [...map.entries()];
+    }
+
+    function sortEntriesChronological(list) {
+      return [...list].sort((a, b) => {
+        const da = new Date(a.year, a.month - 1, a.day).getTime();
+        const db = new Date(b.year, b.month - 1, b.day).getTime();
+        return da - db;
+      });
+    }
+
+    function sameMonth(entry, year, month) {
+      return entry.year === year && entry.month === month;
+    }
+
+    function sameDay(entry, year, month, day) {
+      return entry.year === year && entry.month === month && entry.day === day;
+    }
+
+    function updatePhotosToolbar() {
+      const toolbar = document.getElementById("photosToolbar");
+
+      if (currentPhotoView === "years") {
+        toolbar.classList.add("hidden");
+        toolbar.innerHTML = "";
+        return;
+      }
+
+      let crumb = "Photos";
+      if (photoNav.year) crumb += ` / ${photoNav.year}`;
+      if (photoNav.month) {
+        const d = new Date(photoNav.year, photoNav.month - 1, 1);
+        crumb += ` / ${d.toLocaleDateString("en-AU", { month: "long" })}`;
+      }
+      if (photoNav.day) crumb += ` / ${photoNav.day}`;
+
+      toolbar.classList.remove("hidden");
+      toolbar.innerHTML = `
+        <button class="photos-back-btn" id="photosBackBtn">Back</button>
+        <div class="photos-breadcrumb">${crumb}</div>
+      `;
+
+      document.getElementById("photosBackBtn").addEventListener("click", () => {
+        if (currentPhotoView === "all") {
+          currentPhotoView = "days";
+          photoNav.day = null;
+        } else if (currentPhotoView === "days") {
+          currentPhotoView = "months";
+          photoNav.month = null;
+          photoNav.day = null;
+        } else if (currentPhotoView === "months") {
+          currentPhotoView = "years";
+          photoNav.year = null;
+          photoNav.month = null;
+          photoNav.day = null;
+        }
+        renderPhotosMode(currentPhotoView);
+      });
+    }
+
+    function renderPhotosMode(view) {
+      currentPhotoView = view;
+      const content = document.getElementById("photosContent");
+      let sorted = sortEntriesChronological(entries);
+
+      document.querySelectorAll(".view-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.view === view);
+      });
+
+      if (view === "years") {
+        photoNav.year = null;
+        photoNav.month = null;
+        photoNav.day = null;
+
+        const byYear = groupEntriesBy(sorted, groupKeyYear);
+
+        content.innerHTML = `
+          <div class="photos-grid-years">
+            ${byYear.map(([year, list]) => `
+              <div class="photo-group-card" data-year="${year}">
+                <img src="${list[0].media}" alt="${year}">
+                <div class="photo-group-label">${year}</div>
+              </div>
+            `).join("")}
+          </div>
+        `;
+
+        content.querySelectorAll("[data-year]").forEach(el => {
+          el.addEventListener("click", () => {
+            photoNav.year = Number(el.dataset.year);
+            photoNav.month = null;
+            photoNav.day = null;
+            renderPhotosMode("months");
+          });
+        });
+      }
+
+      else if (view === "months") {
+        if (photoNav.year) {
+          sorted = sorted.filter(entry => entry.year === photoNav.year);
+        }
+
+        const byMonth = groupEntriesBy(sorted, groupKeyMonth);
+
+        content.innerHTML = byMonth.map(([key, list]) => `
+          <section class="photos-section">
+            <h2 class="photos-section-title">${formatMonthTitle(list[0].year, list[0].month)}</h2>
+            <div class="photos-grid-months">
+              <div class="photo-group-card" data-year="${list[0].year}" data-month="${list[0].month}">
+                <img src="${list[0].media}" alt="${formatMonthTitle(list[0].year, list[0].month)}">
+                <div class="photo-group-label">
+                  ${new Date(list[0].year, list[0].month - 1, 1).toLocaleDateString("en-AU", { month: "long" })}
+                </div>
+              </div>
+            </div>
+          </section>
+        `).join("");
+
+        content.querySelectorAll("[data-month]").forEach(el => {
+          el.addEventListener("click", () => {
+            photoNav.year = Number(el.dataset.year);
+            photoNav.month = Number(el.dataset.month);
+            photoNav.day = null;
+            renderPhotosMode("days");
+          });
+        });
+      }
+
+      else if (view === "days") {
+        if (photoNav.year && photoNav.month) {
+          sorted = sorted.filter(entry => sameMonth(entry, photoNav.year, photoNav.month));
+        }
+
+        const byDay = groupEntriesBy(sorted, groupKeyDay);
+
+        content.innerHTML = `
+          <div class="photos-grid-days">
+            ${byDay.map(([key, list]) => `
+              <div class="photo-card" data-year="${list[0].year}" data-month="${list[0].month}" data-day="${list[0].day}">
+                <div class="photo-card-image">
+                  <img src="${list[0].media}" alt="${formatDate(list[0])}">
+                </div>
+                <div class="photo-card-meta">
+                  <strong>${new Date(list[0].year, list[0].month - 1, list[0].day).toLocaleDateString("en-AU", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric"
+                  })}</strong>
+                  ${list.length} photo${list.length === 1 ? "" : "s"}
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        `;
+
+        content.querySelectorAll("[data-day]").forEach(el => {
+          el.addEventListener("click", () => {
+            photoNav.year = Number(el.dataset.year);
+            photoNav.month = Number(el.dataset.month);
+            photoNav.day = Number(el.dataset.day);
+            renderPhotosMode("all");
+          });
+        });
+      }
+
+      else {
+        if (photoNav.year && photoNav.month && photoNav.day) {
+          sorted = sorted.filter(entry => sameDay(entry, photoNav.year, photoNav.month, photoNav.day));
+        }
+
+        content.innerHTML = `
+          <div class="photos-grid-all">
+            ${sorted.map(entry => `
+              <div class="photo-card" data-src="${entry.media}" data-alt="${entry.headline}">
+                <div class="photo-card-image">
+                  <img src="${entry.media}" alt="${entry.headline}">
+                </div>
+                <div class="photo-card-meta">
+                  <strong>${entry.headline}</strong>
+                  ${formatDate(entry)}
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        `;
+
+        content.querySelectorAll("[data-src]").forEach(el => {
+          el.addEventListener("click", () => {
+            openLightbox(el.dataset.src, el.dataset.alt || "");
+          });
+        });
+      }
+
+      updatePhotosToolbar();
+    }
+
     document.getElementById("prevBtn").addEventListener("click", () => {
       currentIndex = Math.max(0, currentIndex - 1);
       renderEntry(currentIndex);
@@ -975,18 +1443,53 @@
 
     const timelineMode = document.getElementById("timelineMode");
     const slotMode = document.getElementById("slotMode");
+    const photosMode = document.getElementById("photosMode");
     const modeBadge = document.getElementById("modeBadge");
 
-    document.getElementById("timelineModeBtn").addEventListener("click", () => {
-      timelineMode.classList.remove("hidden");
-      slotMode.classList.add("hidden");
-      modeBadge.textContent = "Timeline Mode";
-    });
+    const timelineModeBtn = document.getElementById("timelineModeBtn");
+    const slotModeBtn = document.getElementById("slotModeBtn");
+    const photosModeBtn = document.getElementById("photosModeBtn");
 
-    document.getElementById("slotModeBtn").addEventListener("click", () => {
-      slotMode.classList.remove("hidden");
-      timelineMode.classList.add("hidden");
-      modeBadge.textContent = "Explore / Slot Mode";
+    function setMode(mode) {
+      timelineMode.classList.toggle("hidden", mode !== "timeline");
+      slotMode.classList.toggle("hidden", mode !== "slot");
+      photosMode.classList.toggle("hidden", mode !== "photos");
+
+      timelineModeBtn.classList.toggle("active-mode-btn", mode === "timeline");
+      slotModeBtn.classList.toggle("active-mode-btn", mode === "slot");
+      photosModeBtn.classList.toggle("active-mode-btn", mode === "photos");
+
+      modeBadge.textContent =
+        mode === "timeline" ? "Timeline Mode" :
+        mode === "slot" ? "Explore / Slot Mode" :
+        "Photos Mode";
+    }
+
+    timelineModeBtn.addEventListener("click", () => setMode("timeline"));
+    slotModeBtn.addEventListener("click", () => setMode("slot"));
+    photosModeBtn.addEventListener("click", () => setMode("photos"));
+
+    document.querySelectorAll(".view-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const view = btn.dataset.view;
+
+        if (view === "years") {
+          photoNav.year = null;
+          photoNav.month = null;
+          photoNav.day = null;
+        }
+
+        if (view === "months") {
+          photoNav.month = null;
+          photoNav.day = null;
+        }
+
+        if (view === "days") {
+          photoNav.day = null;
+        }
+
+        renderPhotosMode(view);
+      });
     });
 
     document.getElementById("lightboxClose").addEventListener("click", closeLightbox);
@@ -1018,6 +1521,7 @@
         buildTimeline();
         renderEntry(0);
         buildSlotGrid();
+        renderPhotosMode("years");
 
         for (let i = 0; i < reelCount; i++) {
           const entry = entries[i % entries.length];
