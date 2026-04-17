@@ -35,6 +35,11 @@
       color: var(--text);
     }
 
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+
     .wrap {
       max-width: 1240px;
       margin: 0 auto;
@@ -461,11 +466,6 @@
       margin: 0 0 14px 0;
     }
 
-    .photos-section-subtle {
-      color: #8b8172;
-      font-weight: 600;
-    }
-
     .photos-grid-months {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -745,7 +745,7 @@
           <div class="panel image-panel">
             <div class="image-shell">
               <div class="image-frame">
-                <img id="mainImage" src="" alt="" />
+                <img id="mainImage" src="" alt="" decoding="async" fetchpriority="high" />
               </div>
             </div>
           </div>
@@ -793,7 +793,7 @@
   <div id="lightbox" class="lightbox hidden" aria-hidden="true">
     <div class="lightbox-inner">
       <button id="lightboxClose" class="lightbox-close" aria-label="Close image">×</button>
-      <img id="lightboxImage" src="" alt="" />
+      <img id="lightboxImage" src="" alt="" decoding="async" />
     </div>
   </div>
 
@@ -919,6 +919,19 @@
       return list[Math.floor(Math.random() * list.length)];
     }
 
+    function escapeHtml(str) {
+      return String(str ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function buildImgTag(src, alt, extraAttrs = "") {
+      return `<img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" loading="lazy" decoding="async" ${extraAttrs}>`;
+    }
+
     function preloadImage(src) {
       return new Promise((resolve) => {
         if (!src) {
@@ -938,9 +951,10 @@
             if (img.decode) {
               await img.decode();
             }
-          } catch (e) {}
+          } catch (e) {
+          }
 
-          imageCache.set(src, img);
+          imageCache.set(src, true);
           resolve();
         };
 
@@ -952,7 +966,7 @@
       });
     }
 
-    async function preloadEntriesImages(list, limit = 80) {
+    async function preloadEntriesImages(list, limit = 6) {
       const targets = list.slice(0, Math.min(limit, list.length));
       await Promise.all(targets.map(entry => preloadImage(entry.media)));
     }
@@ -1004,6 +1018,9 @@
       document.getElementById("headlineText").textContent = entry.headline;
       document.getElementById("bodyText").textContent = entry.text || "";
       document.getElementById("captionText").textContent = entry.caption || "";
+      document.getElementById("mainImage").loading = "eager";
+      document.getElementById("mainImage").decoding = "async";
+      document.getElementById("mainImage").fetchPriority = "high";
 
       document.querySelectorAll(".timeline-item").forEach((el, i) => {
         el.classList.toggle("active", i === index);
@@ -1018,8 +1035,8 @@
         const item = document.createElement("div");
         item.className = "timeline-item";
         item.innerHTML = `
-          <div class="mini-date">${formatDate(entry)}</div>
-          <div class="mini-headline">${entry.headline}</div>
+          <div class="mini-date">${escapeHtml(formatDate(entry))}</div>
+          <div class="mini-headline">${escapeHtml(entry.headline)}</div>
         `;
         item.addEventListener("click", () => {
           currentIndex = i;
@@ -1050,7 +1067,7 @@
         reel.className = "reel";
         reel.innerHTML = `
           <div class="reel-window">
-            <img id="reelImg${i}" src="" alt="" />
+            <img id="reelImg${i}" src="" alt="" loading="lazy" decoding="async" fetchpriority="low" />
           </div>
           <div class="reel-caption" id="reelCaption${i}"></div>
           <button class="hold-btn" id="holdBtn${i}">Hold</button>
@@ -1145,24 +1162,23 @@
         }
       }
 
-      const previewSource = uniquePool.length >= 24
-        ? uniquePool.slice(0, 24)
+      const previewSource = uniquePool.length >= 10
+        ? uniquePool.slice(0, 10)
         : uniquePool;
 
       slotPreviewPool = previewSource;
-      preloadEntriesImages(slotPreviewPool, slotPreviewPool.length).catch(() => {});
       await Promise.all(chosenFinals.map(entry => ensureEntryImage(entry)));
 
       const spinPromises = reelIndexesToSpin.map((reelIndex, i) => {
         let previewPool;
 
         if (forceAll) {
-          previewPool = sampleEntries(pool, Math.min(10, pool.length));
+          previewPool = sampleEntries(pool, Math.min(6, pool.length));
         } else {
           const rotatedPreview = shuffledCopy(
             slotPreviewPool.filter(entry => entry.media !== chosenFinals[i].media)
           );
-          previewPool = rotatedPreview.length ? rotatedPreview.slice(0, 10) : [chosenFinals[i]];
+          previewPool = rotatedPreview.length ? rotatedPreview.slice(0, 6) : [chosenFinals[i]];
         }
 
         return animateReelSpin(
@@ -1259,7 +1275,7 @@
       toolbar.classList.remove("hidden");
       toolbar.innerHTML = `
         <button class="photos-back-btn" id="photosBackBtn">Back</button>
-        <div class="photos-breadcrumb">${crumb}</div>
+        <div class="photos-breadcrumb">${escapeHtml(crumb)}</div>
       `;
 
       document.getElementById("photosBackBtn").addEventListener("click", () => {
@@ -1299,9 +1315,9 @@
         content.innerHTML = `
           <div class="photos-grid-years">
             ${byYear.map(([year, list]) => `
-              <div class="photo-group-card" data-year="${year}">
-                <img src="${list[0].media}" alt="${year}">
-                <div class="photo-group-label">${year}</div>
+              <div class="photo-group-card" data-year="${escapeHtml(year)}">
+                ${buildImgTag(list[0].media, year, 'fetchpriority="low"')}
+                <div class="photo-group-label">${escapeHtml(year)}</div>
               </div>
             `).join("")}
           </div>
@@ -1326,12 +1342,12 @@
 
         content.innerHTML = byMonth.map(([key, list]) => `
           <section class="photos-section">
-            <h2 class="photos-section-title">${formatMonthTitle(list[0].year, list[0].month)}</h2>
+            <h2 class="photos-section-title">${escapeHtml(formatMonthTitle(list[0].year, list[0].month))}</h2>
             <div class="photos-grid-months">
               <div class="photo-group-card" data-year="${list[0].year}" data-month="${list[0].month}">
-                <img src="${list[0].media}" alt="${formatMonthTitle(list[0].year, list[0].month)}">
+                ${buildImgTag(list[0].media, formatMonthTitle(list[0].year, list[0].month), 'fetchpriority="low"')}
                 <div class="photo-group-label">
-                  ${new Date(list[0].year, list[0].month - 1, 1).toLocaleDateString("en-AU", { month: "long" })}
+                  ${escapeHtml(new Date(list[0].year, list[0].month - 1, 1).toLocaleDateString("en-AU", { month: "long" }))}
                 </div>
               </div>
             </div>
@@ -1360,14 +1376,14 @@
             ${byDay.map(([key, list]) => `
               <div class="photo-card" data-year="${list[0].year}" data-month="${list[0].month}" data-day="${list[0].day}">
                 <div class="photo-card-image">
-                  <img src="${list[0].media}" alt="${formatDate(list[0])}">
+                  ${buildImgTag(list[0].media, formatDate(list[0]), 'fetchpriority="low"')}
                 </div>
                 <div class="photo-card-meta">
-                  <strong>${new Date(list[0].year, list[0].month - 1, list[0].day).toLocaleDateString("en-AU", {
+                  <strong>${escapeHtml(new Date(list[0].year, list[0].month - 1, list[0].day).toLocaleDateString("en-AU", {
                     day: "numeric",
                     month: "long",
                     year: "numeric"
-                  })}</strong>
+                  }))}</strong>
                   ${list.length} photo${list.length === 1 ? "" : "s"}
                 </div>
               </div>
@@ -1393,13 +1409,13 @@
         content.innerHTML = `
           <div class="photos-grid-all">
             ${sorted.map(entry => `
-              <div class="photo-card" data-src="${entry.media}" data-alt="${entry.headline}">
+              <div class="photo-card" data-src="${escapeHtml(entry.media)}" data-alt="${escapeHtml(entry.headline)}">
                 <div class="photo-card-image">
-                  <img src="${entry.media}" alt="${entry.headline}">
+                  ${buildImgTag(entry.media, entry.headline, 'fetchpriority="low"')}
                 </div>
                 <div class="photo-card-meta">
-                  <strong>${entry.headline}</strong>
-                  ${formatDate(entry)}
+                  <strong>${escapeHtml(entry.headline)}</strong>
+                  ${escapeHtml(formatDate(entry))}
                 </div>
               </div>
             `).join("")}
@@ -1416,16 +1432,20 @@
       updatePhotosToolbar();
     }
 
-    document.getElementById("prevBtn").addEventListener("click", () => {
+    document.getElementById("prevBtn").addEventListener("click", async () => {
       currentIndex = Math.max(0, currentIndex - 1);
       renderEntry(currentIndex);
       scrollTimelineItemIntoView(currentIndex);
+      const nextEntry = entries[Math.min(entries.length - 1, currentIndex + 1)];
+      ensureEntryImage(nextEntry);
     });
 
-    document.getElementById("nextBtn").addEventListener("click", () => {
+    document.getElementById("nextBtn").addEventListener("click", async () => {
       currentIndex = Math.min(entries.length - 1, currentIndex + 1);
       renderEntry(currentIndex);
       scrollTimelineItemIntoView(currentIndex);
+      const nextEntry = entries[Math.min(entries.length - 1, currentIndex + 1)];
+      ensureEntryImage(nextEntry);
     });
 
     document.getElementById("spinBtn").addEventListener("click", () => {
@@ -1538,9 +1558,8 @@
           openLightbox(entry.media, entry.headline);
         });
 
-        slotPreviewPool = sampleEntries(entries, 24);
-        preloadEntriesImages(slotPreviewPool, 24).catch(() => {});
-        preloadEntriesImages(entries, 12).catch(() => {});
+        await preloadEntriesImages(entries, 2);
+        slotPreviewPool = sampleEntries(entries, 8);
       } catch (err) {
         const msg =
           err.name === "AbortError"
