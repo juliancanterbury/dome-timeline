@@ -196,7 +196,6 @@
       object-fit: cover;
       object-position: center center;
       display: block;
-      transform: translateX(0) scale(1);
       opacity: 1;
     }
 
@@ -738,7 +737,7 @@
   </div>
 
   <script>
-    const SHEET_ID = "1wDHuoi8_cpGx0wYemSWE86Oxwiz9_QIUAVNxUAhAk8A";
+    const SHEET_ID = "1wDHuoi8_cpGxOwYemSWE86Oxwiz9_QIUAVNxUAhAk8A";
     const SHEET_TAB = "PUBLISH";
 
     const SMALL_IMAGE_PATH = "https://juliancanterbury.github.io/dome-timeline/Images/Small/";
@@ -774,12 +773,52 @@
       return LARGE_IMAGE_PATH + encodeURI(fileName);
     }
 
+    function parseCSV(text) {
+      const rows = [];
+      let row = [];
+      let cell = "";
+      let insideQuotes = false;
+
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const next = text[i + 1];
+
+        if (char === '"' && insideQuotes && next === '"') {
+          cell += '"';
+          i++;
+        } else if (char === '"') {
+          insideQuotes = !insideQuotes;
+        } else if (char === "," && !insideQuotes) {
+          row.push(cell);
+          cell = "";
+        } else if ((char === "\n" || char === "\r") && !insideQuotes) {
+          if (cell || row.length) {
+            row.push(cell);
+            rows.push(row);
+            row = [];
+            cell = "";
+          }
+          if (char === "\r" && next === "\n") i++;
+        } else {
+          cell += char;
+        }
+      }
+
+      if (cell || row.length) {
+        row.push(cell);
+        rows.push(row);
+      }
+
+      return rows;
+    }
+
     async function loadSheetData() {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 12000);
 
       try {
         const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${SHEET_TAB}`;
+
         const res = await fetch(url, {
           method: "GET",
           cache: "no-store",
@@ -788,10 +827,19 @@
 
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-        const data = await res.json();
+        const csvText = await res.text();
+        const rows = parseCSV(csvText);
 
-        return data
-          .map((row, index) => {
+        const headers = rows[0].map(h => h.trim());
+        const dataRows = rows.slice(1);
+
+        return dataRows
+          .map((values, index) => {
+            const row = {};
+            headers.forEach((header, i) => {
+              row[header] = values[i] ?? "";
+            });
+
             const fileName = cleanFileName(
               row.Filename ??
               row.FileName ??
@@ -800,23 +848,21 @@
               ""
             );
 
-            const year = Number(String(row.Year ?? row.YEAR ?? "").replace(/,/g, ""));
-            const month = Number(String(row.Month ?? row.MONTH ?? "").replace(/,/g, ""));
-            const day = Number(String(row.Day ?? row.DAY ?? "").replace(/,/g, ""));
+            const year = parseInt(String(row.Year ?? "").replace(/,/g, "").trim(), 10);
+            const month = parseInt(String(row.Month ?? "").replace(/,/g, "").trim(), 10);
+            const day = parseInt(String(row.Day ?? "").replace(/,/g, "").trim(), 10);
 
-            const headline =
-              String(row.Headline ?? row.HEADLINE ?? "").trim() ||
-              "Untitled";
+            const headline = String(row.Headline ?? "").trim() || "Untitled";
 
             return {
               id: `${fileName}-${index}`,
-              year: year,
-              month: month,
-              day: day,
-              headline: headline,
-              text: row.Text ?? row.TEXT ?? "",
-              caption: row.Caption ?? row.CAPTION ?? "",
-              fileName: fileName,
+              year,
+              month,
+              day,
+              headline,
+              text: row.Text ?? "",
+              caption: row.Caption ?? "",
+              fileName,
               mediaSmall: fileName ? getSmallPath(fileName) : "",
               mediaLarge: fileName ? getLargePath(fileName) : ""
             };
@@ -831,6 +877,7 @@
             return new Date(a.year, a.month - 1, a.day) -
                    new Date(b.year, b.month - 1, b.day);
           });
+
       } finally {
         clearTimeout(timeout);
       }
@@ -850,15 +897,6 @@
       return d.toLocaleDateString("en-AU", {
         month: "long",
         year: "numeric"
-      });
-    }
-
-    function formatDayTitle(entry) {
-      const d = new Date(entry.year, entry.month - 1, entry.day);
-      return d.toLocaleDateString("en-AU", {
-        weekday: "short",
-        day: "numeric",
-        month: "short"
       });
     }
 
@@ -940,35 +978,11 @@
       await preloadImage(entry.mediaSmall);
     }
 
-    function animateImageSwap(imgEl, newSrc, newAlt = "") {
+    function setImage(imgEl, newSrc, newAlt = "") {
       if (!newSrc) return;
-
-      if (imgEl.dataset.currentSrc === newSrc) {
-        imgEl.alt = newAlt;
-        return;
-      }
-
-      imgEl.style.transition = "none";
-      imgEl.style.transform = "translateX(10px) scale(0.992)";
-      imgEl.style.opacity = "0";
-
-      setTimeout(() => {
-        imgEl.onload = null;
-        imgEl.src = newSrc;
-        imgEl.alt = newAlt;
-        imgEl.dataset.currentSrc = newSrc;
-
-        imgEl.onload = () => {
-          imgEl.style.transition = "all 0.24s cubic-bezier(0.22, 1, 0.36, 1)";
-          imgEl.style.transform = "translateX(0px) scale(1.002)";
-          imgEl.style.opacity = "1";
-
-          setTimeout(() => {
-            imgEl.style.transition = "all 0.12s ease-out";
-            imgEl.style.transform = "translateX(0px) scale(1)";
-          }, 140);
-        };
-      }, 30);
+      imgEl.src = newSrc;
+      imgEl.alt = newAlt;
+      imgEl.dataset.currentSrc = newSrc;
     }
 
     function renderEntry(index) {
@@ -977,7 +991,7 @@
       const entry = entries[index];
       const mainImage = document.getElementById("mainImage");
 
-      animateImageSwap(mainImage, entry.mediaSmall, entry.headline);
+      setImage(mainImage, entry.mediaSmall, entry.headline);
       document.getElementById("dateText").textContent = formatDate(entry);
       document.getElementById("headlineText").textContent = entry.headline;
       document.getElementById("bodyText").textContent = entry.text || "";
@@ -1067,7 +1081,7 @@
     function setReelVisual(index, entry) {
       const img = document.getElementById(`reelImg${index}`);
       const caption = document.getElementById(`reelCaption${index}`);
-      animateImageSwap(img, entry.mediaSmall, entry.headline);
+      setImage(img, entry.mediaSmall, entry.headline);
       caption.textContent = `${entry.headline} — ${formatDate(entry)}`;
     }
 
@@ -1522,11 +1536,7 @@
         await preloadEntriesImages(entries, 2);
         slotPreviewPool = sampleEntries(entries, 8);
       } catch (err) {
-        const msg =
-          err.name === "AbortError"
-            ? "Timed out loading sheet data."
-            : "Failed to load sheet data.";
-        document.getElementById("loadingMessage").textContent = msg;
+        document.getElementById("loadingMessage").textContent = "Failed to load sheet data.";
         console.error(err);
       }
     }
