@@ -641,73 +641,36 @@
       return LARGE_IMAGE_PATH + encodeURI(fileName);
     }
 
-    function parseCSV(text) {
-      const rows = [];
-      let row = [];
-      let cell = "";
-      let insideQuotes = false;
-
-      for (let i = 0; i < text.length; i++) {
-        const char = text[i];
-        const next = text[i + 1];
-
-        if (char === '"' && insideQuotes && next === '"') {
-          cell += '"';
-          i++;
-        } else if (char === '"') {
-          insideQuotes = !insideQuotes;
-        } else if (char === "," && !insideQuotes) {
-          row.push(cell);
-          cell = "";
-        } else if ((char === "\n" || char === "\r") && !insideQuotes) {
-          if (cell || row.length) {
-            row.push(cell);
-            rows.push(row);
-            row = [];
-            cell = "";
-          }
-          if (char === "\r" && next === "\n") i++;
-        } else {
-          cell += char;
-        }
-      }
-
-      if (cell || row.length) {
-        row.push(cell);
-        rows.push(row);
-      }
-
-      return rows;
-    }
-
     async function loadSheetData() {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 12000);
 
       try {
-        const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${SHEET_TAB}`;
-        const res = await fetch(url, { method: "GET", cache: "no-store", signal: controller.signal });
+        const url = `https://opensheet.elk.sh/${SHEET_ID}/${SHEET_TAB}`;
+        const res = await fetch(url, {
+          method: "GET",
+          cache: "no-store",
+          signal: controller.signal
+        });
+
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-        const csvText = await res.text();
-        const rows = parseCSV(csvText);
-        if (!rows.length) return [];
+        const data = await res.json();
 
-        const headers = rows[0].map(h => h.trim());
-        const dataRows = rows.slice(1);
+        return data
+          .map((row, index) => {
+            const fileName = cleanFileName(
+              row.Filename ??
+              row.FileName ??
+              row.FILENAME ??
+              row.filename ??
+              ""
+            );
 
-        return dataRows
-          .map((values, index) => {
-            const row = {};
-            headers.forEach((header, i) => {
-              row[header] = values[i] ?? "";
-            });
-
-            const fileName = cleanFileName(row.Filename ?? row.FileName ?? row.FILENAME ?? row.filename ?? "");
-            const year = parseInt(String(row.Year ?? "").replace(/,/g, "").trim(), 10);
-            const month = parseInt(String(row.Month ?? "").replace(/,/g, "").trim(), 10);
-            const day = parseInt(String(row.Day ?? "").replace(/,/g, "").trim(), 10);
-            const headline = String(row.Headline ?? "").trim() || "Untitled";
+            const year = parseInt(String(row.Year ?? row.YEAR ?? "").replace(/,/g, "").trim(), 10);
+            const month = parseInt(String(row.Month ?? row.MONTH ?? "").replace(/,/g, "").trim(), 10);
+            const day = parseInt(String(row.Day ?? row.DAY ?? "").replace(/,/g, "").trim(), 10);
+            const headline = String(row.Headline ?? row.HEADLINE ?? "").trim() || "Untitled";
 
             return {
               id: `${fileName}-${index}`,
@@ -715,8 +678,8 @@
               month,
               day,
               headline,
-              text: row.Text ?? "",
-              caption: row.Caption ?? "",
+              text: row.Text ?? row.TEXT ?? "",
+              caption: row.Caption ?? row.CAPTION ?? "",
               fileName,
               mediaSmall: fileName ? getSmallPath(fileName) : "",
               mediaLarge: fileName ? getLargePath(fileName) : ""
