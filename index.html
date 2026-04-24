@@ -13,7 +13,6 @@
       --line: #b5aa97;
       --accent: #8d7558;
       --shadow: 0 1px 0 rgba(47, 38, 29, 0.03);
-      --frame-pad: 18px;
     }
 
     * { box-sizing: border-box; }
@@ -179,23 +178,29 @@
       min-width: 0;
     }
 
+    /* Timeline image now fills the full panel */
     .image-panel {
       width: fit-content;
       justify-self: start;
+      padding: 0;
+      overflow: hidden;
+      background: transparent;
+      border-radius: 20px;
     }
 
     .image-shell {
-      width: min(100%, 540px);
-      padding: var(--frame-pad);
+      width: 540px;
+      max-width: min(100vw - 120px, 540px);
+      padding: 0;
+      margin: 0;
     }
 
     .image-frame {
-      width: 540px;
-      max-width: min(100vw - 120px, 540px);
+      width: 100%;
       aspect-ratio: 0.72;
       max-height: 70vh;
       overflow: hidden;
-      border-radius: 18px;
+      border-radius: 20px;
       background: transparent;
       position: relative;
       cursor: zoom-in;
@@ -210,7 +215,7 @@
       display: block;
       transform: translateX(0) scale(1);
       opacity: 1;
-      border-radius: 18px;
+      border-radius: 20px;
     }
 
     .reel-window img,
@@ -578,7 +583,8 @@
       }
 
       .image-shell {
-        width: min(100%, 500px);
+        width: 100%;
+        max-width: 500px;
         margin: 0 auto;
       }
 
@@ -626,8 +632,13 @@
         padding: 12px;
       }
 
+      .image-panel {
+        padding: 0;
+      }
+
       .image-shell {
-        width: min(100%, 420px);
+        width: 100%;
+        max-width: 420px;
       }
 
       .image-frame {
@@ -686,7 +697,7 @@
       }
 
       .image-shell {
-        width: min(100%, 360px);
+        max-width: 360px;
       }
 
       .image-frame {
