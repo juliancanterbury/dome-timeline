@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dome Timeline + Slot Live</title>
+  <title>Dome Timeline</title>
+
   <style>
     :root {
       --bg: #e9e2d3;
@@ -17,9 +18,7 @@
 
     * { box-sizing: border-box; }
 
-    html {
-      -webkit-text-size-adjust: 100%;
-    }
+    html { -webkit-text-size-adjust: 100%; }
 
     body {
       margin: 0;
@@ -28,8 +27,6 @@
       font-weight: 400;
       letter-spacing: -0.01em;
       -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      text-rendering: optimizeLegibility;
       background: var(--bg);
       color: var(--text);
     }
@@ -55,11 +52,6 @@
       gap: 16px;
       flex-wrap: wrap;
       margin-bottom: 12px;
-      flex: 0 0 auto;
-    }
-
-    .title-wrap {
-      min-width: 0;
     }
 
     .mode-badge {
@@ -112,13 +104,8 @@
       transition: background 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
     }
 
-    button:hover {
-      background: #cec3b0;
-    }
-
-    button:active {
-      transform: translateY(1px);
-    }
+    button:hover { background: #cec3b0; }
+    button:active { transform: translateY(1px); }
 
     .active-mode-btn,
     .view-btn.active {
@@ -127,15 +114,12 @@
       border-color: var(--accent);
     }
 
-    .hidden {
-      display: none !important;
-    }
+    .hidden { display: none !important; }
 
     .loading {
       color: var(--muted);
       padding: 20px 0;
       font-size: 14px;
-      letter-spacing: -0.01em;
     }
 
     #appShell {
@@ -159,7 +143,6 @@
 
     .timeline-top-controls {
       margin-bottom: 10px;
-      flex: 0 0 auto;
     }
 
     .timeline-layout {
@@ -167,8 +150,6 @@
       grid-template-columns: auto minmax(320px, 1fr);
       gap: 14px;
       align-items: start;
-      min-height: 0;
-      flex: 0 0 auto;
     }
 
     .panel {
@@ -178,7 +159,6 @@
       min-width: 0;
     }
 
-    /* Timeline image now fills the full panel */
     .image-panel {
       width: fit-content;
       justify-self: start;
@@ -207,17 +187,7 @@
       padding: 0;
     }
 
-    .image-frame img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center center;
-      display: block;
-      transform: translateX(0) scale(1);
-      opacity: 1;
-      border-radius: 20px;
-    }
-
+    .image-frame img,
     .reel-window img,
     .photo-card-image img,
     .photo-group-card img {
@@ -228,6 +198,10 @@
       display: block;
       transform: translateX(0) scale(1);
       opacity: 1;
+    }
+
+    .image-frame img {
+      border-radius: 20px;
     }
 
     .date {
@@ -253,13 +227,11 @@
       line-height: 1.4;
       margin-bottom: 10px;
       font-weight: 400;
-      letter-spacing: -0.012em;
     }
 
     .caption {
       font-size: 13px;
       color: var(--muted);
-      letter-spacing: -0.01em;
     }
 
     .timeline-strip {
@@ -269,7 +241,6 @@
       overflow-x: auto;
       overflow-y: hidden;
       scrollbar-width: thin;
-      flex: 0 0 auto;
     }
 
     .timeline-track {
@@ -364,7 +335,6 @@
       margin-top: 8px;
       min-height: 32px;
       line-height: 1.25;
-      letter-spacing: -0.01em;
     }
 
     .hold-btn {
@@ -412,15 +382,10 @@
     .photos-breadcrumb {
       font-size: 14px;
       color: var(--muted);
-      letter-spacing: -0.01em;
     }
 
     .photos-back-btn {
       padding: 8px 12px;
-    }
-
-    .photos-content {
-      min-height: 0;
     }
 
     .photos-grid-years,
@@ -496,10 +461,6 @@
       border-radius: 16px;
       overflow: hidden;
       background: #c8bead;
-    }
-
-    .photo-card-image.tall {
-      aspect-ratio: 0.8;
     }
 
     .photo-card-meta {
@@ -588,11 +549,6 @@
         margin: 0 auto;
       }
 
-      .image-frame {
-        width: 100%;
-        max-width: 100%;
-      }
-
       .slot-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
       }
@@ -616,24 +572,8 @@
         padding: 12px;
       }
 
-      .topbar {
-        gap: 10px;
-      }
-
       .title {
         font-size: 22px;
-      }
-
-      .timeline-layout {
-        gap: 12px;
-      }
-
-      .panel {
-        padding: 12px;
-      }
-
-      .image-panel {
-        padding: 0;
       }
 
       .image-shell {
@@ -692,10 +632,6 @@
         flex: 1 1 auto;
       }
 
-      .photos-controls {
-        justify-content: flex-start;
-      }
-
       .image-shell {
         max-width: 360px;
       }
@@ -706,14 +642,6 @@
 
       .headline {
         font-size: 28px;
-      }
-
-      .timeline-item {
-        width: 82px;
-      }
-
-      .mini-headline {
-        font-size: 10px;
       }
 
       .slot-grid,
@@ -728,10 +656,11 @@
     }
   </style>
 </head>
+
 <body>
   <div class="wrap">
     <div class="topbar">
-      <div class="title-wrap">
+      <div>
         <div class="mode-badge" id="modeBadge">Timeline Mode</div>
         <h1 class="title">Dome Archive Prototype</h1>
       </div>
@@ -796,7 +725,7 @@
         </div>
 
         <div id="photosToolbar" class="photos-toolbar hidden"></div>
-        <div id="photosContent" class="photos-content"></div>
+        <div id="photosContent"></div>
       </div>
     </div>
   </div>
@@ -810,6 +739,10 @@
 
   <script>
     const SHEET_ID = "1NMuYR_V3aQGbiBd4kfkBCdTxe6R_Apn6TisCfn40dyc";
+    const SHEET_TAB = "PUBLISH";
+
+    const SMALL_IMAGE_PATH = "Images/Small/";
+    const LARGE_IMAGE_PATH = "Images/Large/";
 
     let entries = [];
     let currentIndex = 0;
@@ -829,42 +762,63 @@
       entry: null
     }));
 
+    function cleanFileName(value) {
+      return String(value ?? "").trim();
+    }
+
+    function getSmallPath(fileName) {
+      return SMALL_IMAGE_PATH + encodeURIComponent(fileName).replace(/%2F/g, "/");
+    }
+
+    function getLargePath(fileName) {
+      return LARGE_IMAGE_PATH + encodeURIComponent(fileName).replace(/%2F/g, "/");
+    }
+
     async function loadSheetData() {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 12000);
 
       try {
-        const url = `https://opensheet.elk.sh/${SHEET_ID}/PUBLISH`;
+        const url = `https://opensheet.elk.sh/${SHEET_ID}/${SHEET_TAB}`;
         const res = await fetch(url, {
           method: "GET",
           cache: "no-store",
           signal: controller.signal
         });
 
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}`);
-        }
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
         const data = await res.json();
 
         return data
-          .map((row, index) => ({
-            id: `${row.Media ?? row.MEDIA ?? ""}-${index}`,
-            year: Number(row.Year ?? row.YEAR ?? ""),
-            month: Number(row.Month ?? row.MONTH ?? ""),
-            day: Number(row.Day ?? row.DAY ?? ""),
-            headline: row.Headline ?? row.HEADLINE ?? "",
-            text: row.Text ?? row.TEXT ?? "",
-            media: row.Media ?? row.MEDIA ?? "",
-            caption: row.Caption ?? row.CAPTION ?? ""
-          }))
+          .map((row, index) => {
+            const fileName = cleanFileName(row.FileName ?? row.FILENAME ?? row.Filename ?? "");
+            const fallbackMedia = row.Media ?? row.MEDIA ?? "";
+
+            return {
+              id: `${fileName || fallbackMedia}-${index}`,
+              year: Number(row.Year ?? row.YEAR ?? ""),
+              month: Number(row.Month ?? row.MONTH ?? ""),
+              day: Number(row.Day ?? row.DAY ?? ""),
+              headline: row.Headline ?? row.HEADLINE ?? "",
+              text: row.Text ?? row.TEXT ?? "",
+              caption: row.Caption ?? row.CAPTION ?? "",
+              fileName: fileName,
+              mediaSmall: fileName ? getSmallPath(fileName) : fallbackMedia,
+              mediaLarge: fileName ? getLargePath(fileName) : fallbackMedia
+            };
+          })
           .filter(row =>
             row.year &&
             row.month &&
             row.day &&
             row.headline &&
-            row.media
-          );
+            (row.fileName || row.mediaSmall)
+          )
+          .sort((a, b) => {
+            return new Date(a.year, a.month - 1, a.day) -
+                   new Date(b.year, b.month - 1, b.day);
+          });
       } finally {
         clearTimeout(timeout);
       }
@@ -945,46 +899,33 @@
 
     function preloadImage(src) {
       return new Promise((resolve) => {
-        if (!src) {
-          resolve();
-          return;
-        }
-
-        if (imageCache.has(src)) {
-          resolve();
-          return;
-        }
+        if (!src) return resolve();
+        if (imageCache.has(src)) return resolve();
 
         const img = new Image();
 
         img.onload = async () => {
           try {
-            if (img.decode) {
-              await img.decode();
-            }
-          } catch (e) {
-          }
+            if (img.decode) await img.decode();
+          } catch (e) {}
 
           imageCache.set(src, true);
           resolve();
         };
 
-        img.onerror = () => {
-          resolve();
-        };
-
+        img.onerror = () => resolve();
         img.src = src;
       });
     }
 
     async function preloadEntriesImages(list, limit = 6) {
       const targets = list.slice(0, Math.min(limit, list.length));
-      await Promise.all(targets.map(entry => preloadImage(entry.media)));
+      await Promise.all(targets.map(entry => preloadImage(entry.mediaSmall)));
     }
 
     async function ensureEntryImage(entry) {
-      if (!entry || !entry.media) return;
-      await preloadImage(entry.media);
+      if (!entry || !entry.mediaSmall) return;
+      await preloadImage(entry.mediaSmall);
     }
 
     function animateImageSwap(imgEl, newSrc, newAlt = "") {
@@ -1024,14 +965,15 @@
       const entry = entries[index];
       const mainImage = document.getElementById("mainImage");
 
-      animateImageSwap(mainImage, entry.media, entry.headline);
+      animateImageSwap(mainImage, entry.mediaSmall, entry.headline);
       document.getElementById("dateText").textContent = formatDate(entry);
       document.getElementById("headlineText").textContent = entry.headline;
       document.getElementById("bodyText").textContent = entry.text || "";
       document.getElementById("captionText").textContent = entry.caption || "";
-      document.getElementById("mainImage").loading = "eager";
-      document.getElementById("mainImage").decoding = "async";
-      document.getElementById("mainImage").fetchPriority = "high";
+
+      mainImage.loading = "eager";
+      mainImage.decoding = "async";
+      mainImage.fetchPriority = "high";
 
       document.querySelectorAll(".timeline-item").forEach((el, i) => {
         el.classList.toggle("active", i === index);
@@ -1065,7 +1007,8 @@
       return entries.filter(entry =>
         (entry.headline || "").toLowerCase().includes(t) ||
         (entry.text || "").toLowerCase().includes(t) ||
-        (entry.caption || "").toLowerCase().includes(t)
+        (entry.caption || "").toLowerCase().includes(t) ||
+        (entry.fileName || "").toLowerCase().includes(t)
       );
     }
 
@@ -1096,7 +1039,7 @@
         reelImg.addEventListener("click", () => {
           const entry = reelState[i].entry;
           if (!entry) return;
-          openLightbox(entry.media, entry.headline);
+          openLightbox(entry.mediaLarge, entry.headline);
         });
       }
     }
@@ -1112,13 +1055,12 @@
     function setReelVisual(index, entry) {
       const img = document.getElementById(`reelImg${index}`);
       const caption = document.getElementById(`reelCaption${index}`);
-      animateImageSwap(img, entry.media, entry.headline);
+      animateImageSwap(img, entry.mediaSmall, entry.headline);
       caption.textContent = `${entry.headline} — ${formatDate(entry)}`;
     }
 
     async function animateReelSpin(index, previewPool, finalEntry, stopDelay = 0) {
       await ensureEntryImage(finalEntry);
-
       const localPreviewPool = previewPool.length ? previewPool : [finalEntry];
 
       return new Promise(resolve => {
@@ -1187,17 +1129,12 @@
           previewPool = sampleEntries(pool, Math.min(6, pool.length));
         } else {
           const rotatedPreview = shuffledCopy(
-            slotPreviewPool.filter(entry => entry.media !== chosenFinals[i].media)
+            slotPreviewPool.filter(entry => entry.mediaSmall !== chosenFinals[i].mediaSmall)
           );
           previewPool = rotatedPreview.length ? rotatedPreview.slice(0, 6) : [chosenFinals[i]];
         }
 
-        return animateReelSpin(
-          reelIndex,
-          previewPool,
-          chosenFinals[i],
-          i * 140
-        );
+        return animateReelSpin(reelIndex, previewPool, chosenFinals[i], i * 140);
       });
 
       await Promise.all(spinPromises);
@@ -1327,7 +1264,7 @@
           <div class="photos-grid-years">
             ${byYear.map(([year, list]) => `
               <div class="photo-group-card" data-year="${escapeHtml(year)}">
-                ${buildImgTag(list[0].media, year, 'fetchpriority="low"')}
+                ${buildImgTag(list[0].mediaSmall, year, 'fetchpriority="low"')}
                 <div class="photo-group-label">${escapeHtml(year)}</div>
               </div>
             `).join("")}
@@ -1356,7 +1293,7 @@
             <h2 class="photos-section-title">${escapeHtml(formatMonthTitle(list[0].year, list[0].month))}</h2>
             <div class="photos-grid-months">
               <div class="photo-group-card" data-year="${list[0].year}" data-month="${list[0].month}">
-                ${buildImgTag(list[0].media, formatMonthTitle(list[0].year, list[0].month), 'fetchpriority="low"')}
+                ${buildImgTag(list[0].mediaSmall, formatMonthTitle(list[0].year, list[0].month), 'fetchpriority="low"')}
                 <div class="photo-group-label">
                   ${escapeHtml(new Date(list[0].year, list[0].month - 1, 1).toLocaleDateString("en-AU", { month: "long" }))}
                 </div>
@@ -1387,7 +1324,7 @@
             ${byDay.map(([key, list]) => `
               <div class="photo-card" data-year="${list[0].year}" data-month="${list[0].month}" data-day="${list[0].day}">
                 <div class="photo-card-image">
-                  ${buildImgTag(list[0].media, formatDate(list[0]), 'fetchpriority="low"')}
+                  ${buildImgTag(list[0].mediaSmall, formatDate(list[0]), 'fetchpriority="low"')}
                 </div>
                 <div class="photo-card-meta">
                   <strong>${escapeHtml(new Date(list[0].year, list[0].month - 1, list[0].day).toLocaleDateString("en-AU", {
@@ -1420,9 +1357,9 @@
         content.innerHTML = `
           <div class="photos-grid-all">
             ${sorted.map(entry => `
-              <div class="photo-card" data-src="${escapeHtml(entry.media)}" data-alt="${escapeHtml(entry.headline)}">
+              <div class="photo-card" data-src="${escapeHtml(entry.mediaLarge)}" data-alt="${escapeHtml(entry.headline)}">
                 <div class="photo-card-image">
-                  ${buildImgTag(entry.media, entry.headline, 'fetchpriority="low"')}
+                  ${buildImgTag(entry.mediaSmall, entry.headline, 'fetchpriority="low"')}
                 </div>
                 <div class="photo-card-meta">
                   <strong>${escapeHtml(entry.headline)}</strong>
@@ -1542,7 +1479,8 @@
         entries = await loadSheetData();
 
         if (!entries.length) {
-          document.getElementById("loadingMessage").textContent = "No rows found in PUBLISH.";
+          document.getElementById("loadingMessage").textContent =
+            "No rows found. Check PUBLISH tab, FileName column, and image folders.";
           return;
         }
 
@@ -1566,7 +1504,7 @@
         document.getElementById("mainImage").addEventListener("click", () => {
           if (!entries.length) return;
           const entry = entries[currentIndex];
-          openLightbox(entry.media, entry.headline);
+          openLightbox(entry.mediaLarge, entry.headline);
         });
 
         await preloadEntriesImages(entries, 2);
