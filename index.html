@@ -738,11 +738,11 @@
   </div>
 
   <script>
-    const SHEET_ID = "1NMuYR_V3aQGbiBd4kfkBCdTxe6R_Apn6TisCfn40dyc";
+    const SHEET_ID = "1wDHuoi8_cpGxOwYemSWE86Oxwiz9_QIUAVNxUAhAk8A";
     const SHEET_TAB = "PUBLISH";
 
-    const SMALL_IMAGE_PATH = "Images/Small/";
-    const LARGE_IMAGE_PATH = "Images/Large/";
+    const SMALL_IMAGE_PATH = "https://juliancanterbury.github.io/dome-timeline/Images/Small/";
+    const LARGE_IMAGE_PATH = "https://juliancanterbury.github.io/dome-timeline/Images/Large/";
 
     let entries = [];
     let currentIndex = 0;
@@ -767,11 +767,11 @@
     }
 
     function getSmallPath(fileName) {
-      return SMALL_IMAGE_PATH + encodeURIComponent(fileName).replace(/%2F/g, "/");
+      return SMALL_IMAGE_PATH + encodeURI(fileName);
     }
 
     function getLargePath(fileName) {
-      return LARGE_IMAGE_PATH + encodeURIComponent(fileName).replace(/%2F/g, "/");
+      return LARGE_IMAGE_PATH + encodeURI(fileName);
     }
 
     async function loadSheetData() {
@@ -792,28 +792,40 @@
 
         return data
           .map((row, index) => {
-            const fileName = cleanFileName(row.FileName ?? row.FILENAME ?? row.Filename ?? "");
-            const fallbackMedia = row.Media ?? row.MEDIA ?? "";
+            const fileName = cleanFileName(
+              row.Filename ??
+              row.FileName ??
+              row.FILENAME ??
+              row.filename ??
+              ""
+            );
+
+            const year = Number(String(row.Year ?? row.YEAR ?? "").replace(/,/g, ""));
+            const month = Number(String(row.Month ?? row.MONTH ?? "").replace(/,/g, ""));
+            const day = Number(String(row.Day ?? row.DAY ?? "").replace(/,/g, ""));
+
+            const headline =
+              String(row.Headline ?? row.HEADLINE ?? "").trim() ||
+              "Untitled";
 
             return {
-              id: `${fileName || fallbackMedia}-${index}`,
-              year: Number(row.Year ?? row.YEAR ?? ""),
-              month: Number(row.Month ?? row.MONTH ?? ""),
-              day: Number(row.Day ?? row.DAY ?? ""),
-              headline: row.Headline ?? row.HEADLINE ?? "",
+              id: `${fileName}-${index}`,
+              year: year,
+              month: month,
+              day: day,
+              headline: headline,
               text: row.Text ?? row.TEXT ?? "",
               caption: row.Caption ?? row.CAPTION ?? "",
               fileName: fileName,
-              mediaSmall: fileName ? getSmallPath(fileName) : fallbackMedia,
-              mediaLarge: fileName ? getLargePath(fileName) : fallbackMedia
+              mediaSmall: fileName ? getSmallPath(fileName) : "",
+              mediaLarge: fileName ? getLargePath(fileName) : ""
             };
           })
           .filter(row =>
             row.year &&
             row.month &&
             row.day &&
-            row.headline &&
-            (row.fileName || row.mediaSmall)
+            row.fileName
           )
           .sort((a, b) => {
             return new Date(a.year, a.month - 1, a.day) -
@@ -928,36 +940,12 @@
       await preloadImage(entry.mediaSmall);
     }
 
-    function animateImageSwap(imgEl, newSrc, newAlt = "") {
-      if (!newSrc) return;
+function animateImageSwap(imgEl, newSrc, newAlt = "") {
+  if (!newSrc) return;
 
-      if (imgEl.dataset.currentSrc === newSrc) {
-        imgEl.alt = newAlt;
-        return;
-      }
-
-      imgEl.style.transition = "none";
-      imgEl.style.transform = "translateX(10px) scale(0.992)";
-      imgEl.style.opacity = "0";
-
-      setTimeout(() => {
-        imgEl.onload = null;
-        imgEl.src = newSrc;
-        imgEl.alt = newAlt;
-        imgEl.dataset.currentSrc = newSrc;
-
-        imgEl.onload = () => {
-          imgEl.style.transition = "all 0.24s cubic-bezier(0.22, 1, 0.36, 1)";
-          imgEl.style.transform = "translateX(0px) scale(1.002)";
-          imgEl.style.opacity = "1";
-
-          setTimeout(() => {
-            imgEl.style.transition = "all 0.12s ease-out";
-            imgEl.style.transform = "translateX(0px) scale(1)";
-          }, 140);
-        };
-      }, 30);
-    }
+  imgEl.src = newSrc;
+  imgEl.alt = newAlt;
+}
 
     function renderEntry(index) {
       if (!entries.length) return;
@@ -1480,7 +1468,7 @@
 
         if (!entries.length) {
           document.getElementById("loadingMessage").textContent =
-            "No rows found. Check PUBLISH tab, FileName column, and image folders.";
+            "No rows found. Check PUBLISH tab, Filename column, and image folders.";
           return;
         }
 
