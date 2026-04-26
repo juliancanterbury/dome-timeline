@@ -534,33 +534,6 @@
       background: rgba(255,255,255,0.22);
     }
 
-    .lightbox-actions {
-      position: absolute;
-      top: -8px;
-      right: 44px;
-      display: flex;
-      gap: 8px;
-      z-index: 10001;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    .lightbox-action-btn {
-      border: 1px solid rgba(255,255,255,0.2);
-      background: rgba(255,255,255,0.14);
-      color: white;
-      border-radius: 999px;
-      padding: 8px 12px;
-      font-size: 13px;
-      box-shadow: none;
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-    }
-
-    .lightbox-action-btn:hover {
-      background: rgba(255,255,255,0.24);
-    }
-
     @media (max-width: 1100px) {
       .timeline-layout {
         grid-template-columns: 1fr;
@@ -761,10 +734,6 @@
     <div class="lightbox-inner">
       <button id="lightboxClose" class="lightbox-close" aria-label="Close image">×</button>
       <img id="lightboxImage" src="" alt="" decoding="async" />
-      <div class="lightbox-actions">
-        <button id="lightboxTimelineBtn" class="lightbox-action-btn">Open in Timeline</button>
-        <button id="lightboxPhotosBtn" class="lightbox-action-btn">Open in Photos</button>
-      </div>
     </div>
   </div>
 
@@ -781,7 +750,6 @@
     const imageCache = new Map();
     let slotPreviewPool = [];
     let currentPhotoView = "years";
-    let lightboxEntryIndex = null;
 
     let photoNav = {
       year: null,
@@ -1083,7 +1051,7 @@
         reelImg.addEventListener("click", () => {
           const entry = reelState[i].entry;
           if (!entry) return;
-          openLightbox(entry.mediaLarge, entry.headline, entries.indexOf(entry));
+          openLightbox(entry.mediaLarge, entry.headline);
         });
       }
     }
@@ -1184,22 +1152,11 @@
       await Promise.all(spinPromises);
     }
 
-    function openLightbox(src, alt = "", entryIndex = null) {
+    function openLightbox(src, alt = "") {
       if (!src) return;
 
       const lightbox = document.getElementById("lightbox");
       const lightboxImage = document.getElementById("lightboxImage");
-
-      lightboxEntryIndex = entryIndex;
-
-      if (lightboxEntryIndex === null) {
-        const foundIndex = entries.findIndex(entry =>
-          entry.mediaLarge === src ||
-          entry.mediaSmall === src ||
-          entry.headline === alt
-        );
-        lightboxEntryIndex = foundIndex >= 0 ? foundIndex : null;
-      }
 
       lightboxImage.src = src;
       lightboxImage.alt = alt;
@@ -1218,7 +1175,6 @@
       lightbox.setAttribute("aria-hidden", "true");
       lightboxImage.src = "";
       lightboxImage.alt = "";
-      lightboxEntryIndex = null;
       document.body.style.overflow = "";
     }
 
@@ -1413,7 +1369,7 @@
         content.innerHTML = `
           <div class="photos-grid-all">
             ${sorted.map(entry => `
-              <div class="photo-card" data-src="${escapeHtml(entry.mediaLarge)}" data-alt="${escapeHtml(entry.headline)}" data-index="${entries.indexOf(entry)}">
+              <div class="photo-card" data-src="${escapeHtml(entry.mediaLarge)}" data-alt="${escapeHtml(entry.headline)}">
                 <div class="photo-card-image">
                   ${buildImgTag(entry.mediaSmall, entry.headline, 'fetchpriority="low"')}
                 </div>
@@ -1428,7 +1384,7 @@
 
         content.querySelectorAll("[data-src]").forEach(el => {
           el.addEventListener("click", () => {
-            openLightbox(el.dataset.src, el.dataset.alt || "", Number(el.dataset.index));
+            openLightbox(el.dataset.src, el.dataset.alt || "");
           });
         });
       }
@@ -1516,38 +1472,6 @@
       });
     });
 
-    function openCurrentLightboxImageInTimeline() {
-      if (lightboxEntryIndex === null || !entries[lightboxEntryIndex]) return;
-
-      const targetIndex = lightboxEntryIndex;
-      closeLightbox();
-      setMode("timeline");
-      currentIndex = targetIndex;
-      renderEntry(currentIndex);
-      setTimeout(() => scrollTimelineItemIntoView(currentIndex), 50);
-    }
-
-    function openCurrentLightboxImageInPhotos() {
-      if (lightboxEntryIndex === null || !entries[lightboxEntryIndex]) return;
-
-      const entry = entries[lightboxEntryIndex];
-      closeLightbox();
-      setMode("photos");
-
-      photoNav.year = entry.year;
-      photoNav.month = entry.month;
-      photoNav.day = entry.day;
-      renderPhotosMode("all");
-
-      setTimeout(() => {
-        const card = document.querySelector(`.photo-card[data-index="${lightboxEntryIndex}"]`);
-        if (card) card.scrollIntoView({ behavior: "smooth", block: "center" });
-      }, 80);
-    }
-
-    document.getElementById("lightboxTimelineBtn").addEventListener("click", openCurrentLightboxImageInTimeline);
-    document.getElementById("lightboxPhotosBtn").addEventListener("click", openCurrentLightboxImageInPhotos);
-
     document.getElementById("lightboxClose").addEventListener("click", closeLightbox);
 
     document.getElementById("lightbox").addEventListener("click", (e) => {
@@ -1592,7 +1516,7 @@
         document.getElementById("mainImage").addEventListener("click", () => {
           if (!entries.length) return;
           const entry = entries[currentIndex];
-          openLightbox(entry.mediaLarge, entry.headline, entries.indexOf(entry));
+          openLightbox(entry.mediaLarge, entry.headline);
         });
 
         await preloadEntriesImages(entries, 2);
