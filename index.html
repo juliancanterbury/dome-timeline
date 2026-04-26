@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dome Timeline</title>
+
   <style>
     :root {
       --bg: #e9e2d3;
@@ -16,11 +17,13 @@
     }
 
     * { box-sizing: border-box; }
+
     html { -webkit-text-size-adjust: 100%; }
 
     body {
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+        "Helvetica Neue", Helvetica, Arial, sans-serif;
       font-weight: 400;
       letter-spacing: -0.01em;
       -webkit-font-smoothing: antialiased;
@@ -28,7 +31,10 @@
       color: var(--text);
     }
 
-    img { max-width: 100%; height: auto; }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
 
     .wrap {
       max-width: 1240px;
@@ -130,8 +136,14 @@
       min-height: 0;
     }
 
-    #timelineMode { display: flex; flex-direction: column; }
-    .timeline-top-controls { margin-bottom: 10px; }
+    #timelineMode {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .timeline-top-controls {
+      margin-bottom: 10px;
+    }
 
     .timeline-layout {
       display: grid;
@@ -184,10 +196,13 @@
       object-fit: cover;
       object-position: center center;
       display: block;
+      transform: translateX(0) scale(1);
       opacity: 1;
     }
 
-    .image-frame img { border-radius: 20px; }
+    .image-frame img {
+      border-radius: 20px;
+    }
 
     .date {
       font-size: 11px;
@@ -287,7 +302,9 @@
       word-break: break-word;
     }
 
-    .slot-controls { margin-bottom: 16px; }
+    .slot-controls {
+      margin-bottom: 16px;
+    }
 
     .slot-grid {
       display: grid;
@@ -320,10 +337,21 @@
       line-height: 1.25;
     }
 
-    .hold-btn { width: 100%; margin-top: 10px; }
-    .hold-btn.held { background: var(--accent); color: white; border-color: var(--accent); }
+    .hold-btn {
+      width: 100%;
+      margin-top: 10px;
+    }
 
-    .photos-controls { margin-bottom: 14px; justify-content: center; }
+    .hold-btn.held {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    .photos-controls {
+      margin-bottom: 14px;
+      justify-content: center;
+    }
 
     .photos-segmented {
       display: inline-flex;
@@ -351,8 +379,14 @@
       flex-wrap: wrap;
     }
 
-    .photos-breadcrumb { font-size: 14px; color: var(--muted); }
-    .photos-back-btn { padding: 8px 12px; }
+    .photos-breadcrumb {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .photos-back-btn {
+      padding: 8px 12px;
+    }
 
     .photos-grid-years,
     .photos-grid-all {
@@ -391,7 +425,9 @@
       text-shadow: 0 1px 6px rgba(0,0,0,0.25);
     }
 
-    .photos-section { margin-bottom: 28px; }
+    .photos-section {
+      margin-bottom: 28px;
+    }
 
     .photos-section-title {
       font-size: clamp(28px, 3vw, 46px);
@@ -452,7 +488,9 @@
       z-index: 9999;
     }
 
-    .lightbox.open { display: flex; }
+    .lightbox.open {
+      display: flex;
+    }
 
     .lightbox-inner {
       position: relative;
@@ -492,41 +530,129 @@
       box-shadow: none;
     }
 
-    .lightbox-close:hover { background: rgba(255,255,255,0.22); }
+    .lightbox-close:hover {
+      background: rgba(255,255,255,0.22);
+    }
 
     @media (max-width: 1100px) {
-      .timeline-layout { grid-template-columns: 1fr; }
-      .image-panel { width: 100%; }
-      .image-shell { width: 100%; max-width: 500px; margin: 0 auto; }
-      .slot-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-      .photos-grid-years, .photos-grid-all { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .photos-grid-days { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-      .photos-grid-months { grid-template-columns: 1fr; }
+      .timeline-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .image-panel {
+        width: 100%;
+      }
+
+      .image-shell {
+        width: 100%;
+        max-width: 500px;
+        margin: 0 auto;
+      }
+
+      .slot-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .photos-grid-years,
+      .photos-grid-all {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .photos-grid-days {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .photos-grid-months {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 760px) {
-      .wrap { padding: 12px; }
-      .title { font-size: 22px; }
-      .image-shell { width: 100%; max-width: 420px; }
-      .image-frame { max-height: 62vh; }
-      .headline { font-size: 34px; }
-      .text { font-size: 15px; }
-      .timeline-item { width: 90px; }
-      .slot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .photos-grid-years, .photos-grid-all { grid-template-columns: 1fr; }
-      .photos-grid-days { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      input { min-width: 0; width: 100%; }
+      .wrap {
+        padding: 12px;
+      }
+
+      .title {
+        font-size: 22px;
+      }
+
+      .image-shell {
+        width: 100%;
+        max-width: 420px;
+      }
+
+      .image-frame {
+        max-height: 62vh;
+      }
+
+      .headline {
+        font-size: 34px;
+      }
+
+      .text {
+        font-size: 15px;
+      }
+
+      .timeline-item {
+        width: 90px;
+      }
+
+      .slot-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .photos-grid-years,
+      .photos-grid-all {
+        grid-template-columns: 1fr;
+      }
+
+      .photos-grid-days {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      input {
+        min-width: 0;
+        width: 100%;
+      }
     }
 
     @media (max-width: 520px) {
-      .wrap { padding: 10px; }
-      .controls, .slot-controls, .photos-controls { width: 100%; }
-      .controls button, .slot-controls button { flex: 1 1 auto; }
-      .image-shell { max-width: 360px; }
-      .image-frame { max-height: 56vh; }
-      .headline { font-size: 28px; }
-      .slot-grid, .photos-grid-days { grid-template-columns: 1fr; }
-      .photos-segmented { width: 100%; justify-content: space-between; }
+      .wrap {
+        padding: 10px;
+      }
+
+      .controls,
+      .slot-controls,
+      .photos-controls {
+        width: 100%;
+      }
+
+      .controls button,
+      .slot-controls button {
+        flex: 1 1 auto;
+      }
+
+      .image-shell {
+        max-width: 360px;
+      }
+
+      .image-frame {
+        max-height: 56vh;
+      }
+
+      .headline {
+        font-size: 28px;
+      }
+
+      .slot-grid,
+      .photos-grid-days {
+        grid-template-columns: 1fr;
+      }
+
+      .photos-segmented {
+        width: 100%;
+        justify-content: space-between;
+      }
     }
   </style>
 </head>
@@ -584,6 +710,7 @@
           <button id="hardSpinBtn">Hard Spin</button>
           <button id="clearHoldsBtn">Clear Holds</button>
         </div>
+
         <div class="slot-grid" id="slotGrid"></div>
       </div>
 
@@ -596,6 +723,7 @@
             <button class="view-btn" data-view="all">All Photos</button>
           </div>
         </div>
+
         <div id="photosToolbar" class="photos-toolbar hidden"></div>
         <div id="photosContent"></div>
       </div>
@@ -612,6 +740,7 @@
   <script>
     const SHEET_ID = "1wDHuoi8_cpGxOwYemSWE86Oxwiz9_QIUAVNxUAhAk8A";
     const SHEET_TAB = "PUBLISH";
+
     const SMALL_IMAGE_PATH = "https://juliancanterbury.github.io/dome-timeline/Images/Small/";
     const LARGE_IMAGE_PATH = "https://juliancanterbury.github.io/dome-timeline/Images/Large/";
 
@@ -622,7 +751,11 @@
     let slotPreviewPool = [];
     let currentPhotoView = "years";
 
-    let photoNav = { year: null, month: null, day: null };
+    let photoNav = {
+      year: null,
+      month: null,
+      day: null
+    };
 
     let reelState = Array.from({ length: reelCount }, () => ({
       held: false,
@@ -667,26 +800,37 @@
               ""
             );
 
-            const year = parseInt(String(row.Year ?? row.YEAR ?? "").replace(/,/g, "").trim(), 10);
-            const month = parseInt(String(row.Month ?? row.MONTH ?? "").replace(/,/g, "").trim(), 10);
-            const day = parseInt(String(row.Day ?? row.DAY ?? "").replace(/,/g, "").trim(), 10);
-            const headline = String(row.Headline ?? row.HEADLINE ?? "").trim() || "Untitled";
+            const year = Number(String(row.Year ?? row.YEAR ?? "").replace(/,/g, ""));
+            const month = Number(String(row.Month ?? row.MONTH ?? "").replace(/,/g, ""));
+            const day = Number(String(row.Day ?? row.DAY ?? "").replace(/,/g, ""));
+
+            const headline =
+              String(row.Headline ?? row.HEADLINE ?? "").trim() ||
+              "Untitled";
 
             return {
               id: `${fileName}-${index}`,
-              year,
-              month,
-              day,
-              headline,
+              year: year,
+              month: month,
+              day: day,
+              headline: headline,
               text: row.Text ?? row.TEXT ?? "",
               caption: row.Caption ?? row.CAPTION ?? "",
-              fileName,
+              fileName: fileName,
               mediaSmall: fileName ? getSmallPath(fileName) : "",
               mediaLarge: fileName ? getLargePath(fileName) : ""
             };
           })
-          .filter(row => row.year && row.month && row.day && row.fileName)
-          .sort((a, b) => new Date(a.year, a.month - 1, a.day) - new Date(b.year, b.month - 1, b.day));
+          .filter(row =>
+            row.year &&
+            row.month &&
+            row.day &&
+            row.fileName
+          )
+          .sort((a, b) => {
+            return new Date(a.year, a.month - 1, a.day) -
+                   new Date(b.year, b.month - 1, b.day);
+          });
       } finally {
         clearTimeout(timeout);
       }
@@ -694,17 +838,41 @@
 
     function formatDate(entry) {
       const d = new Date(entry.year, entry.month - 1, entry.day);
-      return d.toLocaleDateString("en-AU", { year: "numeric", month: "long", day: "numeric" });
+      return d.toLocaleDateString("en-AU", {
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      });
     }
 
     function formatMonthTitle(year, month) {
       const d = new Date(year, month - 1, 1);
-      return d.toLocaleDateString("en-AU", { month: "long", year: "numeric" });
+      return d.toLocaleDateString("en-AU", {
+        month: "long",
+        year: "numeric"
+      });
     }
 
-    function groupKeyYear(entry) { return `${entry.year}`; }
-    function groupKeyMonth(entry) { return `${entry.year}-${String(entry.month).padStart(2, "0")}`; }
-    function groupKeyDay(entry) { return `${entry.year}-${String(entry.month).padStart(2, "0")}-${String(entry.day).padStart(2, "0")}`; }
+    function formatDayTitle(entry) {
+      const d = new Date(entry.year, entry.month - 1, entry.day);
+      return d.toLocaleDateString("en-AU", {
+        weekday: "short",
+        day: "numeric",
+        month: "short"
+      });
+    }
+
+    function groupKeyYear(entry) {
+      return `${entry.year}`;
+    }
+
+    function groupKeyMonth(entry) {
+      return `${entry.year}-${String(entry.month).padStart(2, "0")}`;
+    }
+
+    function groupKeyDay(entry) {
+      return `${entry.year}-${String(entry.month).padStart(2, "0")}-${String(entry.day).padStart(2, "0")}`;
+    }
 
     function sampleEntries(list, count) {
       const copy = [...list];
@@ -747,11 +915,16 @@
         if (imageCache.has(src)) return resolve();
 
         const img = new Image();
+
         img.onload = async () => {
-          try { if (img.decode) await img.decode(); } catch (e) {}
+          try {
+            if (img.decode) await img.decode();
+          } catch (e) {}
+
           imageCache.set(src, true);
           resolve();
         };
+
         img.onerror = () => resolve();
         img.src = src;
       });
@@ -767,11 +940,35 @@
       await preloadImage(entry.mediaSmall);
     }
 
-    function setImage(imgEl, newSrc, newAlt = "") {
+    function animateImageSwap(imgEl, newSrc, newAlt = "") {
       if (!newSrc) return;
-      imgEl.src = newSrc;
-      imgEl.alt = newAlt;
-      imgEl.dataset.currentSrc = newSrc;
+
+      if (imgEl.dataset.currentSrc === newSrc) {
+        imgEl.alt = newAlt;
+        return;
+      }
+
+      imgEl.style.transition = "none";
+      imgEl.style.transform = "translateX(10px) scale(0.992)";
+      imgEl.style.opacity = "0";
+
+      setTimeout(() => {
+        imgEl.onload = null;
+        imgEl.src = newSrc;
+        imgEl.alt = newAlt;
+        imgEl.dataset.currentSrc = newSrc;
+
+        imgEl.onload = () => {
+          imgEl.style.transition = "all 0.24s cubic-bezier(0.22, 1, 0.36, 1)";
+          imgEl.style.transform = "translateX(0px) scale(1.002)";
+          imgEl.style.opacity = "1";
+
+          setTimeout(() => {
+            imgEl.style.transition = "all 0.12s ease-out";
+            imgEl.style.transform = "translateX(0px) scale(1)";
+          }, 140);
+        };
+      }, 30);
     }
 
     function renderEntry(index) {
@@ -780,7 +977,7 @@
       const entry = entries[index];
       const mainImage = document.getElementById("mainImage");
 
-      setImage(mainImage, entry.mediaSmall, entry.headline);
+      animateImageSwap(mainImage, entry.mediaSmall, entry.headline);
       document.getElementById("dateText").textContent = formatDate(entry);
       document.getElementById("headlineText").textContent = entry.headline;
       document.getElementById("bodyText").textContent = entry.text || "";
@@ -870,7 +1067,7 @@
     function setReelVisual(index, entry) {
       const img = document.getElementById(`reelImg${index}`);
       const caption = document.getElementById(`reelCaption${index}`);
-      setImage(img, entry.mediaSmall, entry.headline);
+      animateImageSwap(img, entry.mediaSmall, entry.headline);
       caption.textContent = `${entry.headline} — ${formatDate(entry)}`;
     }
 
@@ -930,7 +1127,10 @@
         }
       }
 
-      const previewSource = uniquePool.length >= 10 ? uniquePool.slice(0, 10) : uniquePool;
+      const previewSource = uniquePool.length >= 10
+        ? uniquePool.slice(0, 10)
+        : uniquePool;
+
       slotPreviewPool = previewSource;
       await Promise.all(chosenFinals.map(entry => ensureEntryImage(entry)));
 
@@ -982,7 +1182,11 @@
       const items = document.querySelectorAll(".timeline-item");
       const target = items[index];
       if (!target) return;
-      target.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+      target.scrollIntoView({
+        inline: "center",
+        block: "nearest",
+        behavior: "smooth"
+      });
     }
 
     function groupEntriesBy(entriesList, keyFn) {
@@ -1204,8 +1408,14 @@
       ensureEntryImage(nextEntry);
     });
 
-    document.getElementById("spinBtn").addEventListener("click", () => spinSlot(false));
-    document.getElementById("hardSpinBtn").addEventListener("click", () => spinSlot(true));
+    document.getElementById("spinBtn").addEventListener("click", () => {
+      spinSlot(false);
+    });
+
+    document.getElementById("hardSpinBtn").addEventListener("click", () => {
+      spinSlot(true);
+    });
+
     document.getElementById("clearHoldsBtn").addEventListener("click", () => {
       reelState.forEach(r => r.held = false);
       updateHoldButtons();
@@ -1263,12 +1473,17 @@
     });
 
     document.getElementById("lightboxClose").addEventListener("click", closeLightbox);
+
     document.getElementById("lightbox").addEventListener("click", (e) => {
-      if (e.target.id === "lightbox") closeLightbox();
+      if (e.target.id === "lightbox") {
+        closeLightbox();
+      }
     });
 
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") closeLightbox();
+      if (e.key === "Escape") {
+        closeLightbox();
+      }
     });
 
     async function init() {
@@ -1307,7 +1522,11 @@
         await preloadEntriesImages(entries, 2);
         slotPreviewPool = sampleEntries(entries, 8);
       } catch (err) {
-        document.getElementById("loadingMessage").textContent = "Failed to load sheet data.";
+        const msg =
+          err.name === "AbortError"
+            ? "Timed out loading sheet data."
+            : "Failed to load sheet data.";
+        document.getElementById("loadingMessage").textContent = msg;
         console.error(err);
       }
     }
