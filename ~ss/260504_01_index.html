@@ -147,30 +147,6 @@
       margin-bottom: 10px;
     }
 
-    .timeline-scale-wrap {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      color: var(--muted);
-      font-size: 13px;
-      margin-left: auto;
-    }
-
-    #timelineScaleSlider {
-      width: 150px;
-      min-width: 150px;
-      padding: 0;
-      box-shadow: none;
-      accent-color: var(--accent);
-    }
-
-    .timeline-scale-label {
-      color: var(--text);
-      min-width: 42px;
-      font-size: 12px;
-    }
-
-
     .timeline-layout {
       display: grid;
       grid-template-columns: auto minmax(320px, 1fr);
@@ -277,43 +253,11 @@
     }
 
     .timeline-item {
-      width: var(--timeline-item-w, 98px);
+      width: 98px;
       flex: 0 0 auto;
       cursor: pointer;
       position: relative;
       padding-top: 12px;
-    }
-
-    .timeline-thumb {
-      width: 100%;
-      aspect-ratio: 0.72;
-      border-radius: 10px;
-      overflow: hidden;
-      background: #c8bead;
-      margin-bottom: 6px;
-    }
-
-    .timeline-thumb img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    .timeline-item.compact .mini-headline,
-    .timeline-item.micro .mini-headline {
-      display: none;
-    }
-
-    .timeline-item.micro .mini-date {
-      min-height: 16px;
-      font-size: 8px;
-    }
-
-    .timeline-item.micro::after {
-      width: 5px;
-      height: 5px;
-      top: -3px;
     }
 
     .timeline-item::before {
@@ -692,7 +636,7 @@
 
     .field-tools {
       display: grid;
-      grid-template-columns: minmax(260px, 1fr) repeat(4, auto);
+      grid-template-columns: minmax(260px, 1fr) repeat(5, auto);
       align-items: center;
       gap: 10px;
       width: 100%;
@@ -730,10 +674,6 @@
       border-color: var(--accent);
     }
 
-    #fieldReleaseBtn {
-      min-width: 86px;
-    }
-
     .field-grid {
       --field-cols: 10;
       display: grid;
@@ -753,6 +693,19 @@
       padding-top: 10px;
       margin-top: 6px;
     }
+
+    .field-hand-title {
+      grid-column: 1 / -1;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .field-spacer {
+      grid-column: 1 / -1;
+      height: 4px;
+    }
+
     .field-item {
       position: relative;
       aspect-ratio: 0.72;
@@ -807,27 +760,6 @@
 
     .field-item.active .field-caption {
       opacity: 1;
-    }
-
-    .field-open-label {
-      position: absolute;
-      right: 8px;
-      bottom: 8px;
-      z-index: 4;
-      display: none;
-      border: 1px solid rgba(255,255,255,0.34);
-      border-radius: 999px;
-      padding: 6px 9px;
-      font-size: 11px;
-      line-height: 1;
-      background: rgba(20,16,12,0.42);
-      color: white;
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-    }
-
-    .field-item.active .field-open-label {
-      display: block;
     }
 
     @media (max-width: 900px) {
@@ -1001,57 +933,7 @@
         justify-content: space-between;
       }
     }
-
-    /* TOP NAV / SOCIAL LINKS */
-    .controls button {
-      flex-shrink: 0;
-    }
-
-    .topbar .controls {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .social-links {
-      margin-left: auto;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .social-btn {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--panel);
-      border: 1px solid var(--line);
-      color: var(--muted);
-      text-decoration: none;
-      box-shadow: var(--shadow);
-      flex: 0 0 auto;
-      transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
-    }
-
-    .social-btn svg {
-      width: 14px;
-      height: 14px;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-
-    .social-btn:hover {
-      background: #cec3b0;
-      color: var(--text);
-    }
-
-    .social-btn:active {
-      transform: translateY(1px);
-    }
-</style>
+  </style>
 </head>
 
 <body>
@@ -1068,23 +950,6 @@
         <button id="photosModeBtn">Photos</button>
         <button id="fieldModeBtn">Field</button>
         <button id="aboutModeBtn">About</button>
-
-        <div class="social-links">
-          <a href="mailto:julian.canterbury@gmail.com" class="social-btn" aria-label="Email">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <rect x="4.5" y="6.5" width="15" height="11" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
-              <path d="M5 7.5l7 5.2 7-5.2" stroke="currentColor" stroke-width="1.4" fill="none"/>
-            </svg>
-          </a>
-
-          <a href="https://instagram.com/_juliancanterbury" target="_blank" rel="noopener" class="social-btn" aria-label="Instagram">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <rect x="5.5" y="5.5" width="13" height="13" rx="3.5" stroke="currentColor" stroke-width="1.4"/>
-              <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.4"/>
-              <circle cx="16" cy="8" r="0.65" stroke="currentColor" stroke-width="1.4" fill="none"/>
-            </svg>
-          </a>
-        </div>
       </div>
     </div>
 
@@ -1095,11 +960,6 @@
         <div class="controls timeline-top-controls">
           <button id="prevBtn">Previous</button>
           <button id="nextBtn">Next</button>
-          <div class="timeline-scale-wrap">
-            <span>Timeline</span>
-            <input id="timelineScaleSlider" type="range" min="44" max="160" value="98" />
-            <span id="timelineScaleValue" class="timeline-scale-label">Days</span>
-          </div>
         </div>
 
         <div class="timeline-layout">
@@ -1152,7 +1012,7 @@
       <div id="fieldMode" class="hidden">
         <div class="field-intro">
           <div class="field-copy">
-            <div>Tap an image to pull related images forward. Tap the same image again to open it. Press Escape or tap All Images to return to the full grid.</div>
+            <div>Tap an image to pull related images forward. Tap the same image again to open it. Tap the background or Release to return to all.</div>
             <div id="fieldStatus"></div>
           </div>
           <div class="field-tools">
@@ -1163,8 +1023,9 @@
             </div>
             <button class="field-behaviour-btn active" data-field-behaviour="default">Default</button>
             <button class="field-behaviour-btn" data-field-behaviour="shuffle">Shuffle</button>
+            <button class="field-behaviour-btn" data-field-behaviour="hands">Hands</button>
             <button class="field-behaviour-btn" data-field-behaviour="groups">Groups</button>
-            <button id="fieldReleaseBtn" class="field-behaviour-btn" type="button">All Images</button>
+            <button id="fieldReleaseBtn" class="field-behaviour-btn" type="button">Release</button>
           </div>
         </div>
         <div id="fieldGrid" class="field-grid"></div>
@@ -1175,20 +1036,26 @@
           <div class="about-kicker">About</div>
           <h2 class="about-title">Dome Archive Prototype</h2>
           <div class="about-text">
-            <p>This is a loosely curated collection of images, mostly documenting the mud dome, along with a range of related (and unrelated) experiments and side projects involving the house—a timber California Bungalow—as well as ceramics, lighting, finishes, and whatever has become my latest obsession (the possibility of doing web design being just another manifestation of this).</p>
-            <p>This is largely a weekend and holiday activity, and is somewhat antithetical to the everyday practice of architecture, with its programmes, deadlines, and critical paths. As with architecture, however, budget remains a constant constraint, and as with any project, a larger budget allows for more ambition and perhaps more risk-taking. There are points where I would prefer not to be digging 1100mm footings myself—having already done some damage in the process. Employing someone younger and fitter would, at times, be a welcome option.</p>
-            <p>The dome itself is less a finished object and more a vehicle for testing ideas. These include different approaches to concrete formwork—both traditional and 3D printed—along with incorporating 3D printed custom lighting directly into the concrete, as well as learning, by doing, how to build with mud, make bricks, and render in lime.</p>
-            <p>Alongside this are ongoing material experiments, particularly with clay and casting. This includes developing slip casting processes using clay sourced directly from the site—working through particle size, mixing ratios, deflocculants, and measuring consistency with a hydrometer. While technical, these processes have largely been developed through trial, error, and iteration rather than any formal setup.</p>
-            <p>The project began during COVID, during a period of working alone at home. It started with digging out an area under a veranda and making mud bricks. From there, the idea of building a dome emerged. The first batch of bricks proved to be the wrong shape and size, so the process started again. Those original bricks are still stacked on pallets, waiting for another use—possibly a kiln.</p>
-            <p>The house more broadly acts as a kind of laboratory for ideas—some more resolved than others, and some which should definitely not be tested on client projects. There is no particular intention for it to ever be finished.</p>
-            <p>This website follows the same thinking. It is not designed to be polished, but instead explores how the same set of images can be organised and experienced in different ways. It also reflects a broader idea: that most things can be learned by doing.</p>
-            <p>I don’t have a background in web development or coding. This website is built directly in HTML and JavaScript, without templates or software layers. Alongside this, I’ve also written bits of code in Python and VB for other applications as needed. AI hasn’t replaced something I already did, or simply made it easier—it has made some of this possible in the first place. This is not a dumbing down, as I would not have invested the time, or had the time, to do it otherwise.</p>
-            <p>That’s the project as it currently stands.</p>
-          </div>
-        </div>
-      </div>
-    </div>
+             <p>This is a loosely curated collection of images, mostly documenting the mud dome, along with a range of related (and unrelated) experiments and side projects involving the house—a timber California Bungalow—as well as ceramics, lighting, finishes, and whatever has become my latest obsession (the possibility of doing web design being just another manifestation of this).</p>
+
+    <p>This is largely a weekend and holiday activity, and is somewhat antithetical to the everyday practice of architecture, with its programmes, deadlines, and critical paths. As with architecture, however, budget remains a constant constraint, and as with any project, a larger budget allows for more ambition and perhaps more risk-taking. There are points where I would prefer not to be digging 1100mm footings myself—having already done some damage in the process. Employing someone younger and fitter would, at times, be a welcome option.</p>
+
+    <p>The dome itself is less a finished object and more a vehicle for testing ideas. These include different approaches to concrete formwork—both traditional and 3D printed—along with incorporating 3D printed custom lighting directly into the concrete, as well as learning, by doing, how to build with mud, make bricks, and render in lime.</p>
+
+    <p>Alongside this are ongoing material experiments, particularly with clay and casting. This includes developing slip casting processes using clay sourced directly from the site—working through particle size, mixing ratios, deflocculants, and measuring consistency with a hydrometer. While technical, these processes have largely been developed through trial, error, and iteration rather than any formal setup.</p>
+
+    <p>The project began during COVID, during a period of working alone at home. It started with digging out an area under a veranda and making mud bricks. From there, the idea of building a dome emerged. The first batch of bricks proved to be the wrong shape and size, so the process started again. Those original bricks are still stacked on pallets, waiting for another use—possibly a kiln.</p>
+
+    <p>The house more broadly acts as a kind of laboratory for ideas—some more resolved than others, and some which should definitely not be tested on client projects. There is no particular intention for it to ever be finished.</p>
+
+    <p>This website follows the same thinking. It is not designed to be polished, but instead explores how the same set of images can be organised and experienced in different ways. It also reflects a broader idea: that most things can be learned by doing.</p>
+
+    <p>I don’t have a background in web development or coding. This website is built directly in HTML and JavaScript, without templates or software layers. Alongside this, I’ve also written bits of code in Python and VB for other applications as needed. AI hasn’t replaced something I already did, or simply made it easier—it has made some of this possible in the first place. This is not a dumbing down, as I would not have invested the time, or had the time, to do it otherwise.</p>
+
+    <p>That’s the project as it currently stands.</p>
+
   </div>
+</div>
 
   <div id="lightbox" class="lightbox hidden" aria-hidden="true">
     <div class="lightbox-inner">
@@ -1210,7 +1077,6 @@
 
     let entries = [];
     let currentIndex = 0;
-    let timelineScale = 98;
     const reelCount = 5;
     const imageCache = new Map();
     let slotPreviewPool = [];
@@ -1462,68 +1328,16 @@
       });
     }
 
-    function timelineScaleMode() {
-      if (timelineScale <= 58) return "years";
-      if (timelineScale <= 88) return "months";
-      return "days";
-    }
-
-    function timelineLabel(entry, index) {
-      const mode = timelineScaleMode();
-      const prev = entries[index - 1];
-
-      if (mode === "years") {
-        if (!prev || prev.year !== entry.year) return String(entry.year);
-        return "";
-      }
-
-      if (mode === "months") {
-        if (!prev || prev.year !== entry.year || prev.month !== entry.month) {
-          return new Date(entry.year, entry.month - 1, 1).toLocaleDateString("en-AU", {
-            month: "short",
-            year: "2-digit"
-          });
-        }
-        return "";
-      }
-
-      return formatDate(entry);
-    }
-
-    function timelineHeadline(entry) {
-      const mode = timelineScaleMode();
-      if (mode === "days") return entry.headline;
-      return "";
-    }
-
-    function updateTimelineScaleControls() {
-      const track = document.getElementById("timelineTrack");
-      const slider = document.getElementById("timelineScaleSlider");
-      const value = document.getElementById("timelineScaleValue");
-      if (track) track.style.setProperty("--timeline-item-w", `${timelineScale}px`);
-      if (slider) slider.value = String(timelineScale);
-      if (value) {
-        const mode = timelineScaleMode();
-        value.textContent = mode === "years" ? "Years" : mode === "months" ? "Months" : "Days";
-      }
-    }
-
     function buildTimeline() {
       const track = document.getElementById("timelineTrack");
       track.innerHTML = "";
-      updateTimelineScaleControls();
-
-      const mode = timelineScaleMode();
 
       entries.forEach((entry, i) => {
         const item = document.createElement("div");
-        item.className = `timeline-item ${mode === "years" ? "micro" : mode === "months" ? "compact" : ""}`;
+        item.className = "timeline-item";
         item.innerHTML = `
-          <div class="timeline-thumb">
-            <img src="${escapeHtml(entry.mediaSmall)}" alt="${escapeHtml(entry.headline)}" loading="lazy" decoding="async" fetchpriority="low" />
-          </div>
-          <div class="mini-date">${escapeHtml(timelineLabel(entry, i))}</div>
-          <div class="mini-headline">${escapeHtml(timelineHeadline(entry))}</div>
+          <div class="mini-date">${escapeHtml(formatDate(entry))}</div>
+          <div class="mini-headline">${escapeHtml(entry.headline)}</div>
         `;
         item.addEventListener("click", () => {
           currentIndex = i;
@@ -1795,6 +1609,20 @@
       const content = document.getElementById("photosContent");
       let sorted = sortEntriesChronological(entries);
 
+      if (fieldReleaseBtn) {
+      fieldReleaseBtn.addEventListener("click", () => {
+        resetFieldMode();
+      });
+    }
+
+    const fieldGridEl = document.getElementById("fieldGrid");
+    if (fieldGridEl) {
+      fieldGridEl.addEventListener("click", (e) => {
+        if (e.target === fieldGridEl) {
+          resetFieldMode();
+        }
+      });
+    }
 
     document.querySelectorAll(".view-btn").forEach(btn => {
         btn.classList.toggle("active", btn.dataset.view === view);
@@ -2029,7 +1857,15 @@
         list.sort((a, b) => fieldRandomValue(a, fieldShuffleSeed) - fieldRandomValue(b, fieldShuffleSeed));
       }
 
-      
+      if (fieldBehaviour === "hands") {
+        list.sort((a, b) => {
+          const monthA = `${a.year}-${String(a.month).padStart(2, "0")}`;
+          const monthB = `${b.year}-${String(b.month).padStart(2, "0")}`;
+          if (monthA === monthB) return fieldRandomValue(a, fieldShuffleSeed) - fieldRandomValue(b, fieldShuffleSeed);
+          return monthA.localeCompare(monthB);
+        });
+      }
+
       if (fieldBehaviour === "groups") {
         list.sort((a, b) => {
           const yearDiff = a.year - b.year;
@@ -2062,24 +1898,18 @@
       item.innerHTML = `
         <img src="${escapeHtml(entry.mediaSmall)}" alt="${escapeHtml(entry.headline)}" loading="lazy" decoding="async" fetchpriority="low">
         <div class="field-caption">${escapeHtml(entry.headline)}<br>${escapeHtml(formatDate(entry))}</div>
-        <div class="field-open-label">Open</div>
       `;
 
       item.addEventListener("click", (e) => {
         e.stopPropagation();
 
-        if (fieldSelectedEntry === entry || item.classList.contains("active")) {
+        if (fieldSelectedEntry === entry) {
           openLightbox(entry.mediaLarge, entry.headline, index);
           return;
         }
 
         fieldSelectedEntry = entry;
         renderFieldMode(entry);
-      });
-
-      item.addEventListener("dblclick", (e) => {
-        e.stopPropagation();
-        openLightbox(entry.mediaLarge, entry.headline, index);
       });
 
       return item;
@@ -2109,6 +1939,7 @@
 
       const behaviourLabel =
         fieldBehaviour === "shuffle" ? "shuffle" :
+        fieldBehaviour === "hands" ? "hands" :
         fieldBehaviour === "groups" ? "groups" :
         "default";
 
@@ -2132,7 +1963,23 @@
         return;
       }
 
-      
+      if (fieldBehaviour === "hands") {
+        source.forEach((entry, i) => {
+          if (i % 5 === 0) {
+            const title = document.createElement("div");
+            title.className = "field-hand-title";
+            title.textContent = `hand ${Math.floor(i / 5) + 1}`;
+            grid.appendChild(title);
+          }
+          grid.appendChild(createFieldItem(entry, selectedEntry));
+          if (i % 5 === 4) {
+            const spacer = document.createElement("div");
+            spacer.className = "field-spacer";
+            grid.appendChild(spacer);
+          }
+        });
+        return;
+      }
 
       source.forEach(entry => {
         grid.appendChild(createFieldItem(entry, selectedEntry));
@@ -2148,21 +1995,6 @@
     });
     aboutModeBtn.addEventListener("click", () => setMode("about"));
 
-    const timelineScaleSlider = document.getElementById("timelineScaleSlider");
-    const timelineScaleValue = document.getElementById("timelineScaleValue");
-
-    if (timelineScaleSlider) {
-      timelineScaleSlider.addEventListener("input", () => {
-        timelineScale = Number(timelineScaleSlider.value) || 98;
-        buildTimeline();
-        renderEntry(currentIndex);
-        if (timelineScaleValue) {
-          const mode = timelineScaleMode();
-          timelineScaleValue.textContent = mode === "years" ? "Years" : mode === "months" ? "Months" : "Days";
-        }
-      });
-    }
-
     if (fieldColsSlider) {
       fieldColsSlider.addEventListener("input", () => {
         fieldCols = Number(fieldColsSlider.value) || 10;
@@ -2174,7 +2006,7 @@
     document.querySelectorAll(".field-behaviour-btn[data-field-behaviour]").forEach(btn => {
       btn.addEventListener("click", () => {
         fieldBehaviour = btn.dataset.fieldBehaviour || "default";
-        if (fieldBehaviour === "shuffle") {
+        if (fieldBehaviour === "shuffle" || fieldBehaviour === "hands") {
           fieldShuffleSeed++;
         }
         document.querySelectorAll(".field-behaviour-btn[data-field-behaviour]").forEach(b => {
@@ -2263,17 +2095,8 @@
     });
 
     document.addEventListener("keydown", (e) => {
-      if (e.key !== "Escape") return;
-
-      const lightbox = document.getElementById("lightbox");
-
-      if (lightbox && lightbox.classList.contains("open")) {
+      if (e.key === "Escape") {
         closeLightbox();
-        return;
-      }
-
-      if (fieldSelectedEntry) {
-        resetFieldMode();
       }
     });
 
