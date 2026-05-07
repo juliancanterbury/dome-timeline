@@ -1,0 +1,2654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dome Timeline</title>
+
+  <style>
+    :root {
+      --bg: #e9e2d3;
+      --panel: #d8cfbe;
+      --text: #2f261d;
+      --muted: #7b6e5f;
+      --line: #b5aa97;
+      --accent: #8d7558;
+      --shadow: 0 1px 0 rgba(47, 38, 29, 0.03);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { -webkit-text-size-adjust: 100%; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+        "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      -webkit-font-smoothing: antialiased;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .wrap {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 14px 18px 18px;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .mode-badge {
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+
+    .title {
+      font-size: clamp(22px, 2.4vw, 34px);
+      line-height: 1;
+      margin: 0;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+    }
+
+    .controls,
+    .slot-controls,
+    .photos-controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    button, input {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: inherit;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      box-shadow: var(--shadow);
+    }
+
+    input {
+      min-width: 220px;
+      background: rgba(255,255,255,0.35);
+      font-weight: 400;
+    }
+
+    button {
+      cursor: pointer;
+      transition: background 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
+    }
+
+    button:hover { background: #cec3b0; }
+    button:active { transform: translateY(1px); }
+
+    .active-mode-btn,
+    .view-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .hidden { display: none !important; }
+
+    .loading {
+      color: var(--muted);
+      padding: 20px 0;
+      font-size: 14px;
+    }
+
+    #appShell {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #timelineMode,
+    #slotMode,
+    #photosMode,
+    #fieldMode,
+    #flowMode,
+    #aboutMode {
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+
+    #timelineMode {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .timeline-top-controls {
+      margin-bottom: 10px;
+    }
+
+    .timeline-scale-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      margin-left: auto;
+    }
+
+    #timelineScaleSlider {
+      width: 150px;
+      min-width: 150px;
+      padding: 0;
+      box-shadow: none;
+      accent-color: var(--accent);
+    }
+
+    .timeline-scale-label {
+      color: var(--text);
+      min-width: 42px;
+      font-size: 12px;
+    }
+
+
+    .timeline-layout {
+      display: grid;
+      grid-template-columns: auto minmax(320px, 1fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border-radius: 20px;
+      padding: 12px;
+      min-width: 0;
+    }
+
+    .image-panel {
+      width: fit-content;
+      justify-self: start;
+      padding: 0;
+      overflow: hidden;
+      background: transparent;
+      border-radius: 20px;
+    }
+
+    .image-shell {
+      width: 540px;
+      max-width: min(100vw - 120px, 540px);
+      padding: 0;
+      margin: 0;
+    }
+
+    .image-frame {
+      width: 100%;
+      aspect-ratio: 0.72;
+      max-height: 70vh;
+      overflow: hidden;
+      border-radius: 20px;
+      background: transparent;
+      position: relative;
+      cursor: zoom-in;
+      padding: 0;
+    }
+
+    .image-frame img,
+    .reel-window img,
+    .photo-card-image img,
+    .photo-group-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      display: block;
+      transform: translateX(0) scale(1);
+      opacity: 1;
+    }
+
+    .image-frame img {
+      border-radius: 20px;
+    }
+
+    .date {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .headline {
+      font-size: clamp(28px, 3vw, 56px);
+      line-height: 0.95;
+      margin: 0 0 12px 0;
+      font-weight: 600;
+      letter-spacing: -0.045em;
+      word-break: break-word;
+    }
+
+    .text {
+      font-size: clamp(15px, 1.2vw, 18px);
+      line-height: 1.4;
+      margin-bottom: 10px;
+      font-weight: 400;
+    }
+
+    .caption {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .timeline-strip {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: thin;
+    }
+
+    .timeline-track {
+      display: flex;
+      gap: 12px;
+      min-width: max-content;
+      padding-bottom: 8px;
+    }
+
+    .timeline-item {
+      width: var(--timeline-item-w, 98px);
+      flex: 0 0 auto;
+      cursor: pointer;
+      position: relative;
+      padding-top: 12px;
+    }
+
+    .timeline-thumb {
+      width: 100%;
+      aspect-ratio: 0.72;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #c8bead;
+      margin-bottom: 6px;
+    }
+
+    .timeline-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .timeline-item.compact .mini-headline,
+    .timeline-item.micro .mini-headline {
+      display: none;
+    }
+
+    .timeline-item.micro .mini-date {
+      min-height: 16px;
+      font-size: 8px;
+    }
+
+    .timeline-item.micro::after {
+      width: 5px;
+      height: 5px;
+      top: -3px;
+    }
+
+    .timeline-item::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: var(--line);
+    }
+
+    .timeline-item::after {
+      content: "";
+      position: absolute;
+      top: -4px;
+      left: 0;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .timeline-item.active .mini-headline {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .mini-date {
+      font-size: 9px;
+      color: var(--muted);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      line-height: 1.15;
+      letter-spacing: 0.06em;
+      font-weight: 500;
+    }
+
+    .mini-headline {
+      font-size: 11px;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      font-weight: 500;
+      word-break: break-word;
+    }
+
+    .slot-controls {
+      margin-bottom: 16px;
+    }
+
+    .slot-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .reel {
+      background: var(--panel);
+      border-radius: 18px;
+      padding: 10px;
+      min-width: 0;
+    }
+
+    .reel-window {
+      width: 100%;
+      aspect-ratio: 0.72;
+      overflow: hidden;
+      border-radius: 14px;
+      background: #c8bead;
+      position: relative;
+      cursor: zoom-in;
+    }
+
+    .reel-caption {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 8px;
+      min-height: 32px;
+      line-height: 1.25;
+    }
+
+    .hold-btn {
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .hold-btn.held {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    .photos-controls {
+      margin-bottom: 14px;
+      justify-content: center;
+    }
+
+    .photos-segmented {
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      background: rgba(255,255,255,0.22);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px;
+    }
+
+    .view-btn {
+      border-radius: 999px;
+      box-shadow: none;
+      padding: 8px 14px;
+      background: transparent;
+    }
+
+    .photos-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .photos-breadcrumb {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .photos-back-btn {
+      padding: 8px 12px;
+    }
+
+    .photos-grid-years,
+    .photos-grid-all {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .photo-group-card {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      border-radius: 18px;
+      overflow: hidden;
+      cursor: pointer;
+      background: #c8bead;
+      box-shadow: var(--shadow);
+    }
+
+    .photo-group-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.28), rgba(0,0,0,0.02));
+      pointer-events: none;
+    }
+
+    .photo-group-label {
+      position: absolute;
+      left: 16px;
+      top: 16px;
+      z-index: 2;
+      color: #fff;
+      font-size: clamp(28px, 3vw, 54px);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      text-shadow: 0 1px 6px rgba(0,0,0,0.25);
+    }
+
+    .photos-section {
+      margin-bottom: 28px;
+    }
+
+    .photos-section-title {
+      font-size: clamp(28px, 3vw, 46px);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      margin: 0 0 14px 0;
+    }
+
+    .photos-grid-months {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .photos-grid-days {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .photo-card {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .photo-card-image {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #c8bead;
+    }
+
+    .photo-card-meta {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.25;
+    }
+
+    .photo-card-meta strong {
+      color: var(--text);
+      display: block;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+      margin-bottom: 2px;
+    }
+
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(20, 16, 12, 0.96);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: max(62px, calc(env(safe-area-inset-top) + 18px)) max(18px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
+      z-index: 9999;
+    }
+
+    .lightbox.open {
+      display: flex;
+    }
+
+    .lightbox-inner {
+      position: relative;
+      width: min(96vw, 1700px);
+      height: min(calc(100dvh - 96px), 1200px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lightbox img {
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      display: block;
+      border-radius: 14px;
+      overflow: hidden;
+      background: transparent;
+    }
+
+
+    .lightbox-actions {
+      position: fixed;
+      top: max(12px, env(safe-area-inset-top));
+      right: calc(max(12px, env(safe-area-inset-right)) + 42px);
+      display: flex;
+      gap: 8px;
+      z-index: 10001;
+      flex-wrap: nowrap;
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    .lightbox-action-btn,
+    .lightbox-close {
+      height: 34px;
+      min-height: 34px;
+      border: 1px solid rgba(255,255,255,0.24);
+      background: rgba(255,255,255,0.16);
+      color: white;
+      border-radius: 17px;
+      padding: 0 12px;
+      font-size: 13px;
+      line-height: 34px;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-weight: 500;
+      box-shadow: none;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    .lightbox-close {
+      position: fixed;
+      top: max(12px, env(safe-area-inset-top));
+      right: max(12px, env(safe-area-inset-right));
+      width: 34px;
+      min-width: 34px;
+      padding: 0;
+      font-size: 18px;
+      line-height: 34px;
+      transform: none;
+    }
+
+    .lightbox-action-btn:hover,
+    .lightbox-close:hover {
+      background: rgba(255,255,255,0.24);
+    }
+
+
+
+    /* FLOW MODE */
+    #flowMode {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .flow-intro {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .flow-copy {
+      max-width: 680px;
+      line-height: 1.3;
+    }
+
+    .flow-tools {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-left: auto;
+      white-space: nowrap;
+    }
+
+    #flowSpeedSlider {
+      width: 170px;
+      min-width: 170px;
+      padding: 0;
+      box-shadow: none;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .flow-speed-label {
+      color: var(--text);
+      min-width: 62px;
+      font-size: 12px;
+      text-align: left;
+    }
+
+    .flow-stage {
+      flex: 1 1 auto;
+      height: min(72vh, calc(100dvh - 170px));
+      min-height: 360px;
+      overflow: hidden;
+      position: relative;
+      border-radius: 22px;
+      background: var(--panel);
+      cursor: grab;
+      touch-action: pan-y;
+      user-select: none;
+    }
+
+    .flow-stage.dragging {
+      cursor: grabbing;
+    }
+
+    .flow-track {
+      height: 100%;
+      display: flex;
+      gap: 12px;
+      padding: 12px;
+      will-change: transform;
+      transform: translate3d(0,0,0);
+    }
+
+    .flow-item {
+      height: 100%;
+      aspect-ratio: 0.72;
+      flex: 0 0 auto;
+      border-radius: 18px;
+      overflow: hidden;
+      background: #c8bead;
+      position: relative;
+      cursor: zoom-in;
+      box-shadow: var(--shadow);
+    }
+
+    .flow-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      -webkit-user-drag: none;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .flow-caption {
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      bottom: 10px;
+      z-index: 2;
+      color: white;
+      font-size: 12px;
+      line-height: 1.15;
+      text-shadow: 0 1px 8px rgba(0,0,0,0.45);
+      opacity: 0;
+      transition: opacity 0.18s ease;
+      pointer-events: none;
+    }
+
+    .flow-item:hover .flow-caption {
+      opacity: 1;
+    }
+
+    .flow-stage::before,
+    .flow-stage::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 80px;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    .flow-stage::before {
+      left: 0;
+      background: linear-gradient(to right, var(--panel), rgba(216,207,190,0));
+    }
+
+    .flow-stage::after {
+      right: 0;
+      background: linear-gradient(to left, var(--panel), rgba(216,207,190,0));
+    }
+
+
+    /* ABOUT / INFO MODE */
+    #aboutMode {
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+
+    .about-panel {
+      max-width: 820px;
+      margin: 32px auto 0;
+      background: var(--panel);
+      border-radius: 22px;
+      padding: clamp(24px, 5vw, 54px);
+    }
+
+    .about-kicker {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      font-weight: 500;
+    }
+
+    .about-title {
+      font-size: clamp(34px, 5vw, 72px);
+      line-height: 0.92;
+      margin: 0 0 24px 0;
+      font-weight: 600;
+      letter-spacing: -0.055em;
+    }
+
+    .about-text {
+      max-width: 660px;
+      font-size: clamp(16px, 1.35vw, 20px);
+      line-height: 1.48;
+      letter-spacing: -0.018em;
+    }
+
+    .about-text p {
+      margin: 0 0 1.05em 0;
+    }
+
+    .about-text p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* FIELD MODE */
+    #fieldMode {
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+
+    .field-intro {
+      display: block;
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .field-copy {
+      max-width: 720px;
+      margin-bottom: 12px;
+    }
+
+    .field-tools {
+      display: grid;
+      grid-template-columns: minmax(260px, 1fr) repeat(4, auto);
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .field-slider-wrap {
+      display: grid;
+      grid-template-columns: auto minmax(140px, 1fr) 28px;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      min-width: 0;
+    }
+
+    #fieldColsSlider {
+      width: 100%;
+      min-width: 0;
+      padding: 0;
+      box-shadow: none;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .field-behaviour-btn {
+      padding: 7px 11px;
+      border-radius: 999px;
+      font-size: 12px;
+      box-shadow: none;
+      background: rgba(255,255,255,0.18);
+    }
+
+    .field-behaviour-btn.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    #fieldReleaseBtn {
+      min-width: 86px;
+    }
+
+    .field-grid {
+      --field-cols: 10;
+      display: grid;
+      grid-template-columns: repeat(var(--field-cols), minmax(0, 1fr));
+      gap: 10px;
+      align-items: start;
+      transition: all 0.25s ease;
+    }
+
+    .field-group-title {
+      grid-column: 1 / -1;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+      border-top: 1px solid var(--line);
+      padding-top: 10px;
+      margin-top: 6px;
+    }
+    .field-item {
+      position: relative;
+      aspect-ratio: 0.72;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #c8bead;
+      cursor: pointer;
+      transform-origin: center center;
+      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease, filter 0.22s ease;
+      will-change: transform;
+    }
+
+    .field-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .field-item.active {
+      transform: scale(1.45);
+      z-index: 5;
+    }
+
+    .field-item.dim {
+      opacity: 0.36;
+      filter: saturate(0.8);
+      transform: scale(0.96);
+    }
+
+    .field-item.same-day,
+    .field-item.same-month,
+    .field-item.same-year {
+      opacity: 1;
+      filter: none;
+    }
+
+    .field-caption {
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      bottom: 8px;
+      z-index: 2;
+      color: white;
+      font-size: 11px;
+      line-height: 1.12;
+      text-shadow: 0 1px 7px rgba(0,0,0,0.45);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+    }
+
+    .field-item.active .field-caption {
+      opacity: 1;
+    }
+
+    .field-open-label {
+      position: absolute;
+      right: 8px;
+      bottom: 8px;
+      z-index: 4;
+      display: none;
+      border: 1px solid rgba(255,255,255,0.34);
+      border-radius: 999px;
+      padding: 6px 9px;
+      font-size: 11px;
+      line-height: 1;
+      background: rgba(20,16,12,0.42);
+      color: white;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .field-item.active .field-open-label {
+      display: block;
+    }
+
+    @media (max-width: 900px) {
+      .field-tools {
+        grid-template-columns: 1fr;
+        align-items: stretch;
+      }
+
+      .field-behaviour-btn {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 1100px) {
+      .timeline-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .image-panel {
+        width: 100%;
+      }
+
+      .image-shell {
+        width: 100%;
+        max-width: 500px;
+        margin: 0 auto;
+      }
+
+      .slot-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .photos-grid-years,
+      .photos-grid-all {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .photos-grid-days {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .photos-grid-months {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .lightbox {
+        padding-top: max(72px, calc(env(safe-area-inset-top) + 58px));
+        padding-left: max(12px, env(safe-area-inset-left));
+        padding-right: max(12px, env(safe-area-inset-right));
+        padding-bottom: max(16px, env(safe-area-inset-bottom));
+      }
+
+      .lightbox-inner {
+        width: 100%;
+        height: calc(100dvh - 96px);
+      }
+
+      .lightbox img {
+        max-width: 100%;
+        max-height: 100%;
+        border-radius: 14px;
+      }
+
+      .lightbox-actions {
+        top: max(14px, env(safe-area-inset-top));
+        right: calc(max(12px, env(safe-area-inset-right)) + 42px);
+        max-width: calc(100vw - 72px);
+        align-items: center;
+        gap: 8px;
+      }
+
+      .lightbox-action-btn {
+        height: 34px;
+        padding: 0 10px;
+        font-size: 12px;
+        line-height: 34px;
+      }
+
+      .lightbox-close {
+        top: max(14px, env(safe-area-inset-top));
+        right: max(12px, env(safe-area-inset-right));
+      }
+    }
+
+    @media (max-width: 760px) {
+      .wrap {
+        padding: 12px;
+      }
+
+      .title {
+        font-size: 22px;
+      }
+
+      .image-shell {
+        width: 100%;
+        max-width: 420px;
+      }
+
+      .image-frame {
+        max-height: 62vh;
+      }
+
+      .headline {
+        font-size: 34px;
+      }
+
+      .text {
+        font-size: 15px;
+      }
+
+      .timeline-item {
+        width: 90px;
+      }
+
+      .slot-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .photos-grid-years,
+      .photos-grid-all {
+        grid-template-columns: 1fr;
+      }
+
+      .photos-grid-days {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      input {
+        min-width: 0;
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .wrap {
+        padding: 10px;
+      }
+
+      .controls,
+      .slot-controls,
+      .photos-controls {
+        width: 100%;
+      }
+
+      .controls button,
+      .slot-controls button {
+        flex: 1 1 auto;
+      }
+
+      .image-shell {
+        max-width: 360px;
+      }
+
+      .image-frame {
+        max-height: 56vh;
+      }
+
+      .headline {
+        font-size: 28px;
+      }
+
+      .slot-grid,
+      .photos-grid-days {
+        grid-template-columns: 1fr;
+      }
+
+      .photos-segmented {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+
+    /* TOP NAV / SOCIAL LINKS */
+    .controls button {
+      flex-shrink: 0;
+    }
+
+    .topbar .controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .social-links {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .social-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      text-decoration: none;
+      box-shadow: var(--shadow);
+      flex: 0 0 auto;
+      transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+    }
+
+    .social-btn svg {
+      width: 14px;
+      height: 14px;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .social-btn:hover {
+      background: #cec3b0;
+      color: var(--text);
+    }
+
+    .social-btn:active {
+      transform: translateY(1px);
+    }
+</style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div>
+        <div class="mode-badge" id="modeBadge">Timeline Mode</div>
+        <h1 class="title">Dome Archive Prototype</h1>
+      </div>
+
+      <div class="controls">
+        <button id="timelineModeBtn" class="active-mode-btn">Timeline</button>
+        <button id="slotModeBtn">Explore / Slot</button>
+        <button id="photosModeBtn">Photos</button>
+        <button id="fieldModeBtn">Field</button>
+        <button id="flowModeBtn">Flow</button>
+        <button id="aboutModeBtn">About</button>
+
+        <div class="social-links">
+          <a href="mailto:julian.canterbury@gmail.com" class="social-btn" aria-label="Email">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="4.5" y="6.5" width="15" height="11" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
+              <path d="M5 7.5l7 5.2 7-5.2" stroke="currentColor" stroke-width="1.4" fill="none"/>
+            </svg>
+          </a>
+
+          <a href="https://instagram.com/_juliancanterbury" target="_blank" rel="noopener" class="social-btn" aria-label="Instagram">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="5.5" y="5.5" width="13" height="13" rx="3.5" stroke="currentColor" stroke-width="1.4"/>
+              <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.4"/>
+              <circle cx="16" cy="8" r="0.65" stroke="currentColor" stroke-width="1.4" fill="none"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div id="loadingMessage" class="loading">Loading data…</div>
+
+    <div id="appShell" class="hidden">
+      <div id="timelineMode">
+        <div class="controls timeline-top-controls">
+          <button id="prevBtn">Previous</button>
+          <button id="nextBtn">Next</button>
+          <div class="timeline-scale-wrap">
+            <span>Timeline</span>
+            <input id="timelineScaleSlider" type="range" min="44" max="160" value="98" />
+            <span id="timelineScaleValue" class="timeline-scale-label">Days</span>
+          </div>
+        </div>
+
+        <div class="timeline-layout">
+          <div class="panel image-panel">
+            <div class="image-shell">
+              <div class="image-frame">
+                <img id="mainImage" src="" alt="" decoding="async" fetchpriority="high" />
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="date" id="dateText"></div>
+            <h2 class="headline" id="headlineText"></h2>
+            <div class="text" id="bodyText"></div>
+            <div class="caption" id="captionText"></div>
+          </div>
+        </div>
+
+        <div class="timeline-strip">
+          <div class="timeline-track" id="timelineTrack"></div>
+        </div>
+      </div>
+
+      <div id="slotMode" class="hidden">
+        <div class="slot-controls">
+          <input id="searchInput" type="text" placeholder="Search/category" value="" />
+          <button id="spinBtn">Spin</button>
+          <button id="hardSpinBtn">Hard Spin</button>
+          <button id="clearHoldsBtn">Clear Holds</button>
+        </div>
+
+        <div class="slot-grid" id="slotGrid"></div>
+      </div>
+
+      <div id="photosMode" class="hidden">
+        <div class="photos-controls">
+          <div class="photos-segmented">
+            <button class="view-btn active" data-view="years">Years</button>
+            <button class="view-btn" data-view="months">Months</button>
+            <button class="view-btn" data-view="days">Days</button>
+            <button class="view-btn" data-view="all">All Photos</button>
+          </div>
+        </div>
+
+        <div id="photosToolbar" class="photos-toolbar hidden"></div>
+        <div id="photosContent"></div>
+      </div>
+
+      <div id="fieldMode" class="hidden">
+        <div class="field-intro">
+          <div class="field-copy">
+            <div>Tap an image to pull related images forward. Tap the same image again to open it. Press Escape or tap All Images to return to the full grid.</div>
+            <div id="fieldStatus"></div>
+          </div>
+          <div class="field-tools">
+            <div class="field-slider-wrap">
+              <span>Width</span>
+              <input id="fieldColsSlider" type="range" min="4" max="18" value="10" />
+              <span id="fieldColsValue">10</span>
+            </div>
+            <button class="field-behaviour-btn active" data-field-behaviour="default">Default</button>
+            <button class="field-behaviour-btn" data-field-behaviour="shuffle">Shuffle</button>
+            <button class="field-behaviour-btn" data-field-behaviour="groups">Groups</button>
+            <button id="fieldReleaseBtn" class="field-behaviour-btn" type="button">All Images</button>
+          </div>
+        </div>
+        <div id="fieldGrid" class="field-grid"></div>
+      </div>
+
+
+      <div id="flowMode" class="hidden">
+        <div class="flow-intro">
+          <div class="flow-copy">
+            Full-height image stream. Drag or flick left/right with mouse or finger. Speed controls the underlying drift.
+          </div>
+          <div class="flow-tools">
+            <span>Speed</span>
+            <input id="flowSpeedSlider" type="range" min="-80" max="80" value="18" />
+            <span id="flowSpeedValue" class="flow-speed-label">Left 18</span>
+          </div>
+        </div>
+        <div id="flowStage" class="flow-stage">
+          <div id="flowTrack" class="flow-track"></div>
+        </div>
+      </div>
+
+      <div id="aboutMode" class="hidden">
+        <div class="about-panel">
+          <div class="about-kicker">About</div>
+          <h2 class="about-title">Dome Archive Prototype</h2>
+          <div class="about-text">
+            <p>This is a loosely curated collection of images, mostly documenting the mud dome, along with a range of related (and unrelated) experiments and side projects involving the house—a timber California Bungalow—as well as ceramics, lighting, finishes, and whatever has become my latest obsession (the possibility of doing web design being just another manifestation of this).</p>
+            <p>This is largely a weekend and holiday activity, and is somewhat antithetical to the everyday practice of architecture, with its programmes, deadlines, and critical paths. As with architecture, however, budget remains a constant constraint, and as with any project, a larger budget allows for more ambition and perhaps more risk-taking. There are points where I would prefer not to be digging 1100mm footings myself—having already done some damage in the process. Employing someone younger and fitter would, at times, be a welcome option.</p>
+            <p>The dome itself is less a finished object and more a vehicle for testing ideas. These include different approaches to concrete formwork—both traditional and 3D printed—along with incorporating 3D printed custom lighting directly into the concrete, as well as learning, by doing, how to build with mud, make bricks, and render in lime.</p>
+            <p>Alongside this are ongoing material experiments, particularly with clay and casting. This includes developing slip casting processes using clay sourced directly from the site—working through particle size, mixing ratios, deflocculants, and measuring consistency with a hydrometer. While technical, these processes have largely been developed through trial, error, and iteration rather than any formal setup.</p>
+            <p>The project began during COVID, during a period of working alone at home. It started with digging out an area under a veranda and making mud bricks. From there, the idea of building a dome emerged. The first batch of bricks proved to be the wrong shape and size, so the process started again. Those original bricks are still stacked on pallets, waiting for another use—possibly a kiln.</p>
+            <p>The house more broadly acts as a kind of laboratory for ideas—some more resolved than others, and some which should definitely not be tested on client projects. There is no particular intention for it to ever be finished.</p>
+            <p>This website follows the same thinking. It is not designed to be polished, but instead explores how the same set of images can be organised and experienced in different ways. It also reflects a broader idea: that most things can be learned by doing.</p>
+            <p>I don’t have a background in web development or coding. This website is built directly in HTML and JavaScript, without templates or software layers. Alongside this, I’ve also written bits of code in Python and VB for other applications as needed. AI hasn’t replaced something I already did, or simply made it easier—it has made some of this possible in the first place. This is not a dumbing down, as I would not have invested the time, or had the time, to do it otherwise.</p>
+            <p>That’s the project as it currently stands.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="lightbox" class="lightbox hidden" aria-hidden="true">
+    <div class="lightbox-inner">
+      <button id="lightboxClose" class="lightbox-close" aria-label="Close image">×</button>
+      <img id="lightboxImage" src="" alt="" decoding="async" />
+      <div class="lightbox-actions">
+        <button id="lightboxTimelineBtn" class="lightbox-action-btn">Open in Timeline</button>
+        <button id="lightboxPhotosBtn" class="lightbox-action-btn">Open in Photos</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SHEET_ID = "1wDHuoi8_cpGx0wYemSWE86Oxwiz9_QIUAVNxUAhAk8A";
+    const SHEET_TAB = "PUBLISH";
+
+    const SMALL_IMAGE_PATH = "https://juliancanterbury.github.io/dome-timeline/Images/Small/";
+    const LARGE_IMAGE_PATH = "https://juliancanterbury.github.io/dome-timeline/Images/Large/";
+
+    let entries = [];
+    let currentIndex = 0;
+    let timelineScale = 98;
+    let currentMode = "timeline";
+    let flowSpeed = 18;
+    let flowPosition = 0;
+    let flowVelocity = 0;
+    let flowBaseWidth = 0;
+    let flowLastTs = null;
+    let flowDragging = false;
+    let flowPointerId = null;
+    let flowLastX = 0;
+    let flowLastT = 0;
+    let flowMoved = false;
+    let flowAnimationId = null;
+    const reelCount = 5;
+    const imageCache = new Map();
+    let slotPreviewPool = [];
+    let currentPhotoView = "years";
+    let lightboxEntryIndex = null;
+    let fieldCols = 10;
+    let fieldBehaviour = "default";
+    let fieldSelectedEntry = null;
+    let fieldShuffleSeed = 1;
+
+    let photoNav = {
+      year: null,
+      month: null,
+      day: null
+    };
+
+    let reelState = Array.from({ length: reelCount }, () => ({
+      held: false,
+      entry: null
+    }));
+
+    function cleanFileName(value) {
+      return String(value ?? "").trim();
+    }
+
+    function getSmallPath(fileName) {
+      return SMALL_IMAGE_PATH + encodeURI(fileName);
+    }
+
+    function getLargePath(fileName) {
+      return LARGE_IMAGE_PATH + encodeURI(fileName);
+    }
+
+    async function loadSheetData() {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 12000);
+
+      try {
+        const url = `https://opensheet.elk.sh/${SHEET_ID}/${SHEET_TAB}`;
+        const res = await fetch(url, {
+          method: "GET",
+          cache: "no-store",
+          signal: controller.signal
+        });
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        const data = await res.json();
+
+        return data
+          .map((row, index) => {
+            const fileName = cleanFileName(
+              row.Filename ??
+              row.FileName ??
+              row.FILENAME ??
+              row.filename ??
+              ""
+            );
+
+            const year = Number(String(row.Year ?? row.YEAR ?? "").replace(/,/g, ""));
+            const month = Number(String(row.Month ?? row.MONTH ?? "").replace(/,/g, ""));
+            const day = Number(String(row.Day ?? row.DAY ?? "").replace(/,/g, ""));
+
+            const headline =
+              String(row.Headline ?? row.HEADLINE ?? "").trim() ||
+              "Untitled";
+
+            return {
+              id: `${fileName}-${index}`,
+              year: year,
+              month: month,
+              day: day,
+              headline: headline,
+              text: row.Text ?? row.TEXT ?? "",
+              caption: row.Caption ?? row.CAPTION ?? "",
+              fileName: fileName,
+              mediaSmall: fileName ? getSmallPath(fileName) : "",
+              mediaLarge: fileName ? getLargePath(fileName) : ""
+            };
+          })
+          .filter(row =>
+            row.year &&
+            row.month &&
+            row.day &&
+            row.fileName
+          )
+          .sort((a, b) => {
+            return new Date(a.year, a.month - 1, a.day) -
+                   new Date(b.year, b.month - 1, b.day);
+          });
+      } finally {
+        clearTimeout(timeout);
+      }
+    }
+
+    function formatDate(entry) {
+      const d = new Date(entry.year, entry.month - 1, entry.day);
+      return d.toLocaleDateString("en-AU", {
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      });
+    }
+
+    function formatMonthTitle(year, month) {
+      const d = new Date(year, month - 1, 1);
+      return d.toLocaleDateString("en-AU", {
+        month: "long",
+        year: "numeric"
+      });
+    }
+
+    function formatDayTitle(entry) {
+      const d = new Date(entry.year, entry.month - 1, entry.day);
+      return d.toLocaleDateString("en-AU", {
+        weekday: "short",
+        day: "numeric",
+        month: "short"
+      });
+    }
+
+    function groupKeyYear(entry) {
+      return `${entry.year}`;
+    }
+
+    function groupKeyMonth(entry) {
+      return `${entry.year}-${String(entry.month).padStart(2, "0")}`;
+    }
+
+    function groupKeyDay(entry) {
+      return `${entry.year}-${String(entry.month).padStart(2, "0")}-${String(entry.day).padStart(2, "0")}`;
+    }
+
+    function sampleEntries(list, count) {
+      const copy = [...list];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy.slice(0, Math.min(count, copy.length));
+    }
+
+    function shuffledCopy(list) {
+      const copy = [...list];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function randomEntryFrom(list) {
+      return list[Math.floor(Math.random() * list.length)];
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function buildImgTag(src, alt, extraAttrs = "") {
+      return `<img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" loading="lazy" decoding="async" ${extraAttrs}>`;
+    }
+
+    function preloadImage(src) {
+      return new Promise((resolve) => {
+        if (!src) return resolve();
+        if (imageCache.has(src)) return resolve();
+
+        const img = new Image();
+
+        img.onload = async () => {
+          try {
+            if (img.decode) await img.decode();
+          } catch (e) {}
+
+          imageCache.set(src, true);
+          resolve();
+        };
+
+        img.onerror = () => resolve();
+        img.src = src;
+      });
+    }
+
+    async function preloadEntriesImages(list, limit = 6) {
+      const targets = list.slice(0, Math.min(limit, list.length));
+      await Promise.all(targets.map(entry => preloadImage(entry.mediaSmall)));
+    }
+
+    async function ensureEntryImage(entry) {
+      if (!entry || !entry.mediaSmall) return;
+      await preloadImage(entry.mediaSmall);
+    }
+
+    function animateImageSwap(imgEl, newSrc, newAlt = "") {
+      if (!newSrc) return;
+
+      if (imgEl.dataset.currentSrc === newSrc) {
+        imgEl.alt = newAlt;
+        return;
+      }
+
+      imgEl.style.transition = "none";
+      imgEl.style.transform = "translateX(10px) scale(0.992)";
+      imgEl.style.opacity = "0";
+
+      setTimeout(() => {
+        imgEl.onload = null;
+        imgEl.src = newSrc;
+        imgEl.alt = newAlt;
+        imgEl.dataset.currentSrc = newSrc;
+
+        imgEl.onload = () => {
+          imgEl.style.transition = "all 0.24s cubic-bezier(0.22, 1, 0.36, 1)";
+          imgEl.style.transform = "translateX(0px) scale(1.002)";
+          imgEl.style.opacity = "1";
+
+          setTimeout(() => {
+            imgEl.style.transition = "all 0.12s ease-out";
+            imgEl.style.transform = "translateX(0px) scale(1)";
+          }, 140);
+        };
+      }, 30);
+    }
+
+    function renderEntry(index) {
+      if (!entries.length) return;
+
+      const entry = entries[index];
+      const mainImage = document.getElementById("mainImage");
+
+      animateImageSwap(mainImage, entry.mediaSmall, entry.headline);
+      document.getElementById("dateText").textContent = formatDate(entry);
+      document.getElementById("headlineText").textContent = entry.headline;
+      document.getElementById("bodyText").textContent = entry.text || "";
+      document.getElementById("captionText").textContent = entry.caption || "";
+
+      mainImage.loading = "eager";
+      mainImage.decoding = "async";
+      mainImage.fetchPriority = "high";
+
+      document.querySelectorAll(".timeline-item").forEach((el, i) => {
+        el.classList.toggle("active", i === index);
+      });
+    }
+
+    function timelineScaleMode() {
+      if (timelineScale <= 58) return "years";
+      if (timelineScale <= 88) return "months";
+      return "days";
+    }
+
+    function timelineLabel(entry, index) {
+      const mode = timelineScaleMode();
+      const prev = entries[index - 1];
+
+      if (mode === "years") {
+        if (!prev || prev.year !== entry.year) return String(entry.year);
+        return "";
+      }
+
+      if (mode === "months") {
+        if (!prev || prev.year !== entry.year || prev.month !== entry.month) {
+          return new Date(entry.year, entry.month - 1, 1).toLocaleDateString("en-AU", {
+            month: "short",
+            year: "2-digit"
+          });
+        }
+        return "";
+      }
+
+      return formatDate(entry);
+    }
+
+    function timelineHeadline(entry) {
+      const mode = timelineScaleMode();
+      if (mode === "days") return entry.headline;
+      return "";
+    }
+
+    function updateTimelineScaleControls() {
+      const track = document.getElementById("timelineTrack");
+      const slider = document.getElementById("timelineScaleSlider");
+      const value = document.getElementById("timelineScaleValue");
+      if (track) track.style.setProperty("--timeline-item-w", `${timelineScale}px`);
+      if (slider) slider.value = String(timelineScale);
+      if (value) {
+        const mode = timelineScaleMode();
+        value.textContent = mode === "years" ? "Years" : mode === "months" ? "Months" : "Days";
+      }
+    }
+
+    function buildTimeline() {
+      const track = document.getElementById("timelineTrack");
+      track.innerHTML = "";
+      updateTimelineScaleControls();
+
+      const mode = timelineScaleMode();
+
+      entries.forEach((entry, i) => {
+        const item = document.createElement("div");
+        item.className = `timeline-item ${mode === "years" ? "micro" : mode === "months" ? "compact" : ""}`;
+        item.innerHTML = `
+          <div class="timeline-thumb">
+            <img src="${escapeHtml(entry.mediaSmall)}" alt="${escapeHtml(entry.headline)}" loading="lazy" decoding="async" fetchpriority="low" />
+          </div>
+          <div class="mini-date">${escapeHtml(timelineLabel(entry, i))}</div>
+          <div class="mini-headline">${escapeHtml(timelineHeadline(entry))}</div>
+        `;
+        item.addEventListener("click", () => {
+          currentIndex = i;
+          renderEntry(currentIndex);
+          scrollTimelineItemIntoView(currentIndex);
+        });
+        track.appendChild(item);
+      });
+    }
+
+    function filteredEntries(term) {
+      const t = term.trim().toLowerCase();
+      if (!t) return [...entries];
+
+      return entries.filter(entry =>
+        (entry.headline || "").toLowerCase().includes(t) ||
+        (entry.text || "").toLowerCase().includes(t) ||
+        (entry.caption || "").toLowerCase().includes(t) ||
+        (entry.fileName || "").toLowerCase().includes(t)
+      );
+    }
+
+    function buildSlotGrid() {
+      const grid = document.getElementById("slotGrid");
+      grid.innerHTML = "";
+
+      for (let i = 0; i < reelCount; i++) {
+        const reel = document.createElement("div");
+        reel.className = "reel";
+        reel.innerHTML = `
+          <div class="reel-window">
+            <img id="reelImg${i}" src="" alt="" loading="lazy" decoding="async" fetchpriority="low" />
+          </div>
+          <div class="reel-caption" id="reelCaption${i}"></div>
+          <button class="hold-btn" id="holdBtn${i}">Hold</button>
+        `;
+        grid.appendChild(reel);
+      }
+
+      for (let i = 0; i < reelCount; i++) {
+        document.getElementById(`holdBtn${i}`).addEventListener("click", () => {
+          reelState[i].held = !reelState[i].held;
+          updateHoldButtons();
+        });
+
+        const reelImg = document.getElementById(`reelImg${i}`);
+        reelImg.addEventListener("click", () => {
+          const entry = reelState[i].entry;
+          if (!entry) return;
+          openLightbox(entry.mediaLarge, entry.headline, entries.indexOf(entry));
+        });
+      }
+    }
+
+    function updateHoldButtons() {
+      for (let i = 0; i < reelCount; i++) {
+        const btn = document.getElementById(`holdBtn${i}`);
+        btn.textContent = reelState[i].held ? "Held" : "Hold";
+        btn.classList.toggle("held", reelState[i].held);
+      }
+    }
+
+    function setReelVisual(index, entry) {
+      const img = document.getElementById(`reelImg${index}`);
+      const caption = document.getElementById(`reelCaption${index}`);
+      animateImageSwap(img, entry.mediaSmall, entry.headline);
+      caption.textContent = `${entry.headline} — ${formatDate(entry)}`;
+    }
+
+    async function animateReelSpin(index, previewPool, finalEntry, stopDelay = 0) {
+      await ensureEntryImage(finalEntry);
+      const localPreviewPool = previewPool.length ? previewPool : [finalEntry];
+
+      return new Promise(resolve => {
+        const totalFrames = 10 + Math.floor(Math.random() * 4);
+        let frame = 0;
+
+        const startSpin = () => {
+          const interval = setInterval(() => {
+            const candidate = localPreviewPool[frame % localPreviewPool.length];
+            setReelVisual(index, candidate);
+            frame++;
+
+            if (frame >= totalFrames) {
+              clearInterval(interval);
+              reelState[index].entry = finalEntry;
+              setReelVisual(index, finalEntry);
+              setTimeout(resolve, 90);
+            }
+          }, 75);
+        };
+
+        setTimeout(startSpin, stopDelay);
+      });
+    }
+
+    async function spinSlot(forceAll = false) {
+      const search = document.getElementById("searchInput").value;
+      let pool = filteredEntries(search);
+      if (!pool.length) pool = [...entries];
+
+      const reelIndexesToSpin = [];
+      for (let i = 0; i < reelCount; i++) {
+        if (reelState[i].held && !forceAll) continue;
+        reelIndexesToSpin.push(i);
+      }
+
+      if (!reelIndexesToSpin.length) return;
+
+      const uniquePool = shuffledCopy(pool);
+      let chosenFinals = [];
+
+      if (!forceAll && uniquePool.length >= reelIndexesToSpin.length) {
+        chosenFinals = uniquePool.slice(0, reelIndexesToSpin.length);
+      } else if (!forceAll) {
+        chosenFinals = [...uniquePool];
+        while (chosenFinals.length < reelIndexesToSpin.length) {
+          chosenFinals.push(randomEntryFrom(pool));
+        }
+      } else {
+        for (let i = 0; i < reelIndexesToSpin.length; i++) {
+          chosenFinals.push(randomEntryFrom(pool));
+        }
+      }
+
+      const previewSource = uniquePool.length >= 10
+        ? uniquePool.slice(0, 10)
+        : uniquePool;
+
+      slotPreviewPool = previewSource;
+      await Promise.all(chosenFinals.map(entry => ensureEntryImage(entry)));
+
+      const spinPromises = reelIndexesToSpin.map((reelIndex, i) => {
+        let previewPool;
+
+        if (forceAll) {
+          previewPool = sampleEntries(pool, Math.min(6, pool.length));
+        } else {
+          const rotatedPreview = shuffledCopy(
+            slotPreviewPool.filter(entry => entry.mediaSmall !== chosenFinals[i].mediaSmall)
+          );
+          previewPool = rotatedPreview.length ? rotatedPreview.slice(0, 6) : [chosenFinals[i]];
+        }
+
+        return animateReelSpin(reelIndex, previewPool, chosenFinals[i], i * 140);
+      });
+
+      await Promise.all(spinPromises);
+    }
+
+    function openLightbox(src, alt = "", entryIndex = null) {
+      if (!src) return;
+
+      const lightbox = document.getElementById("lightbox");
+      const lightboxImage = document.getElementById("lightboxImage");
+
+      lightboxEntryIndex = entryIndex;
+
+      if (lightboxEntryIndex === null) {
+        const foundIndex = entries.findIndex(entry =>
+          entry.mediaLarge === src ||
+          entry.mediaSmall === src ||
+          entry.headline === alt
+        );
+        lightboxEntryIndex = foundIndex >= 0 ? foundIndex : null;
+      }
+
+      lightboxImage.src = src;
+      lightboxImage.alt = alt;
+      lightbox.classList.remove("hidden");
+      lightbox.classList.add("open");
+      lightbox.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeLightbox() {
+      const lightbox = document.getElementById("lightbox");
+      const lightboxImage = document.getElementById("lightboxImage");
+
+      lightbox.classList.remove("open");
+      lightbox.classList.add("hidden");
+      lightbox.setAttribute("aria-hidden", "true");
+      lightboxImage.src = "";
+      lightboxImage.alt = "";
+      lightboxEntryIndex = null;
+      document.body.style.overflow = "";
+    }
+
+    function scrollTimelineItemIntoView(index) {
+      const items = document.querySelectorAll(".timeline-item");
+      const target = items[index];
+      if (!target) return;
+      target.scrollIntoView({
+        inline: "center",
+        block: "nearest",
+        behavior: "smooth"
+      });
+    }
+
+    function groupEntriesBy(entriesList, keyFn) {
+      const map = new Map();
+      entriesList.forEach(entry => {
+        const key = keyFn(entry);
+        if (!map.has(key)) map.set(key, []);
+        map.get(key).push(entry);
+      });
+      return [...map.entries()];
+    }
+
+    function sortEntriesChronological(list) {
+      return [...list].sort((a, b) => {
+        const da = new Date(a.year, a.month - 1, a.day).getTime();
+        const db = new Date(b.year, b.month - 1, b.day).getTime();
+        return da - db;
+      });
+    }
+
+    function sameMonth(entry, year, month) {
+      return entry.year === year && entry.month === month;
+    }
+
+    function sameDay(entry, year, month, day) {
+      return entry.year === year && entry.month === month && entry.day === day;
+    }
+
+    function updatePhotosToolbar() {
+      const toolbar = document.getElementById("photosToolbar");
+
+      if (currentPhotoView === "years") {
+        toolbar.classList.add("hidden");
+        toolbar.innerHTML = "";
+        return;
+      }
+
+      let crumb = "Photos";
+      if (photoNav.year) crumb += ` / ${photoNav.year}`;
+      if (photoNav.month) {
+        const d = new Date(photoNav.year, photoNav.month - 1, 1);
+        crumb += ` / ${d.toLocaleDateString("en-AU", { month: "long" })}`;
+      }
+      if (photoNav.day) crumb += ` / ${photoNav.day}`;
+
+      toolbar.classList.remove("hidden");
+      toolbar.innerHTML = `
+        <button class="photos-back-btn" id="photosBackBtn">Back</button>
+        <div class="photos-breadcrumb">${escapeHtml(crumb)}</div>
+      `;
+
+      document.getElementById("photosBackBtn").addEventListener("click", () => {
+        if (currentPhotoView === "all") {
+          currentPhotoView = "days";
+          photoNav.day = null;
+        } else if (currentPhotoView === "days") {
+          currentPhotoView = "months";
+          photoNav.month = null;
+          photoNav.day = null;
+        } else if (currentPhotoView === "months") {
+          currentPhotoView = "years";
+          photoNav.year = null;
+          photoNav.month = null;
+          photoNav.day = null;
+        }
+        renderPhotosMode(currentPhotoView);
+      });
+    }
+
+    function renderPhotosMode(view) {
+      currentPhotoView = view;
+      const content = document.getElementById("photosContent");
+      let sorted = sortEntriesChronological(entries);
+
+
+    document.querySelectorAll(".view-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.view === view);
+      });
+
+      if (view === "years") {
+        photoNav.year = null;
+        photoNav.month = null;
+        photoNav.day = null;
+
+        const byYear = groupEntriesBy(sorted, groupKeyYear);
+
+        content.innerHTML = `
+          <div class="photos-grid-years">
+            ${byYear.map(([year, list]) => `
+              <div class="photo-group-card" data-year="${escapeHtml(year)}">
+                ${buildImgTag(list[0].mediaSmall, year, 'fetchpriority="low"')}
+                <div class="photo-group-label">${escapeHtml(year)}</div>
+              </div>
+            `).join("")}
+          </div>
+        `;
+
+        content.querySelectorAll("[data-year]").forEach(el => {
+          el.addEventListener("click", () => {
+            photoNav.year = Number(el.dataset.year);
+            photoNav.month = null;
+            photoNav.day = null;
+            renderPhotosMode("months");
+          });
+        });
+      }
+
+      else if (view === "months") {
+        if (photoNav.year) {
+          sorted = sorted.filter(entry => entry.year === photoNav.year);
+        }
+
+        const byMonth = groupEntriesBy(sorted, groupKeyMonth);
+
+        content.innerHTML = byMonth.map(([key, list]) => `
+          <section class="photos-section">
+            <h2 class="photos-section-title">${escapeHtml(formatMonthTitle(list[0].year, list[0].month))}</h2>
+            <div class="photos-grid-months">
+              <div class="photo-group-card" data-year="${list[0].year}" data-month="${list[0].month}">
+                ${buildImgTag(list[0].mediaSmall, formatMonthTitle(list[0].year, list[0].month), 'fetchpriority="low"')}
+                <div class="photo-group-label">
+                  ${escapeHtml(new Date(list[0].year, list[0].month - 1, 1).toLocaleDateString("en-AU", { month: "long" }))}
+                </div>
+              </div>
+            </div>
+          </section>
+        `).join("");
+
+        content.querySelectorAll("[data-month]").forEach(el => {
+          el.addEventListener("click", () => {
+            photoNav.year = Number(el.dataset.year);
+            photoNav.month = Number(el.dataset.month);
+            photoNav.day = null;
+            renderPhotosMode("days");
+          });
+        });
+      }
+
+      else if (view === "days") {
+        if (photoNav.year && photoNav.month) {
+          sorted = sorted.filter(entry => sameMonth(entry, photoNav.year, photoNav.month));
+        }
+
+        const byDay = groupEntriesBy(sorted, groupKeyDay);
+
+        content.innerHTML = `
+          <div class="photos-grid-days">
+            ${byDay.map(([key, list]) => `
+              <div class="photo-card" data-year="${list[0].year}" data-month="${list[0].month}" data-day="${list[0].day}">
+                <div class="photo-card-image">
+                  ${buildImgTag(list[0].mediaSmall, formatDate(list[0]), 'fetchpriority="low"')}
+                </div>
+                <div class="photo-card-meta">
+                  <strong>${escapeHtml(new Date(list[0].year, list[0].month - 1, list[0].day).toLocaleDateString("en-AU", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric"
+                  }))}</strong>
+                  ${list.length} photo${list.length === 1 ? "" : "s"}
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        `;
+
+        content.querySelectorAll("[data-day]").forEach(el => {
+          el.addEventListener("click", () => {
+            photoNav.year = Number(el.dataset.year);
+            photoNav.month = Number(el.dataset.month);
+            photoNav.day = Number(el.dataset.day);
+            renderPhotosMode("all");
+          });
+        });
+      }
+
+      else {
+        if (photoNav.year && photoNav.month && photoNav.day) {
+          sorted = sorted.filter(entry => sameDay(entry, photoNav.year, photoNav.month, photoNav.day));
+        }
+
+        content.innerHTML = `
+          <div class="photos-grid-all">
+            ${sorted.map(entry => `
+              <div class="photo-card" data-src="${escapeHtml(entry.mediaLarge)}" data-alt="${escapeHtml(entry.headline)}" data-index="${entries.indexOf(entry)}">
+                <div class="photo-card-image">
+                  ${buildImgTag(entry.mediaSmall, entry.headline, 'fetchpriority="low"')}
+                </div>
+                <div class="photo-card-meta">
+                  <strong>${escapeHtml(entry.headline)}</strong>
+                  ${escapeHtml(formatDate(entry))}
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        `;
+
+        content.querySelectorAll("[data-src]").forEach(el => {
+          el.addEventListener("click", () => {
+            openLightbox(el.dataset.src, el.dataset.alt || "", Number(el.dataset.index));
+          });
+        });
+      }
+
+      updatePhotosToolbar();
+    }
+
+    document.getElementById("prevBtn").addEventListener("click", async () => {
+      currentIndex = Math.max(0, currentIndex - 1);
+      renderEntry(currentIndex);
+      scrollTimelineItemIntoView(currentIndex);
+      const nextEntry = entries[Math.min(entries.length - 1, currentIndex + 1)];
+      ensureEntryImage(nextEntry);
+    });
+
+    document.getElementById("nextBtn").addEventListener("click", async () => {
+      currentIndex = Math.min(entries.length - 1, currentIndex + 1);
+      renderEntry(currentIndex);
+      scrollTimelineItemIntoView(currentIndex);
+      const nextEntry = entries[Math.min(entries.length - 1, currentIndex + 1)];
+      ensureEntryImage(nextEntry);
+    });
+
+    document.getElementById("spinBtn").addEventListener("click", () => {
+      spinSlot(false);
+    });
+
+    document.getElementById("hardSpinBtn").addEventListener("click", () => {
+      spinSlot(true);
+    });
+
+    document.getElementById("clearHoldsBtn").addEventListener("click", () => {
+      reelState.forEach(r => r.held = false);
+      updateHoldButtons();
+    });
+
+    const timelineMode = document.getElementById("timelineMode");
+    const slotMode = document.getElementById("slotMode");
+    const photosMode = document.getElementById("photosMode");
+    const fieldMode = document.getElementById("fieldMode");
+    const flowMode = document.getElementById("flowMode");
+    const aboutMode = document.getElementById("aboutMode");
+    const modeBadge = document.getElementById("modeBadge");
+
+    const timelineModeBtn = document.getElementById("timelineModeBtn");
+    const slotModeBtn = document.getElementById("slotModeBtn");
+    const photosModeBtn = document.getElementById("photosModeBtn");
+    const fieldModeBtn = document.getElementById("fieldModeBtn");
+    const flowModeBtn = document.getElementById("flowModeBtn");
+    const aboutModeBtn = document.getElementById("aboutModeBtn");
+    const fieldColsSlider = document.getElementById("fieldColsSlider");
+    const fieldColsValue = document.getElementById("fieldColsValue");
+    const fieldReleaseBtn = document.getElementById("fieldReleaseBtn");
+    const flowSpeedSlider = document.getElementById("flowSpeedSlider");
+    const flowSpeedValue = document.getElementById("flowSpeedValue");
+    const flowStage = document.getElementById("flowStage");
+    const flowTrack = document.getElementById("flowTrack");
+
+    function setMode(mode) {
+      currentMode = mode;
+      timelineMode.classList.toggle("hidden", mode !== "timeline");
+      slotMode.classList.toggle("hidden", mode !== "slot");
+      photosMode.classList.toggle("hidden", mode !== "photos");
+      fieldMode.classList.toggle("hidden", mode !== "field");
+      flowMode.classList.toggle("hidden", mode !== "flow");
+      aboutMode.classList.toggle("hidden", mode !== "about");
+
+      timelineModeBtn.classList.toggle("active-mode-btn", mode === "timeline");
+      slotModeBtn.classList.toggle("active-mode-btn", mode === "slot");
+      photosModeBtn.classList.toggle("active-mode-btn", mode === "photos");
+      fieldModeBtn.classList.toggle("active-mode-btn", mode === "field");
+      flowModeBtn.classList.toggle("active-mode-btn", mode === "flow");
+      aboutModeBtn.classList.toggle("active-mode-btn", mode === "about");
+
+      modeBadge.textContent =
+        mode === "timeline" ? "Timeline Mode" :
+        mode === "slot" ? "Explore / Slot Mode" :
+        mode === "photos" ? "Photos Mode" :
+        mode === "field" ? "Field Mode" :
+        mode === "flow" ? "Flow Mode" :
+        "About";
+
+      if (mode === "flow") {
+        measureFlow();
+        startFlowAnimation();
+      }
+    }
+
+
+    function formatFlowSpeedLabel() {
+      if (!flowSpeedValue) return;
+      const value = Math.round(flowSpeed);
+      if (value === 0) {
+        flowSpeedValue.textContent = "Stopped";
+      } else {
+        flowSpeedValue.textContent = `${value > 0 ? "Left" : "Right"} ${Math.abs(value)}`;
+      }
+    }
+
+    function measureFlow() {
+      if (!flowTrack) return;
+      const total = flowTrack.scrollWidth;
+      flowBaseWidth = total > 0 ? total / 2 : 0;
+      applyFlowTransform();
+    }
+
+    function normaliseFlowPosition() {
+      if (!flowBaseWidth) return;
+      flowPosition = ((flowPosition % flowBaseWidth) + flowBaseWidth) % flowBaseWidth;
+    }
+
+    function applyFlowTransform() {
+      if (!flowTrack) return;
+      normaliseFlowPosition();
+      flowTrack.style.transform = `translate3d(${-flowPosition}px, 0, 0)`;
+    }
+
+    function renderFlowMode() {
+      if (!flowTrack) return;
+      const doubled = [...entries, ...entries];
+
+      flowTrack.innerHTML = doubled.map((entry, i) => {
+        const index = i % entries.length;
+        return `
+          <div class="flow-item" data-flow-index="${index}">
+            <img src="${escapeHtml(entry.mediaSmall)}" alt="${escapeHtml(entry.headline)}" loading="lazy" decoding="async" draggable="false" />
+            <div class="flow-caption">${escapeHtml(entry.headline)}<br>${escapeHtml(formatDate(entry))}</div>
+          </div>
+        `;
+      }).join("");
+
+      flowTrack.querySelectorAll(".flow-item").forEach(item => {
+        item.addEventListener("click", () => {
+          if (flowMoved) return;
+          const index = Number(item.dataset.flowIndex);
+          const entry = entries[index];
+          if (entry) openLightbox(entry.mediaLarge, entry.headline, index);
+        });
+      });
+
+      requestAnimationFrame(measureFlow);
+      formatFlowSpeedLabel();
+    }
+
+    function startFlowAnimation() {
+      if (flowAnimationId) return;
+
+      const tick = (ts) => {
+        if (!flowLastTs) flowLastTs = ts;
+        const dt = Math.min(0.05, (ts - flowLastTs) / 1000);
+        flowLastTs = ts;
+
+        if (currentMode === "flow" && !flowDragging) {
+          flowPosition += (flowSpeed + flowVelocity) * dt;
+          const decay = Math.exp(-dt * 3.2);
+          flowVelocity *= decay;
+          if (Math.abs(flowVelocity) < 0.5) flowVelocity = 0;
+          applyFlowTransform();
+        }
+
+        flowAnimationId = requestAnimationFrame(tick);
+      };
+
+      flowAnimationId = requestAnimationFrame(tick);
+    }
+
+    function setupFlowPointerControls() {
+      if (!flowStage) return;
+
+      flowStage.addEventListener("pointerdown", (e) => {
+        if (!flowBaseWidth) measureFlow();
+        flowDragging = true;
+        flowMoved = false;
+        flowPointerId = e.pointerId;
+        flowLastX = e.clientX;
+        flowLastT = performance.now();
+        flowVelocity = 0;
+        flowStage.classList.add("dragging");
+        flowStage.setPointerCapture(e.pointerId);
+      });
+
+      flowStage.addEventListener("pointermove", (e) => {
+        if (!flowDragging || e.pointerId !== flowPointerId) return;
+
+        const now = performance.now();
+        const dx = e.clientX - flowLastX;
+        const dt = Math.max(16, now - flowLastT) / 1000;
+
+        if (Math.abs(dx) > 2) flowMoved = true;
+
+        flowPosition -= dx;
+        flowVelocity = -dx / dt;
+        flowLastX = e.clientX;
+        flowLastT = now;
+        applyFlowTransform();
+        e.preventDefault();
+      }, { passive: false });
+
+      const endDrag = (e) => {
+        if (!flowDragging || e.pointerId !== flowPointerId) return;
+        flowDragging = false;
+        flowPointerId = null;
+        flowStage.classList.remove("dragging");
+        setTimeout(() => { flowMoved = false; }, 80);
+      };
+
+      flowStage.addEventListener("pointerup", endDrag);
+      flowStage.addEventListener("pointercancel", endDrag);
+      flowStage.addEventListener("pointerleave", endDrag);
+
+      window.addEventListener("resize", () => {
+        if (currentMode === "flow") requestAnimationFrame(measureFlow);
+      });
+    }
+
+    function relationScore(a, b) {
+      if (!a || !b) return 9999;
+      const da = new Date(a.year, a.month - 1, a.day).getTime();
+      const db = new Date(b.year, b.month - 1, b.day).getTime();
+      const days = Math.abs(da - db) / 86400000;
+      const sameDayBonus = a.year === b.year && a.month === b.month && a.day === b.day ? -10000 : 0;
+      const sameMonthBonus = a.year === b.year && a.month === b.month ? -1000 : 0;
+      const sameYearBonus = a.year === b.year ? -100 : 0;
+      return days + sameYearBonus + sameMonthBonus + sameDayBonus;
+    }
+
+    function fieldRandomValue(entry, seed = 1) {
+      const str = `${entry.id}-${entry.fileName}-${seed}`;
+      let h = 2166136261;
+      for (let i = 0; i < str.length; i++) {
+        h ^= str.charCodeAt(i);
+        h += (h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24);
+      }
+      return (h >>> 0) / 4294967295;
+    }
+
+    function fieldDateValue(entry) {
+      return new Date(entry.year, entry.month - 1, entry.day).getTime();
+    }
+
+    function fieldSourceList(selectedEntry = fieldSelectedEntry) {
+      let list = [...entries];
+
+      if (selectedEntry) {
+        list.sort((a, b) => relationScore(a, selectedEntry) - relationScore(b, selectedEntry));
+      }
+
+      if (fieldBehaviour === "shuffle") {
+        list.sort((a, b) => fieldRandomValue(a, fieldShuffleSeed) - fieldRandomValue(b, fieldShuffleSeed));
+      }
+
+      
+      if (fieldBehaviour === "groups") {
+        list.sort((a, b) => {
+          const yearDiff = a.year - b.year;
+          if (yearDiff !== 0) return yearDiff;
+          const monthDiff = a.month - b.month;
+          if (monthDiff !== 0) return monthDiff;
+          return fieldDateValue(a) - fieldDateValue(b);
+        });
+      }
+
+      return list;
+    }
+
+    function createFieldItem(entry, selectedEntry = fieldSelectedEntry) {
+      const index = entries.indexOf(entry);
+      const item = document.createElement("div");
+      item.className = "field-item";
+
+      if (selectedEntry) {
+        const sameYear = entry.year === selectedEntry.year;
+        const sameMonth = sameYear && entry.month === selectedEntry.month;
+        const sameDay = sameMonth && entry.day === selectedEntry.day;
+        item.classList.toggle("dim", !sameYear);
+        item.classList.toggle("same-year", sameYear);
+        item.classList.toggle("same-month", sameMonth);
+        item.classList.toggle("same-day", sameDay);
+        item.classList.toggle("active", entry === selectedEntry);
+      }
+
+      item.innerHTML = `
+        <img src="${escapeHtml(entry.mediaSmall)}" alt="${escapeHtml(entry.headline)}" loading="lazy" decoding="async" fetchpriority="low">
+        <div class="field-caption">${escapeHtml(entry.headline)}<br>${escapeHtml(formatDate(entry))}</div>
+        <div class="field-open-label">Open</div>
+      `;
+
+      item.addEventListener("click", (e) => {
+        e.stopPropagation();
+
+        if (fieldSelectedEntry === entry || item.classList.contains("active")) {
+          openLightbox(entry.mediaLarge, entry.headline, index);
+          return;
+        }
+
+        fieldSelectedEntry = entry;
+        renderFieldMode(entry);
+      });
+
+      item.addEventListener("dblclick", (e) => {
+        e.stopPropagation();
+        openLightbox(entry.mediaLarge, entry.headline, index);
+      });
+
+      return item;
+    }
+
+    function resetFieldMode() {
+      fieldSelectedEntry = null;
+      renderFieldMode(null);
+    }
+
+    function renderFieldMode(selectedEntry = fieldSelectedEntry) {
+      fieldSelectedEntry = selectedEntry;
+
+      const grid = document.getElementById("fieldGrid");
+      const status = document.getElementById("fieldStatus");
+      const slider = document.getElementById("fieldColsSlider");
+      const value = document.getElementById("fieldColsValue");
+
+      if (!grid || !status) return;
+
+      grid.style.setProperty("--field-cols", fieldCols);
+      if (slider) slider.value = String(fieldCols);
+      if (value) value.textContent = String(fieldCols);
+
+      const source = fieldSourceList(selectedEntry);
+      grid.innerHTML = "";
+
+      const behaviourLabel =
+        fieldBehaviour === "shuffle" ? "shuffle" :
+        fieldBehaviour === "groups" ? "groups" :
+        "default";
+
+      status.textContent = selectedEntry
+        ? `${behaviourLabel} / ${selectedEntry.headline} / ${formatDate(selectedEntry)}`
+        : `${behaviourLabel} / ${entries.length} images`;
+
+      if (fieldBehaviour === "groups") {
+        let currentGroup = "";
+        source.forEach(entry => {
+          const groupTitle = formatMonthTitle(entry.year, entry.month);
+          if (groupTitle !== currentGroup) {
+            currentGroup = groupTitle;
+            const title = document.createElement("div");
+            title.className = "field-group-title";
+            title.textContent = groupTitle;
+            grid.appendChild(title);
+          }
+          grid.appendChild(createFieldItem(entry, selectedEntry));
+        });
+        return;
+      }
+
+      
+
+      source.forEach(entry => {
+        grid.appendChild(createFieldItem(entry, selectedEntry));
+      });
+    }
+
+    timelineModeBtn.addEventListener("click", () => setMode("timeline"));
+    slotModeBtn.addEventListener("click", () => setMode("slot"));
+    photosModeBtn.addEventListener("click", () => setMode("photos"));
+    fieldModeBtn.addEventListener("click", () => {
+      setMode("field");
+      renderFieldMode();
+    });
+    flowModeBtn.addEventListener("click", () => {
+      setMode("flow");
+      renderFlowMode();
+    });
+    aboutModeBtn.addEventListener("click", () => setMode("about"));
+
+    const timelineScaleSlider = document.getElementById("timelineScaleSlider");
+    const timelineScaleValue = document.getElementById("timelineScaleValue");
+
+    if (timelineScaleSlider) {
+      timelineScaleSlider.addEventListener("input", () => {
+        timelineScale = Number(timelineScaleSlider.value) || 98;
+        buildTimeline();
+        renderEntry(currentIndex);
+        if (timelineScaleValue) {
+          const mode = timelineScaleMode();
+          timelineScaleValue.textContent = mode === "years" ? "Years" : mode === "months" ? "Months" : "Days";
+        }
+      });
+    }
+
+    if (flowSpeedSlider) {
+      flowSpeedSlider.addEventListener("input", () => {
+        flowSpeed = Number(flowSpeedSlider.value) || 0;
+        formatFlowSpeedLabel();
+      });
+    }
+
+    if (fieldColsSlider) {
+      fieldColsSlider.addEventListener("input", () => {
+        fieldCols = Number(fieldColsSlider.value) || 10;
+        if (fieldColsValue) fieldColsValue.textContent = String(fieldCols);
+        renderFieldMode(fieldSelectedEntry);
+      });
+    }
+
+    document.querySelectorAll(".field-behaviour-btn[data-field-behaviour]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        fieldBehaviour = btn.dataset.fieldBehaviour || "default";
+        if (fieldBehaviour === "shuffle") {
+          fieldShuffleSeed++;
+        }
+        document.querySelectorAll(".field-behaviour-btn[data-field-behaviour]").forEach(b => {
+          b.classList.toggle("active", b === btn);
+        });
+        renderFieldMode(fieldSelectedEntry);
+      });
+    });
+
+    if (fieldReleaseBtn) {
+      fieldReleaseBtn.addEventListener("click", () => {
+        resetFieldMode();
+      });
+    }
+
+    const fieldGridEl = document.getElementById("fieldGrid");
+    if (fieldGridEl) {
+      fieldGridEl.addEventListener("click", (e) => {
+        if (e.target === fieldGridEl) {
+          resetFieldMode();
+        }
+      });
+    }
+
+    document.querySelectorAll(".view-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const view = btn.dataset.view;
+
+        if (view === "years") {
+          photoNav.year = null;
+          photoNav.month = null;
+          photoNav.day = null;
+        }
+
+        if (view === "months") {
+          photoNav.month = null;
+          photoNav.day = null;
+        }
+
+        if (view === "days") {
+          photoNav.day = null;
+        }
+
+        renderPhotosMode(view);
+      });
+    });
+
+    function openCurrentLightboxImageInTimeline() {
+      if (lightboxEntryIndex === null || !entries[lightboxEntryIndex]) return;
+
+      const targetIndex = lightboxEntryIndex;
+      closeLightbox();
+      setMode("timeline");
+      currentIndex = targetIndex;
+      renderEntry(currentIndex);
+      setTimeout(() => scrollTimelineItemIntoView(currentIndex), 50);
+    }
+
+    function openCurrentLightboxImageInPhotos() {
+      if (lightboxEntryIndex === null || !entries[lightboxEntryIndex]) return;
+
+      const entry = entries[lightboxEntryIndex];
+      closeLightbox();
+      setMode("photos");
+
+      photoNav.year = entry.year;
+      photoNav.month = entry.month;
+      photoNav.day = entry.day;
+      renderPhotosMode("all");
+
+      setTimeout(() => {
+        const card = document.querySelector(`.photo-card[data-index="${lightboxEntryIndex}"]`);
+        if (card) card.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 80);
+    }
+
+    document.getElementById("lightboxTimelineBtn").addEventListener("click", openCurrentLightboxImageInTimeline);
+    document.getElementById("lightboxPhotosBtn").addEventListener("click", openCurrentLightboxImageInPhotos);
+
+    document.getElementById("lightboxClose").addEventListener("click", closeLightbox);
+
+    document.getElementById("lightbox").addEventListener("click", (e) => {
+      if (e.target.id === "lightbox") {
+        closeLightbox();
+      }
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape") return;
+
+      const lightbox = document.getElementById("lightbox");
+
+      if (lightbox && lightbox.classList.contains("open")) {
+        closeLightbox();
+        return;
+      }
+
+      if (fieldSelectedEntry) {
+        resetFieldMode();
+      }
+    });
+
+    async function init() {
+      try {
+        entries = await loadSheetData();
+
+        if (!entries.length) {
+          document.getElementById("loadingMessage").textContent =
+            "No rows found. Check PUBLISH tab, Filename column, and image folders.";
+          return;
+        }
+
+        document.getElementById("loadingMessage").classList.add("hidden");
+        document.getElementById("appShell").classList.remove("hidden");
+
+        buildTimeline();
+        renderEntry(0);
+        buildSlotGrid();
+        renderPhotosMode("years");
+        renderFieldMode();
+        renderFlowMode();
+        setupFlowPointerControls();
+        startFlowAnimation();
+
+        for (let i = 0; i < reelCount; i++) {
+          const entry = entries[i % entries.length];
+          reelState[i].entry = entry;
+          setReelVisual(i, entry);
+        }
+
+        updateHoldButtons();
+        scrollTimelineItemIntoView(0);
+
+        document.getElementById("mainImage").addEventListener("click", () => {
+          if (!entries.length) return;
+          const entry = entries[currentIndex];
+          openLightbox(entry.mediaLarge, entry.headline, entries.indexOf(entry));
+        });
+
+        await preloadEntriesImages(entries, 2);
+        slotPreviewPool = sampleEntries(entries, 8);
+      } catch (err) {
+        const msg =
+          err.name === "AbortError"
+            ? "Timed out loading sheet data."
+            : "Failed to load sheet data.";
+        document.getElementById("loadingMessage").textContent = msg;
+        console.error(err);
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
