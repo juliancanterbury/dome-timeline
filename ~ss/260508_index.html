@@ -7,7 +7,6 @@
 
   <style>
     :root {
-      --site-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
       --bg: #e9e2d3;
       --panel: #d8cfbe;
       --text: #2f261d;
@@ -23,7 +22,8 @@
 
     body {
       margin: 0;
-      font-family: var(--site-font);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+        "Helvetica Neue", Helvetica, Arial, sans-serif;
       font-weight: 400;
       letter-spacing: -0.01em;
       -webkit-font-smoothing: antialiased;
@@ -80,7 +80,7 @@
       align-items: center;
     }
 
-    button, input, select {
+    button, input {
       border: 1px solid var(--line);
       background: var(--panel);
       color: var(--text);
@@ -105,7 +105,6 @@
     }
 
     button:hover { background: #cec3b0; }
-    select { cursor: pointer; }
     button:active { transform: translateY(1px); }
 
     .active-mode-btn,
@@ -1522,125 +1521,10 @@
     }
 
 
-    .geodesic-fallback-grid {
-      position: absolute;
-      inset: 12px;
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
-      gap: 8px;
-      overflow: auto;
-      padding: 8px;
-      border-radius: 18px;
-    }
-
-    .geodesic-fallback-card {
-      aspect-ratio: 0.72;
-      border-radius: 14px;
-      overflow: hidden;
-      background: #c8bead;
-      cursor: pointer;
-    }
-
-    .geodesic-fallback-card img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-
     .social-btn:active {
       transform: translateY(1px);
     }
 
-
-    /* LE CORBUSIER COLOUR MODE */
-    #corbusierMode { flex: 1 1 auto; min-height: 0; }
-    .corbusier-layout { display: grid; grid-template-columns: minmax(300px, 460px) minmax(0, 1fr); gap: 16px; align-items: stretch; min-height: 68vh; }
-    .corbusier-panel, .corbusier-preview { background: var(--panel); border: 1px solid var(--line); border-radius: 22px; padding: 18px; box-shadow: var(--shadow); }
-    .corbusier-kicker { font-size: 11px; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px; font-weight: 600; }
-    .corbusier-title { font-size: clamp(28px, 3vw, 48px); line-height: 0.95; margin: 0 0 14px 0; font-weight: 600; letter-spacing: -0.045em; }
-    .corbusier-system-note { display: grid; gap: 8px; margin: 14px 0 16px; color: var(--muted); font-size: 13px; line-height: 1.32; }
-    .corbusier-toolbar { display: grid; gap: 10px; margin: 16px 0 12px; }
-    .corbusier-segmented { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px; border: 1px solid var(--line); border-radius: 999px; background: rgba(255,255,255,0.16); }
-    .corbusier-filter-btn { border-radius: 999px; padding: 7px 11px; font-size: 12px; background: transparent; box-shadow: none; }
-    .corbusier-filter-btn.active, .corbusier-option-row button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .corbusier-option-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .corbusier-option-row button { padding: 8px 10px; border-radius: 999px; font-size: 12px; box-shadow: none; background: rgba(255,255,255,0.14); }
-    .corbusier-palette-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 12px; max-height: min(58vh, 640px); overflow: auto; padding-right: 4px; }
-    .corbusier-section-title { font-size: 11px; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; border-top: 1px solid var(--line); padding-top: 10px; margin-top: 4px; }
-    .corbusier-palette-btn { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 12px; align-items: center; width: 100%; text-align: left; padding: 10px; border-radius: 16px; background: rgba(255,255,255,0.16); }
-    .corbusier-palette-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .corbusier-mini-swatches { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; height: 48px; }
-    .corbusier-mini-swatch { border-radius: 8px; border: 1px solid rgba(0,0,0,0.12); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.16); }
-    .corbusier-palette-name { display: block; font-size: 14px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 3px; }
-    .corbusier-palette-code { display: block; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.72; margin-bottom: 3px; }
-    .corbusier-palette-note { display: block; font-size: 12px; color: inherit; opacity: 0.72; line-height: 1.25; font-weight: 400; }
-    .corbusier-preview { display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; position: relative; }
-    .corbusier-preview-surface { border-radius: 20px; padding: clamp(18px, 4vw, 48px); min-height: 420px; background: var(--bg); color: var(--text); border: 1px solid var(--line); display: grid; align-content: center; gap: 18px; }
-    .corbusier-preview-surface h3 { font-size: clamp(36px, 6vw, 96px); line-height: 0.9; margin: 0; letter-spacing: -0.06em; }
-    .corbusier-preview-card { max-width: 620px; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 18px; color: var(--text); }
-    .corbusier-preview-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
-    .corbusier-chip-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 16px 0 0; }
-    .corbusier-chip-wrap { display: grid; gap: 4px; justify-items: center; font-size: 9px; color: var(--muted); font-variant-numeric: tabular-nums; }
-    .corbusier-chip { width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--line); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.22); }
-    .corbusier-spec-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 14px; font-size: 12px; color: var(--muted); }
-    .corbusier-spec { border: 1px solid var(--line); border-radius: 12px; padding: 9px; background: rgba(255,255,255,0.12); }
-    .corbusier-spec strong { display: block; color: var(--text); font-size: 13px; margin-bottom: 2px; }
-    @media (max-width: 900px) { .corbusier-layout { grid-template-columns: 1fr; } .corbusier-spec-grid, .corbusier-option-row { grid-template-columns: 1fr; } }
-
-
-    /* ENO / LUMINAL COLOUR MODE */
-    #enoMode { flex: 1 1 auto; min-height: 0; }
-    .eno-layout { display: grid; grid-template-columns: minmax(300px, 460px) minmax(0, 1fr); gap: 16px; align-items: stretch; min-height: 68vh; }
-    .eno-panel, .eno-preview { background: var(--panel); border: 1px solid var(--line); border-radius: 22px; padding: 18px; box-shadow: var(--shadow); }
-    .eno-kicker { font-size: 11px; color: var(--muted); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 8px; font-weight: 600; }
-    .eno-title { font-size: clamp(28px, 3vw, 48px); line-height: 0.95; margin: 0 0 14px 0; font-weight: 600; letter-spacing: -0.045em; }
-    .eno-note { display: grid; gap: 8px; margin: 14px 0 16px; color: var(--muted); font-size: 13px; line-height: 1.32; }
-    .eno-palette-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 14px; }
-    .eno-palette-btn { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 12px; align-items: center; width: 100%; text-align: left; padding: 10px; border-radius: 16px; background: rgba(255,255,255,0.16); }
-    .eno-palette-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .eno-mini-swatches { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; height: 52px; }
-    .eno-mini-swatch { border-radius: 999px; border: 1px solid rgba(0,0,0,0.12); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18); }
-    .eno-palette-name { display: block; font-size: 14px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 3px; }
-    .eno-palette-code { display: block; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.72; margin-bottom: 3px; }
-    .eno-palette-note { display: block; font-size: 12px; color: inherit; opacity: 0.72; line-height: 1.25; font-weight: 400; }
-    .eno-preview { display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; position: relative; }
-    .eno-preview-surface { border-radius: 20px; padding: clamp(18px, 4vw, 48px); min-height: 420px; background: var(--bg); color: var(--text); border: 1px solid var(--line); display: grid; align-content: center; gap: 18px; position: relative; overflow: hidden; }
-    .eno-preview-surface > * { position: relative; z-index: 2; }
-    .eno-preview-surface h3 { font-size: clamp(36px, 6vw, 96px); line-height: 0.9; margin: 0; letter-spacing: -0.06em; }
-    .eno-preview-card { max-width: 620px; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 18px; color: var(--text); }
-    .eno-chip-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 16px 0 0; }
-    .eno-chip-wrap { display: grid; gap: 4px; justify-items: center; font-size: 9px; color: var(--muted); font-variant-numeric: tabular-nums; }
-    .eno-chip { width: 38px; height: 38px; border-radius: 999px; border: 1px solid var(--line); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.22); }
-    .eno-preview-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
-    @media (max-width: 900px) { .eno-layout { grid-template-columns: 1fr; } }
-
-
-
-    /* FONT MODE */
-    #fontMode { flex: 1 1 auto; min-height: 0; }
-    .font-layout { display: grid; grid-template-columns: minmax(300px, 460px) minmax(0, 1fr); gap: 16px; align-items: stretch; min-height: 68vh; }
-    .font-panel, .font-preview { background: var(--panel); border: 1px solid var(--line); border-radius: 22px; padding: 18px; box-shadow: var(--shadow); }
-    .font-kicker { font-size: 11px; color: var(--muted); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 8px; font-weight: 600; }
-    .font-title { font-size: clamp(28px, 3vw, 48px); line-height: 0.95; margin: 0 0 14px 0; font-weight: 600; letter-spacing: -0.045em; }
-    .font-note { display: grid; gap: 8px; margin: 14px 0 16px; color: var(--muted); font-size: 13px; line-height: 1.32; }
-    .font-row { display: grid; grid-template-columns: 86px minmax(0, 1fr); align-items: center; gap: 10px; margin: 12px 0; font-size: 13px; color: var(--muted); }
-    .font-row input { width: 100%; min-width: 0; }
-    .font-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
-    .font-preset-grid { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 16px; max-height: 46vh; overflow: auto; padding-right: 4px; }
-    .font-category-title { font-size: 10px; color: var(--muted); letter-spacing: 0.13em; text-transform: uppercase; margin: 12px 0 2px; font-weight: 700; }
-    .font-preset-btn { text-align: left; display: grid; gap: 2px; padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,0.16); }
-    .font-preset-btn strong { font-size: 15px; letter-spacing: -0.02em; }
-    .font-preset-btn span { font-size: 12px; color: var(--muted); }
-    .font-preset-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
-    .font-preset-btn.active span { color: rgba(255,255,255,0.78); }
-    .font-preview { display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
-    .font-preview-surface { border-radius: 20px; padding: clamp(18px, 4vw, 48px); min-height: 420px; background: var(--bg); color: var(--text); border: 1px solid var(--line); display: grid; align-content: center; gap: 18px; }
-    .font-preview-surface h3 { font-size: clamp(36px, 6vw, 96px); line-height: 0.9; margin: 0; letter-spacing: -0.06em; }
-    .font-preview-card { max-width: 620px; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 18px; color: var(--text); }
-    .font-preview-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
-    @media (max-width: 900px) { .font-layout { grid-template-columns: 1fr; } }
 
     /* CALIBRATION MODE */
     #calibrationMode {
@@ -1838,9 +1722,6 @@
         <button id="flowModeBtn">Flow</button>
         <button id="sphereModeBtn">Sphere</button>
         <button id="geodesicModeBtn">Geodesic</button>
-        <button id="corbusierModeBtn">Corbusier</button>
-        <button id="enoModeBtn">Eno</button>
-        <button id="fontModeBtn">Font</button>
         <button id="calibrationModeBtn">Calibration</button>
         <button id="aboutModeBtn">About</button>
 
@@ -2025,101 +1906,6 @@
         </div>
       </div>
 
-
-      <div id="corbusierMode" class="hidden">
-        <div class="corbusier-layout">
-          <div class="corbusier-panel">
-            <div class="corbusier-kicker">Polychromie Architecturale</div>
-            <h2 class="corbusier-title">Le Corbusier Colour System</h2>
-            <p class="caption">A deeper colour tab based on the structure of Les Couleurs® Le Corbusier®: 1931 purist shades, 1959 more intensive shades, and keyboard-like moods. These are screen approximations for the website, not official paint specifications.</p>
-            <div class="corbusier-system-note"><div><strong>1931:</strong> quieter architectural grounds, whites, greys, earths, blues and graduated tones.</div><div><strong>1959:</strong> stronger, more dynamic accents for sharper contrast and spatial effects.</div></div>
-            <div class="corbusier-toolbar">
-              <div class="corbusier-segmented" id="corbusierFilterBar"><button class="corbusier-filter-btn active" type="button" data-filter="all">All</button><button class="corbusier-filter-btn" type="button" data-filter="1931">1931</button><button class="corbusier-filter-btn" type="button" data-filter="1959">1959</button><button class="corbusier-filter-btn" type="button" data-filter="keyboard">Keyboards</button></div>
-              <div class="corbusier-option-row"><button id="corbusierSoftBtn" class="active" type="button">Soft panels</button><button id="corbusierBoldBtn" type="button">Bold panels</button></div>
-            </div>
-            <div id="corbusierPaletteGrid" class="corbusier-palette-grid"></div>
-            <div class="calibration-actions"><button id="corbusierResetBtn" type="button">Return to Dome Beige</button></div>
-          </div>
-          <div class="corbusier-preview"><div class="corbusier-preview-surface"><div><div class="corbusier-kicker">Preview</div><h3>Architectural Polychromy</h3></div><div class="corbusier-preview-card"><div class="date" id="corbusierPreviewDate">1931 / 1959</div><h4 class="headline" id="corbusierPreviewTitle" style="font-size:42px; margin-bottom:10px;">Colour as space</h4><div class="text" id="corbusierPreviewText">The selected palette changes the live site background, text, panels, linework and active buttons.</div><div id="corbusierChipRow" class="corbusier-chip-row"></div><div class="corbusier-spec-grid"><div class="corbusier-spec"><strong id="corbusierSpecCollection">Collection</strong><span>Palette family</span></div><div class="corbusier-spec"><strong id="corbusierSpecUse">Spatial use</strong><span>How it feels on the page</span></div><div class="corbusier-spec"><strong id="corbusierSpecContrast">Contrast</strong><span>Text/button balance</span></div></div><div class="corbusier-preview-actions"><button type="button" class="active-mode-btn">Active Button</button><button type="button">Standard Button</button></div></div></div></div>
-        </div>
-      </div>
-
-
-      <div id="enoMode" class="hidden">
-        <div class="eno-layout">
-          <div class="eno-panel">
-            <div class="eno-kicker">Eno Colour Mode</div>
-            <h2 class="eno-title">Eno Colour Schemes</h2>
-            <p class="caption">Three page colourways based on the supplied reference image: glowing circular fields, simple graphic contrast, and soft atmospheric edges. The labels are intentionally neutral.</p>
-            <div class="eno-note">
-              <div><strong>Eno 1:</strong> yellow, orange and red.</div>
-              <div><strong>Eno 2:</strong> deep green, acid yellow and cyan.</div>
-              <div><strong>Eno 3:</strong> turquoise, pink and magenta.</div>
-              <div>Colour reference only — no album artwork, album titles or halo imagery.</div>
-            </div>
-            <div id="enoPaletteGrid" class="eno-palette-grid"></div>
-            <div class="calibration-actions"><button id="enoResetBtn" type="button">Return to Dome Beige</button></div>
-          </div>
-          <div class="eno-preview">
-            <div class="eno-preview-surface">
-              <div><div class="eno-kicker">Preview</div><h3 id="enoPreviewTitle">Eno 1</h3></div>
-              <div class="eno-preview-card">
-                <div class="date" id="enoPreviewDate">REFERENCE PALETTE</div>
-                <h4 class="headline" id="enoPreviewSubhead" style="font-size:42px; margin-bottom:10px;">soft colour / hard circle</h4>
-                <div class="text" id="enoPreviewText">The selected palette changes the live site background, text, panels, linework and active buttons.</div>
-                <div id="enoChipRow" class="eno-chip-row"></div>
-                <div class="eno-preview-actions"><button type="button" class="active-mode-btn">Active Button</button><button type="button">Standard Button</button></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div id="fontMode" class="hidden">
-        <div class="font-layout">
-          <div class="font-panel">
-            <div class="font-kicker">Font Mode</div>
-            <h2 class="font-title">Typography</h2>
-            <p class="caption">Choose from a larger set of legally safe web fonts. The existing hierarchy stays the same: only the typeface changes.</p>
-            <div class="font-note">
-              <div>To keep the iPad safe, the page only loads the single font you apply — not the whole list.</div>
-              <div>Google Fonts is the default. Bunny Fonts uses the same family names and is included as a privacy-friendly alternative.</div>
-            </div>
-            <div class="font-row">
-              <span>Source</span>
-              <select id="fontSourceSelect">
-                <option value="google">Google Fonts</option>
-                <option value="bunny">Bunny Fonts</option>
-              </select>
-            </div>
-            <div class="font-row">
-              <span>Font</span>
-              <input id="fontFamilyInput" type="text" list="fontPresetList" value="" placeholder="Inter" autocomplete="off" inputmode="latin" />
-              <datalist id="fontPresetList"></datalist>
-            </div>
-            <div class="font-actions">
-              <button id="fontApplyBtn" type="button">Apply Font</button>
-              <button id="fontResetBtn" type="button">Reset System Font</button>
-            </div>
-            <div id="fontPresetGrid" class="font-preset-grid"></div>
-          </div>
-          <div class="font-preview">
-            <div class="font-preview-surface">
-              <div>
-                <div class="font-kicker">Preview</div>
-                <h3 id="fontPreviewTitle">Dome Archive Prototype</h3>
-              </div>
-              <div class="font-preview-card">
-                <div class="date">30 May 2021</div>
-                <h4 class="headline" style="font-size:42px; margin-bottom:10px;">Mud, concrete, image, archive</h4>
-                <div class="text" id="fontPreviewText">This preview keeps the same title, headline, body and caption sizes as the existing HTML. Only the typeface changes.</div>
-                <div class="caption" id="fontStatusText">System font active.</div>
-                <div class="font-preview-actions"><button type="button" class="active-mode-btn">Active Button</button><button type="button">Standard Button</button></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
       <div id="calibrationMode" class="hidden">
         <div class="calibration-layout">
@@ -3001,9 +2787,6 @@
     const sphereMode = document.getElementById("sphereMode");
     const geodesicMode = document.getElementById("geodesicMode");
     const calibrationMode = document.getElementById("calibrationMode");
-    const corbusierMode = document.getElementById("corbusierMode");
-    const enoMode = document.getElementById("enoMode");
-    const fontMode = document.getElementById("fontMode");
     const aboutMode = document.getElementById("aboutMode");
     const modeBadge = document.getElementById("modeBadge");
 
@@ -3016,9 +2799,6 @@
     const sphereModeBtn = document.getElementById("sphereModeBtn");
     const geodesicModeBtn = document.getElementById("geodesicModeBtn");
     const calibrationModeBtn = document.getElementById("calibrationModeBtn");
-    const corbusierModeBtn = document.getElementById("corbusierModeBtn");
-    const enoModeBtn = document.getElementById("enoModeBtn");
-    const fontModeBtn = document.getElementById("fontModeBtn");
     const aboutModeBtn = document.getElementById("aboutModeBtn");
     const cardsStage = document.getElementById("cardsStage");
     const cardsBoard = document.getElementById("cardsBoard");
@@ -3057,9 +2837,6 @@
       sphereMode.classList.toggle("hidden", mode !== "sphere");
       geodesicMode.classList.toggle("hidden", mode !== "geodesic");
       calibrationMode.classList.toggle("hidden", mode !== "calibration");
-      corbusierMode.classList.toggle("hidden", mode !== "corbusier");
-      enoMode.classList.toggle("hidden", mode !== "eno");
-      fontMode.classList.toggle("hidden", mode !== "font");
       aboutMode.classList.toggle("hidden", mode !== "about");
 
       timelineModeBtn.classList.toggle("active-mode-btn", mode === "timeline");
@@ -3071,9 +2848,6 @@
       sphereModeBtn.classList.toggle("active-mode-btn", mode === "sphere");
       geodesicModeBtn.classList.toggle("active-mode-btn", mode === "geodesic");
       calibrationModeBtn.classList.toggle("active-mode-btn", mode === "calibration");
-      corbusierModeBtn.classList.toggle("active-mode-btn", mode === "corbusier");
-      enoModeBtn.classList.toggle("active-mode-btn", mode === "eno");
-      fontModeBtn.classList.toggle("active-mode-btn", mode === "font");
       aboutModeBtn.classList.toggle("active-mode-btn", mode === "about");
 
       modeBadge.textContent =
@@ -3086,9 +2860,6 @@
         mode === "sphere" ? "Sphere Mode" :
         mode === "geodesic" ? "Geodesic Mode" :
         mode === "calibration" ? "Calibration Mode" :
-        mode === "corbusier" ? "Le Corbusier Colour Mode" :
-        mode === "eno" ? "Eno Colour Mode" :
-        mode === "font" ? "Font Mode" :
         "About";
 
       if (mode === "cards") {
@@ -3105,10 +2876,8 @@
         startSphereAnimation();
       }
       if (mode === "geodesic") {
-        requestAnimationFrame(() => {
-          renderGeodesicMode();
-          startGeodesicAnimation();
-        });
+        renderGeodesicMode();
+        startGeodesicAnimation();
       }
     }
 
@@ -3739,30 +3508,13 @@
     let geodesicBuiltKey = "";
     let geodesicPointerId = null;
 
-    function isLikelyIPadOrMobileSafari() {
-      const ua = navigator.userAgent || "";
-      const isiPad = /iPad/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-      const isIOS = /iPhone|iPod/.test(ua) || isiPad;
-      const coarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
-      return isIOS || (coarse && Math.min(window.innerWidth, window.innerHeight) < 900);
-    }
-
-    function geodesicTextureSize() {
-      // 768px canvas textures were too heavy for iPad Safari once multiplied
-      // across 90–160 faces. These values keep the same look but greatly reduce
-      // GPU memory and make GitHub Pages / iPad behaviour more consistent.
-      return isLikelyIPadOrMobileSafari() ? 256 : 384;
-    }
-
     function geodesicShellCount() {
       const available = Math.max(1, entries.length || 1);
-      const mobileSafe = isLikelyIPadOrMobileSafari();
-      const maxFrequency = mobileSafe ? 3 : 4;
       let bestF = 1;
       let bestCount = 12;
       let bestDiff = Math.abs(available - bestCount);
 
-      for (let f = 1; f <= maxFrequency; f++) {
+      for (let f = 1; f <= 9; f++) {
         const count = 10 * f * f + 2;
         const diff = Math.abs(available - count);
         if (diff < bestDiff) {
@@ -3771,7 +3523,7 @@
           bestDiff = diff;
         }
       }
-      return { frequency: bestF, count: bestCount, mobileSafe };
+      return { frequency: bestF, count: bestCount };
     }
 
     function geodesicImageSet(count) {
@@ -3910,7 +3662,7 @@
       // a square canvas, so the visible crop aligns with the real geodesic face
       // edges instead of a separate regular hexagon/pentagon mask.
       const canvas = document.createElement("canvas");
-      const size = geodesicTextureSize();
+      const size = 768;
       canvas.width = size;
       canvas.height = size;
       const ctx = canvas.getContext("2d");
@@ -4012,28 +3764,6 @@
       return group;
     }
 
-    function renderGeodesicFallback(message = "Geodesic view simplified for this browser.") {
-      if (!geodesicStage) return;
-      const sample = entries.slice(0, Math.min(entries.length, 96));
-      geodesicStage.innerHTML = `
-        <div class="geodesic-fallback-grid">
-          ${sample.map((entry, index) => `
-            <div class="geodesic-fallback-card" data-index="${index}">
-              <img src="${escapeHtml(entry.mediaSmall)}" alt="${escapeHtml(entry.headline)}" loading="lazy" decoding="async">
-            </div>
-          `).join("")}
-        </div>
-      `;
-      geodesicStage.querySelectorAll(".geodesic-fallback-card").forEach(card => {
-        card.addEventListener("click", () => {
-          const index = Number(card.dataset.index);
-          const entry = entries[index];
-          if (entry) openLightbox(entry.mediaLarge, entry.headline, index);
-        });
-      });
-      if (geodesicStatus) geodesicStatus.textContent = message;
-    }
-
     function initGeodesicRenderer() {
       if (!geodesicStage || !window.THREE) return false;
       if (geodesicRenderer) return true;
@@ -4048,18 +3778,8 @@
       const light = new THREE.AmbientLight(0xffffff, 1);
       geodesicScene.add(light);
 
-      try {
-        geodesicRenderer = new THREE.WebGLRenderer({
-          antialias: !isLikelyIPadOrMobileSafari(),
-          alpha: true,
-          powerPreference: "low-power",
-          preserveDrawingBuffer: false
-        });
-      } catch (err) {
-        renderGeodesicFallback("WebGL could not start on this device.");
-        return false;
-      }
-      geodesicRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isLikelyIPadOrMobileSafari() ? 1.25 : 1.75));
+      geodesicRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      geodesicRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
       geodesicRenderer.outputColorSpace = THREE.SRGBColorSpace;
       geodesicStage.appendChild(geodesicRenderer.domElement);
 
@@ -4094,53 +3814,34 @@
 
     function renderGeodesicMode() {
       if (!geodesicStage || !entries.length) return;
-      if (currentMode !== "geodesic") return;
-
-      const rect = geodesicStage.getBoundingClientRect();
-      if (rect.width < 40 || rect.height < 40) {
-        requestAnimationFrame(renderGeodesicMode);
-        return;
-      }
-
-      if (!window.THREE) {
-        renderGeodesicFallback("Three.js did not load; showing a simplified image grid.");
-        return;
-      }
-
       if (!initGeodesicRenderer()) return;
       updateGeodesicLabels();
       resizeGeodesicRenderer();
 
-      const { frequency, count, mobileSafe } = geodesicShellCount();
-      const key = `${frequency}-${count}-${entries.length}-${geodesicSize}-${geodesicTextureSize()}`;
+      const { frequency, count } = geodesicShellCount();
+      const key = `${frequency}-${count}-${entries.length}-${geodesicSize}`;
+      const rect = geodesicStage.getBoundingClientRect();
       const radius = Math.min(rect.width, rect.height) * 0.38 * (geodesicSize / 100);
 
-      try {
-        clearGeodesicGroup();
-        const source = geodesicImageSet(count);
-        const cells = buildGeodesicCells(frequency);
+      clearGeodesicGroup();
+      const source = geodesicImageSet(count);
+      const cells = buildGeodesicCells(frequency);
 
-        cells.forEach((cell, i) => {
-          const entry = source[i % source.length];
-          geodesicGroup.add(createCellMesh(cell, entry, radius));
-        });
+      cells.forEach((cell, i) => {
+        const entry = source[i % source.length];
+        geodesicGroup.add(createCellMesh(cell, entry, radius));
+      });
 
-        geodesicBuiltKey = key;
+      geodesicBuiltKey = key;
 
-        if (geodesicStatus) {
-          const pentagons = cells.filter(c => c.vertices.length === 5).length;
-          const hexagons = cells.length - pentagons;
-          const repeated = source.length > entries.length;
-          const imageNote = repeated
-            ? `${entries.length} images repeated to fill ${source.length} faces`
-            : `${source.length} of ${entries.length} images used`;
-          const safeNote = mobileSafe ? " / iPad-safe mesh" : "";
-          geodesicStatus.textContent = `frequency ${frequency}${safeNote} / ${imageNote} / ${hexagons} hexagons + ${pentagons} pentagons`;
-        }
-      } catch (err) {
-        console.error(err);
-        renderGeodesicFallback("Geodesic was too heavy for this browser; showing a simplified image grid.");
-        return;
+      if (geodesicStatus) {
+        const pentagons = cells.filter(c => c.vertices.length === 5).length;
+        const hexagons = cells.length - pentagons;
+        const repeated = source.length > entries.length;
+        const imageNote = repeated
+          ? `${entries.length} images repeated to fill ${source.length} faces`
+          : `${source.length} of ${entries.length} images used`;
+        geodesicStatus.textContent = `frequency ${frequency} / ${imageNote} / ${hexagons} hexagons + ${pentagons} pentagons`;
       }
 
       startGeodesicAnimation();
@@ -4258,18 +3959,8 @@
     });
     geodesicModeBtn.addEventListener("click", () => {
       setMode("geodesic");
-    });
-    corbusierModeBtn.addEventListener("click", () => {
-      setMode("corbusier");
-      renderCorbusierMode();
-    });
-    enoModeBtn.addEventListener("click", () => {
-      setMode("eno");
-      renderEnoMode();
-    });
-    fontModeBtn.addEventListener("click", () => {
-      setMode("font");
-      renderFontMode();
+      renderGeodesicMode();
+      startGeodesicAnimation();
     });
     calibrationModeBtn.addEventListener("click", () => setMode("calibration"));
     aboutModeBtn.addEventListener("click", () => setMode("about"));
@@ -4465,7 +4156,6 @@
 
 
 
-
     /* CALIBRATION MODE */
     const calibrationDefaults = ["#e9e2d3", "#f7f4ec", "#d8cfbe", "#c2a06f", "#8d7558", "#2f261d", "#1f1f1f", "#ffffff", "#b36b4a", "#c2a23d", "#6f8a62", "#62778a"];
 
@@ -4604,7 +4294,7 @@
       if (!wrap) return;
       wrap.innerHTML = calibrationFavourites().map(hex => `<button type="button" class="calibration-swatch ${hex.toUpperCase() === current ? "active" : ""}" data-hex="${escapeHtml(hex)}" style="background:${escapeHtml(hex)}" aria-label="${escapeHtml(hex)}"></button>`).join("");
       wrap.querySelectorAll(".calibration-swatch").forEach(btn => {
-        btn.addEventListener("click", () => { localStorage.setItem("domeLastTheme", "calibration"); applyCalibrationColour(btn.dataset.hex); });
+        btn.addEventListener("click", () => applyCalibrationColour(btn.dataset.hex));
       });
     }
 
@@ -4617,13 +4307,12 @@
       const saveBtn = document.getElementById("calibrationSaveBtn");
       const resetBtn = document.getElementById("calibrationResetBtn");
 
-      if (colorInput) colorInput.addEventListener("input", () => { localStorage.setItem("domeLastTheme", "calibration"); applyCalibrationColour(colorInput.value); });
-      if (hexInput) hexInput.addEventListener("change", () => { localStorage.setItem("domeLastTheme", "calibration"); applyCalibrationColour(hexInput.value); });
+      if (colorInput) colorInput.addEventListener("input", () => applyCalibrationColour(colorInput.value));
+      if (hexInput) hexInput.addEventListener("change", () => applyCalibrationColour(hexInput.value));
 
       [hue, sat, val].forEach(el => {
         if (!el) return;
         el.addEventListener("input", () => {
-          localStorage.setItem("domeLastTheme", "calibration");
           const rgb = hsvToRgb(hue.value, sat.value, val.value);
           applyCalibrationColour(rgbToHex(rgb.r, rgb.g, rgb.b), false);
           if (colorInput) colorInput.value = rgbToHex(rgb.r, rgb.g, rgb.b);
@@ -4639,313 +4328,14 @@
         renderCalibrationFavourites();
       });
 
-      if (resetBtn) resetBtn.addEventListener("click", () => { localStorage.setItem("domeLastTheme", "calibration"); applyCalibrationColour("#e9e2d3"); });
+      if (resetBtn) resetBtn.addEventListener("click", () => applyCalibrationColour("#e9e2d3"));
 
       applyCalibrationColour(localStorage.getItem("domeCalibrationColour") || "#e9e2d3");
       renderCalibrationFavourites();
     }
 
-    /* LE CORBUSIER COLOUR MODE */
-    let corbusierFilter = "all";
-    let corbusierPanelMode = localStorage.getItem("domeCorbusierPanelMode") || "soft";
-    const corbusierPalettes = [
-      ["1931-white-umber-blue","1931","1931 Puristic Shades","White / Umber / Ultramarine","32xxx / blue 020-024 family","warm architectural white with umber framing and deep blue recession","calm ground + deep distance","medium / readable","#F2EDE4","#E2D8C8","#232220","#6D665D","#B7AA98","#2C4A8C",["#F2EDE4","#E2D8C8","#96928A","#7A5635","#2C4A8C"]],
-      ["1931-grey-chalk-black","1931","1931 Puristic Shades","Chalk / Stone / Black","achromatic architectural keyboard","quiet mineral whites and greys, close to concrete and limewash","gallery-like restraint","high / crisp","#E8E4DA","#D4D0C5","#20201E","#6C6A63","#AAA69B","#20201E",["#F4F0E7","#D4D0C5","#AAA69B","#6D6A63","#20201E"]],
-      ["1931-sand-ochre-sienna","1931","1931 Puristic Shades","Sand / Ochre / Sienna","earth pigment series","earth pigment warmth; good for mudbrick, timber and clay images","warm and handmade","medium / soft","#D8C3A2","#C9B08B","#2F241C","#725D47","#9D8568","#C8902A",["#D8C3A2","#C9B08B","#A06830","#C8902A","#2F241C"]],
-      ["1931-terre-carmin","1931","1931 Puristic Shades","Terre / Carmin","earth + red accent","muddy ground with a strong red architectural cut","compressed and earthy","medium / warm","#B98B6F","#A97B61","#251914","#5D4336","#86624F","#9F2E2B",["#B98B6F","#A06830","#7A5635","#9F2E2B","#251914"]],
-      ["1931-pale-blue-grey","1931","1931 Puristic Shades","Pale Blue / Grey","graduated blue-grey family","cooler architectural distance, like sky light on concrete","air, shadow and depth","medium / calm","#D9E0DD","#C7D0CE","#202827","#61706E","#95A29F","#416A7B",["#EDF0EA","#D9E0DD","#AAB8B8","#416A7B","#202827"]],
-      ["1931-grey-green","1931","1931 Puristic Shades","Grey / Green","mineral green family","cement grey and mineral green, quieter and more modern","garden, gum leaf, concrete","medium / readable","#C8C7BB","#B8B8AA","#22261F","#626657","#96988B","#4D6A50",["#C8C7BB","#96928A","#78806E","#4D6A50","#22261F"]],
-      ["1931-umber-shadow","1931","1931 Puristic Shades","Umber Shadow","brown-black spatial ground","a darker earth room, good when images should glow forward","intimate archive room","high / dark","#3B3028","#4B3D32","#F0E8DA","#C7B9A6","#6D5C4D","#C89B5C",["#3B3028","#4B3D32","#7A5635","#C89B5C","#F0E8DA"]],
-      ["1931-ultramarine-night","1931","1931 Puristic Shades","Ultramarine Night","blue 020-024 family","dark ultramarine field with chalky light text","deep void and focus","high / dramatic","#263B62","#314A73","#F2EDE4","#C8C0B4","#60749A","#D6A24A",["#263B62","#314A73","#647DA5","#F2EDE4","#D6A24A"]],
-      ["1959-vermillion-steel","1959","1959 More Intensive Shades","Vermilion / Steel","4320x intensive shade mood","stronger red-orange accent against cooler grey-blue structure","dynamic and graphic","high / active","#CBD0CF","#B8C0C0","#1E2425","#586366","#879395","#C8462F",["#CBD0CF","#879395","#3E5966","#C8462F","#1E2425"]],
-      ["1959-bright-yellow-deep-grey","1959","1959 More Intensive Shades","Bright Yellow / Deep Grey","4320x dynamic accent","one luminous yellow against disciplined grey-black framing","signal and navigation","very high","#D6D3C8","#C3C0B6","#242321","#66635B","#9C988D","#E2B83B",["#D6D3C8","#9C988D","#242321","#E2B83B","#F3E8A6"]],
-      ["1959-emerald-black","1959","1959 More Intensive Shades","Emerald / Black","4320x powerful green","deep green and near-black, more exhibition than domestic","focused, dense, botanical","high / dark","#21352D","#2E473B","#F3EFE5","#B9C2B7","#587063","#4EA06D",["#21352D","#2E473B","#4EA06D","#F3EFE5","#121514"]],
-      ["1959-cerulean-orange","1959","1959 More Intensive Shades","Cerulean / Orange","4320x complementary contrast","cool blue field with a warm orange button accent","clear, digital, poster-like","high / bright","#B7CCD5","#9FB8C3","#17272E","#526A74","#77909A","#D87833",["#B7CCD5","#77909A","#245B78","#D87833","#17272E"]],
-      ["1959-violet-ochre","1959","1959 More Intensive Shades","Violet / Ochre","4320x painterly contrast","a stranger, more painterly palette for stronger atmospheres","experimental and nocturnal","high / moody","#4A3C55","#5A4A66","#F1EBDD","#C9BECF","#7B6C86","#C99A35",["#4A3C55","#5A4A66","#7B6C86","#C99A35","#F1EBDD"]],
-      ["1959-red-blue-white","1959","1959 More Intensive Shades","Red / Blue / White","4320x primary architectural accent","a sharper modernist web interface, almost enamel-like","strong sign system","very high","#EFECE3","#DCD8CE","#202020","#6C6860","#B1ADA3","#B52D2A",["#EFECE3","#DCD8CE","#1F4B8F","#B52D2A","#202020"]],
-      ["keyboard-space-depth","keyboard","Colour Keyboard Moods","Keyboard: Space / Depth","recession and foreground","uses blue and grey to push the page backward while buttons come forward","spatial depth","medium / cool","#C9D0CB","#B4BFBD","#1E2728","#5E6B6D","#8F9B9B","#2E4F79",["#C9D0CB","#B4BFBD","#8F9B9B","#2E4F79","#1E2728"]],
-      ["keyboard-earth-human","keyboard","Colour Keyboard Moods","Keyboard: Earth / Human","body, clay and warmth","skin, clay, mud and timber tones; probably the most dome-like option","material warmth","medium / organic","#C6A887","#B99672","#2E2118","#684E3B","#94765A","#8E3A2D",["#C6A887","#B99672","#8B6648","#8E3A2D","#2E2118"]],
-      ["keyboard-light-air","keyboard","Colour Keyboard Moods","Keyboard: Light / Air","pale harmonic set","high-value tones, quiet enough for dense photo pages","light, open, minimal","soft / readable","#F0EDE3","#E4DFD2","#2A2A25","#746F66","#BFB8AA","#6B7F8F",["#F0EDE3","#E4DFD2","#C8BFAF","#A9BAC1","#6B7F8F"]],
-      ["keyboard-shadow-fire","keyboard","Colour Keyboard Moods","Keyboard: Shadow / Fire","dark ground + warm signal","a night mode with ochre/fire accents rather than pure black UI","dark archive / projection room","high / dark","#26221D","#342E26","#EFE7D7","#C6B79F","#5C5145","#D28A2F",["#26221D","#342E26","#5C5145","#D28A2F","#EFE7D7"]]
-    ].map(a => ({ id:a[0], collection:a[1], group:a[2], name:a[3], code:a[4], note:a[5], use:a[6], contrast:a[7], bg:a[8], panel:a[9], text:a[10], muted:a[11], line:a[12], accent:a[13], chips:a[14] }));
-    function corbusierShade(hex, amount) { const rgb = hexToRgb(hex); if (!rgb) return hex; const target = amount >= 0 ? { r:255, g:255, b:255 } : { r:0, g:0, b:0 }; const t=Math.abs(amount); return rgbToHex(rgb.r+(target.r-rgb.r)*t, rgb.g+(target.g-rgb.g)*t, rgb.b+(target.b-rgb.b)*t); }
-    function corbusierResolvedPalette(palette) { if (!palette) return null; if (corbusierPanelMode === "bold") { return { ...palette, panel: palette.accent, line: corbusierShade(palette.accent, luminance(hexToRgb(palette.accent)) < 0.45 ? 0.32 : -0.28), muted: palette.text }; } return palette; }
-    function currentCorbusierPalette() { const saved = localStorage.getItem("domeCorbusierPalette") || "1931-white-umber-blue"; return corbusierPalettes.find(p => p.id === saved) || corbusierPalettes[0]; }
-    function filteredCorbusierPalettes() { return corbusierFilter === "all" ? corbusierPalettes : corbusierPalettes.filter(p => p.collection === corbusierFilter); }
-    function applyCorbusierPalette(palette) { if (!palette) return; const r = corbusierResolvedPalette(palette); document.documentElement.style.setProperty("--bg", r.bg); document.documentElement.style.setProperty("--panel", r.panel); document.documentElement.style.setProperty("--text", r.text); document.documentElement.style.setProperty("--muted", r.muted); document.documentElement.style.setProperty("--line", r.line); document.documentElement.style.setProperty("--accent", r.accent); localStorage.setItem("domeLastTheme", "corbusier"); localStorage.setItem("domeCorbusierPalette", palette.id); localStorage.setItem("domeCorbusierPanelMode", corbusierPanelMode); renderCorbusierMode(); }
-    function renderCorbusierMode() { const grid=document.getElementById("corbusierPaletteGrid"), chips=document.getElementById("corbusierChipRow"), current=currentCorbusierPalette(); document.querySelectorAll(".corbusier-filter-btn").forEach(btn=>btn.classList.toggle("active", btn.dataset.filter===corbusierFilter)); const soft=document.getElementById("corbusierSoftBtn"), bold=document.getElementById("corbusierBoldBtn"); if(soft)soft.classList.toggle("active", corbusierPanelMode==="soft"); if(bold)bold.classList.toggle("active", corbusierPanelMode==="bold"); if(grid){let last=""; grid.innerHTML=filteredCorbusierPalettes().map(p=>{const h=p.group!==last?`<div class="corbusier-section-title">${escapeHtml(p.group)}</div>`:""; last=p.group; return `${h}<button type="button" class="corbusier-palette-btn ${p.id===current.id?"active":""}" data-palette="${escapeHtml(p.id)}"><span class="corbusier-mini-swatches">${p.chips.map(hex=>`<span class="corbusier-mini-swatch" style="background:${escapeHtml(hex)}"></span>`).join("")}</span><span><span class="corbusier-palette-name">${escapeHtml(p.name)}</span><span class="corbusier-palette-code">${escapeHtml(p.code)}</span><span class="corbusier-palette-note">${escapeHtml(p.note)}</span></span></button>`}).join(""); grid.querySelectorAll("[data-palette]").forEach(btn=>btn.addEventListener("click",()=>applyCorbusierPalette(corbusierPalettes.find(p=>p.id===btn.dataset.palette)))); } if(chips) chips.innerHTML=current.chips.map(hex=>`<span class="corbusier-chip-wrap"><span class="corbusier-chip" style="background:${escapeHtml(hex)}" title="${escapeHtml(hex)}"></span><span>${escapeHtml(hex)}</span></span>`).join(""); const byId=id=>document.getElementById(id); if(byId("corbusierPreviewTitle")) byId("corbusierPreviewTitle").textContent=current.name; if(byId("corbusierPreviewText")) byId("corbusierPreviewText").textContent=current.note; if(byId("corbusierPreviewDate")) byId("corbusierPreviewDate").textContent=current.collection==="1959"?"1959 / intensive shades":current.collection==="1931"?"1931 / puristic shades":"Colour keyboard mood"; if(byId("corbusierSpecCollection")) byId("corbusierSpecCollection").textContent=current.collection==="keyboard"?"Keyboard":current.collection; if(byId("corbusierSpecUse")) byId("corbusierSpecUse").textContent=current.use; if(byId("corbusierSpecContrast")) byId("corbusierSpecContrast").textContent=current.contrast; }
-    function setupCorbusierMode() { const resetBtn=document.getElementById("corbusierResetBtn"), filterBar=document.getElementById("corbusierFilterBar"), soft=document.getElementById("corbusierSoftBtn"), bold=document.getElementById("corbusierBoldBtn"); if(filterBar) filterBar.querySelectorAll("[data-filter]").forEach(btn=>btn.addEventListener("click",()=>{corbusierFilter=btn.dataset.filter||"all"; renderCorbusierMode();})); if(soft) soft.addEventListener("click",()=>{corbusierPanelMode="soft"; applyCorbusierPalette(currentCorbusierPalette());}); if(bold) bold.addEventListener("click",()=>{corbusierPanelMode="bold"; applyCorbusierPalette(currentCorbusierPalette());}); if(resetBtn) resetBtn.addEventListener("click",()=>{localStorage.setItem("domeLastTheme","calibration"); corbusierPanelMode="soft"; localStorage.setItem("domeCorbusierPanelMode", corbusierPanelMode); applyCalibrationColour("#e9e2d3"); renderCorbusierMode();}); renderCorbusierMode(); if(localStorage.getItem("domeLastTheme")==="corbusier") applyCorbusierPalette(currentCorbusierPalette()); }
-
-
-    /* ENO COLOUR MODE */
-    const enoPalettes = [
-      { id:"eno-1", name:"Eno 1", code:"yellow / orange / red", note:"Colour-only palette: yellow base, orange secondary, red accent, dark red text.", bg:"#F0B900", panel:"#E89522", text:"#7C151B", muted:"#A53622", line:"#D47A18", accent:"#C80000", chips:["#F0B900","#E89522","#F07C19","#C80000","#7C151B"] },
-      { id:"eno-2", name:"Eno 2", code:"green / acid / cyan", note:"Colour-only palette: deep green base, acid yellow, cyan and blue-green accents.", bg:"#006B3D", panel:"#0C8B57", text:"#D3DD6F", muted:"#9FC86B", line:"#1B9F6F", accent:"#16AEB4", chips:["#006B3D","#0C8B57","#B8D96A","#16AEB4","#D3DD6F"] },
-      { id:"eno-3", name:"Eno 3", code:"turquoise / pink / magenta", note:"Colour-only palette: turquoise base, pale pink, magenta and purple accents.", bg:"#64CBBE", panel:"#A5D9CC", text:"#7A2678", muted:"#B64B86", line:"#C8A0B4", accent:"#CF2D65", chips:["#64CBBE","#A5D9CC","#F0B8C7","#CF2D65","#7A2678"] }
-    ];
-
-    function currentEnoPalette() {
-      const saved = localStorage.getItem("domeEnoPalette") || "eno-1";
-      return enoPalettes.find(p => p.id === saved) || enoPalettes[0];
-    }
-
-    function applyEnoPalette(palette) {
-      if (!palette) return;
-      document.documentElement.style.setProperty("--bg", palette.bg);
-      document.documentElement.style.setProperty("--panel", palette.panel);
-      document.documentElement.style.setProperty("--text", palette.text);
-      document.documentElement.style.setProperty("--muted", palette.muted);
-      document.documentElement.style.setProperty("--line", palette.line);
-      document.documentElement.style.setProperty("--accent", palette.accent);
-      localStorage.setItem("domeLastTheme", "eno");
-      localStorage.setItem("domeEnoPalette", palette.id);
-      renderEnoMode();
-    }
-
-    function renderEnoMode() {
-      const grid = document.getElementById("enoPaletteGrid");
-      const chips = document.getElementById("enoChipRow");
-      const current = currentEnoPalette();
-      document.documentElement.style.setProperty("--eno-orb-outer", current.orbOuter);
-      document.documentElement.style.setProperty("--eno-orb-inner", current.orbInner);
-      if (grid) {
-        grid.innerHTML = enoPalettes.map(p => `
-          <button type="button" class="eno-palette-btn ${p.id === current.id ? "active" : ""}" data-eno-palette="${escapeHtml(p.id)}">
-            <span class="eno-mini-swatches">${p.chips.map(hex => `<span class="eno-mini-swatch" style="background:${escapeHtml(hex)}"></span>`).join("")}</span>
-            <span><span class="eno-palette-name">${escapeHtml(p.name)}</span><span class="eno-palette-code">${escapeHtml(p.code)}</span><span class="eno-palette-note">${escapeHtml(p.note)}</span></span>
-          </button>`).join("");
-        grid.querySelectorAll("[data-eno-palette]").forEach(btn => btn.addEventListener("click", () => applyEnoPalette(enoPalettes.find(p => p.id === btn.dataset.enoPalette))));
-      }
-      if (chips) chips.innerHTML = current.chips.map(hex => `<span class="eno-chip-wrap"><span class="eno-chip" style="background:${escapeHtml(hex)}" title="${escapeHtml(hex)}"></span><span>${escapeHtml(hex)}</span></span>`).join("");
-      const byId = id => document.getElementById(id);
-      if (byId("enoPreviewTitle")) byId("enoPreviewTitle").textContent = current.name;
-      if (byId("enoPreviewSubhead")) byId("enoPreviewSubhead").textContent = current.code;
-      if (byId("enoPreviewText")) byId("enoPreviewText").textContent = current.note;
-    }
-
-    function setupEnoMode() {
-      const resetBtn = document.getElementById("enoResetBtn");
-      if (resetBtn) resetBtn.addEventListener("click", () => {
-        localStorage.setItem("domeLastTheme", "calibration");
-        applyCalibrationColour("#e9e2d3");
-        renderEnoMode();
-      });
-      renderEnoMode();
-      if (localStorage.getItem("domeLastTheme") === "eno") applyEnoPalette(currentEnoPalette());
-    }
-
-
-    /* FONT MODE */
-    const fontPresetGroups = [
-      {
-        category: "Architectural / Swiss / UI",
-        fonts: [
-          ["Inter", "neutral contemporary UI"],
-          ["Roboto", "reliable Android / web sans"],
-          ["Roboto Condensed", "narrow interface option"],
-          ["Open Sans", "clear and familiar"],
-          ["Lato", "warm corporate sans"],
-          ["Source Sans 3", "Adobe open-source sans"],
-          ["Work Sans", "clean and slightly warm"],
-          ["IBM Plex Sans", "engineered, readable"],
-          ["Public Sans", "plain civic sans"],
-          ["DM Sans", "quiet geometric sans"],
-          ["Manrope", "soft geometric sans"],
-          ["Archivo", "robust architectural sans"],
-          ["Archivo Narrow", "compressed archive labels"],
-          ["Barlow", "slightly technical"],
-          ["Barlow Condensed", "narrow technical headings"],
-          ["Noto Sans", "very broad character support"],
-          ["Figtree", "modern and calm"],
-          ["Assistant", "light, open sans"],
-          ["Karla", "humanist UI sans"],
-          ["Atkinson Hyperlegible", "very readable"],
-          ["Overpass", "road-sign clarity"],
-          ["Cabin", "humanist and compact"],
-          ["Mulish", "soft, minimal sans"],
-          ["Nunito Sans", "rounded and friendly"]
-        ]
-      },
-      {
-        category: "Geometric / Display Sans",
-        fonts: [
-          ["Space Grotesk", "architectural / technical"],
-          ["Space Mono", "monospace companion"],
-          ["Sora", "geometric but readable"],
-          ["Urbanist", "clean geometric headings"],
-          ["Montserrat", "strong geometric display"],
-          ["Poppins", "round geometric sans"],
-          ["Raleway", "thin elegant sans"],
-          ["Josefin Sans", "1930s geometric flavour"],
-          ["Jost", "Futura-like open-source option"],
-          ["Outfit", "plain geometric sans"],
-          ["Lexend", "wide, very readable"],
-          ["Questrial", "simple geometric UI"],
-          ["Hanken Grotesk", "neutral grotesk"],
-          ["Schibsted Grotesk", "newspaper-like grotesk"],
-          ["Plus Jakarta Sans", "contemporary UI sans"],
-          ["Red Hat Display", "clean display sans"]
-        ]
-      },
-      {
-        category: "Editorial / Monograph Serif",
-        fonts: [
-          ["Libre Baskerville", "bookish serif contrast"],
-          ["Source Serif 4", "serious text serif"],
-          ["Cormorant Garamond", "elegant editorial serif"],
-          ["EB Garamond", "classic book serif"],
-          ["Crimson Pro", "literary and compact"],
-          ["Spectral", "contemporary editorial serif"],
-          ["Literata", "long-form reading serif"],
-          ["Lora", "soft web serif"],
-          ["Merriweather", "screen-readable serif"],
-          ["Newsreader", "newspaper / catalogue tone"],
-          ["Fraunces", "soft expressive serif"],
-          ["Playfair Display", "high-contrast display serif"],
-          ["Bodoni Moda", "fashion / poster serif"],
-          ["Prata", "sharp display serif"],
-          ["Bitter", "slab-like readable serif"],
-          ["Zilla Slab", "architectural slab serif"],
-          ["Roboto Slab", "neutral slab serif"]
-        ]
-      },
-      {
-        category: "Technical / Drawing / Mono",
-        fonts: [
-          ["IBM Plex Mono", "technical annotation feel"],
-          ["Roboto Mono", "neutral coding mono"],
-          ["JetBrains Mono", "crisp coding mono"],
-          ["Source Code Pro", "Adobe mono"],
-          ["Inconsolata", "classic screen mono"],
-          ["Azeret Mono", "industrial mono"],
-          ["Space Mono", "NASA-like mono"],
-          ["Spline Sans Mono", "soft technical mono"],
-          ["Fragment Mono", "plain utility mono"],
-          ["DM Mono", "friendly mono"]
-        ]
-      }
-    ];
-
-    const fontPresets = fontPresetGroups.flatMap(group => group.fonts.map(([name, note]) => ({ name, note, category: group.category })));
-
-    function systemFontStack() {
-      return '-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif';
-    }
-
-    function safeGoogleFontName(value) {
-      const cleaned = String(value || "").trim().replace(/[^A-Za-z0-9 &+\-]/g, "").replace(/\s+/g, " ");
-      return cleaned.slice(0, 80);
-    }
-
-    function googleFontCssName(name) {
-      return safeGoogleFontName(name).replace(/ /g, "+");
-    }
-
-    function currentFontSource() {
-      const select = document.getElementById("fontSourceSelect");
-      return (select && select.value === "bunny") ? "bunny" : "google";
-    }
-
-    function fontStylesheetHref(clean, source) {
-      const family = googleFontCssName(clean);
-      if (source === "bunny") {
-        return `https://fonts.bunny.net/css?family=${family}:300,400,500,600,700,800&display=swap`;
-      }
-      return `https://fonts.googleapis.com/css2?family=${family}:wght@300;400;500;600;700;800&display=swap`;
-    }
-
-    function applyFontFamily(name, save = true) {
-      const clean = safeGoogleFontName(name);
-      const source = currentFontSource();
-      const linkId = "googleFontLink";
-      let link = document.getElementById(linkId);
-
-      if (!clean || clean.toLowerCase() === "system") {
-        document.documentElement.style.setProperty("--site-font", systemFontStack());
-        if (link) link.remove();
-        if (save) {
-          localStorage.removeItem("domeGoogleFontFamily");
-          localStorage.removeItem("domeGoogleFontSource");
-        }
-        renderFontMode();
-        return;
-      }
-
-      if (!link) {
-        link = document.createElement("link");
-        link.id = linkId;
-        link.rel = "stylesheet";
-        document.head.appendChild(link);
-      }
-
-      link.href = fontStylesheetHref(clean, source);
-      document.documentElement.style.setProperty("--site-font", `"${clean}", ${systemFontStack()}`);
-      if (save) {
-        localStorage.setItem("domeGoogleFontFamily", clean);
-        localStorage.setItem("domeGoogleFontSource", source);
-      }
-      renderFontMode();
-    }
-
-    function renderFontDatalist() {
-      const list = document.getElementById("fontPresetList");
-      if (!list) return;
-      list.innerHTML = fontPresets.map(p => `<option value="${escapeHtml(p.name)}"></option>`).join("");
-    }
-
-    function renderFontMode() {
-      const input = document.getElementById("fontFamilyInput");
-      const status = document.getElementById("fontStatusText");
-      const grid = document.getElementById("fontPresetGrid");
-      const select = document.getElementById("fontSourceSelect");
-      const current = localStorage.getItem("domeGoogleFontFamily") || "";
-      const source = localStorage.getItem("domeGoogleFontSource") || "google";
-      if (select && document.activeElement !== select) select.value = source === "bunny" ? "bunny" : "google";
-      if (input && document.activeElement !== input) input.value = current;
-      if (status) status.textContent = current ? `${source === "bunny" ? "Bunny" : "Google"} Font active: ${current}` : "System font active.";
-      renderFontDatalist();
-      if (grid) {
-        grid.innerHTML = fontPresetGroups.map(group => `
-          <div class="font-category-title">${escapeHtml(group.category)}</div>
-          ${group.fonts.map(([name, note]) => `
-            <button type="button" class="font-preset-btn ${current === name ? "active" : ""}" data-font-name="${escapeHtml(name)}">
-              <strong>${escapeHtml(name)}</strong>
-              <span>${escapeHtml(note)}</span>
-            </button>`).join("")}
-        `).join("");
-        grid.querySelectorAll("[data-font-name]").forEach(btn => btn.addEventListener("click", () => applyFontFamily(btn.dataset.fontName)));
-      }
-    }
-
-    function setupFontMode() {
-      const input = document.getElementById("fontFamilyInput");
-      const applyBtn = document.getElementById("fontApplyBtn");
-      const resetBtn = document.getElementById("fontResetBtn");
-      const sourceSelect = document.getElementById("fontSourceSelect");
-      if (sourceSelect) {
-        sourceSelect.value = localStorage.getItem("domeGoogleFontSource") || "google";
-        sourceSelect.addEventListener("change", () => {
-          const current = input ? input.value : localStorage.getItem("domeGoogleFontFamily") || "";
-          if (current) applyFontFamily(current);
-        });
-      }
-      if (applyBtn) applyBtn.addEventListener("click", () => applyFontFamily(input ? input.value : ""));
-      if (input) input.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") applyFontFamily(input.value);
-      });
-      if (resetBtn) resetBtn.addEventListener("click", () => applyFontFamily("system"));
-      const savedSource = localStorage.getItem("domeGoogleFontSource");
-      if (sourceSelect && savedSource) sourceSelect.value = savedSource === "bunny" ? "bunny" : "google";
-      const saved = localStorage.getItem("domeGoogleFontFamily");
-      if (saved) applyFontFamily(saved, false);
-      renderFontMode();
-    }
-
     async function init() {
       setupCalibrationMode();
-      setupCorbusierMode();
-      setupEnoMode();
-      setupFontMode();
       try {
         entries = await loadSheetData();
 
@@ -4970,8 +4360,8 @@
         setupGeodesicPointerControls();
         renderSphereMode();
         startSphereAnimation();
-        // Geodesic is intentionally lazy-built only when the tab opens.
-        // This avoids hidden-panel zero-size rendering and iPad Safari WebGL memory crashes.
+        renderGeodesicMode();
+        startGeodesicAnimation();
 
         for (let i = 0; i < reelCount; i++) {
           const entry = entries[i % entries.length];
