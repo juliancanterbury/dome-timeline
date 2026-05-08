@@ -132,7 +132,11 @@
     #timelineMode,
     #slotMode,
     #photosMode,
+    #cardsMode,
     #fieldMode,
+    #flowMode,
+    #sphereMode,
+    #geodesicMode,
     #aboutMode {
       flex: 1 1 auto;
       min-height: 0;
@@ -626,6 +630,144 @@
     }
 
 
+
+    /* FLOW MODE */
+    #flowMode {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .flow-intro {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .flow-copy {
+      max-width: 680px;
+      line-height: 1.3;
+    }
+
+    .flow-tools {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-left: auto;
+      white-space: nowrap;
+    }
+
+    #flowSpeedSlider {
+      width: 170px;
+      min-width: 170px;
+      padding: 0;
+      box-shadow: none;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .flow-speed-label {
+      color: var(--text);
+      min-width: 62px;
+      font-size: 12px;
+      text-align: left;
+    }
+
+    .flow-stage {
+      flex: 1 1 auto;
+      height: min(72vh, calc(100dvh - 170px));
+      min-height: 360px;
+      overflow: hidden;
+      position: relative;
+      border-radius: 22px;
+      background: var(--panel);
+      cursor: grab;
+      touch-action: pan-y;
+      user-select: none;
+    }
+
+    .flow-stage.dragging {
+      cursor: grabbing;
+    }
+
+    .flow-track {
+      height: 100%;
+      display: flex;
+      gap: 12px;
+      padding: 12px;
+      will-change: transform;
+      transform: translate3d(0,0,0);
+    }
+
+    .flow-item {
+      height: 100%;
+      aspect-ratio: 0.72;
+      flex: 0 0 auto;
+      border-radius: 18px;
+      overflow: hidden;
+      background: #c8bead;
+      position: relative;
+      cursor: zoom-in;
+      box-shadow: var(--shadow);
+    }
+
+    .flow-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      -webkit-user-drag: none;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .flow-caption {
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      bottom: 10px;
+      z-index: 2;
+      color: white;
+      font-size: 12px;
+      line-height: 1.15;
+      text-shadow: 0 1px 8px rgba(0,0,0,0.45);
+      opacity: 0;
+      transition: opacity 0.18s ease;
+      pointer-events: none;
+    }
+
+    .flow-item:hover .flow-caption {
+      opacity: 1;
+    }
+
+    .flow-stage::before,
+    .flow-stage::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 80px;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    .flow-stage::before {
+      left: 0;
+      background: linear-gradient(to right, var(--panel), rgba(216,207,190,0));
+    }
+
+    .flow-stage::after {
+      right: 0;
+      background: linear-gradient(to left, var(--panel), rgba(216,207,190,0));
+    }
+
+
     /* ABOUT / INFO MODE */
     #aboutMode {
       flex: 1 1 auto;
@@ -671,6 +813,147 @@
     .about-text p:last-child {
       margin-bottom: 0;
     }
+
+
+
+    /* CARDS MODE */
+    #cardsMode {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cards-intro {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .cards-copy {
+      max-width: 680px;
+      line-height: 1.3;
+    }
+
+    .cards-tools {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .cards-tools input[type="range"] {
+      width: 150px;
+      min-width: 120px;
+      padding: 0;
+      box-shadow: none;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .cards-label {
+      min-width: 32px;
+      color: var(--text);
+      font-size: 12px;
+    }
+
+    .cards-stage {
+      flex: 1 1 auto;
+      min-height: 440px;
+      height: min(74vh, calc(100dvh - 178px));
+      position: relative;
+      overflow: hidden;
+      border-radius: 22px;
+      background: radial-gradient(circle at 50% 42%, rgba(255,255,255,0.22), transparent 48%), var(--panel);
+      border: 1px solid var(--line);
+      perspective: 1200px;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .cards-board {
+      position: absolute;
+      inset: 14px;
+      transform-style: preserve-3d;
+    }
+
+    .archive-card {
+      position: absolute;
+      width: var(--card-w, 150px);
+      aspect-ratio: 0.72;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #c8bead;
+      box-shadow: 0 16px 34px rgba(47,38,29,0.14), 0 1px 0 rgba(255,255,255,0.18) inset;
+      cursor: grab;
+      transform-style: preserve-3d;
+      will-change: transform;
+      transition: box-shadow 0.18s ease, filter 0.18s ease;
+    }
+
+    .archive-card.dragging {
+      cursor: grabbing;
+      box-shadow: 0 30px 68px rgba(47,38,29,0.24), 0 1px 0 rgba(255,255,255,0.22) inset;
+      z-index: 9999 !important;
+    }
+
+    .archive-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      pointer-events: none;
+      -webkit-user-drag: none;
+      user-select: none;
+    }
+
+    .archive-card-caption {
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      bottom: 8px;
+      z-index: 2;
+      color: white;
+      font-size: 11px;
+      line-height: 1.12;
+      text-shadow: 0 1px 8px rgba(0,0,0,0.5);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s ease;
+    }
+
+    .archive-card:hover .archive-card-caption,
+    .archive-card.dragging .archive-card-caption {
+      opacity: 1;
+    }
+
+    .cards-hint {
+      position: absolute;
+      left: 16px;
+      bottom: 13px;
+      z-index: 3;
+      color: rgba(47,38,29,0.62);
+      font-size: 12px;
+      pointer-events: none;
+    }
+
+    @media (max-width: 760px) {
+      .cards-stage {
+        min-height: 520px;
+      }
+      .cards-tools {
+        width: 100%;
+      }
+      .cards-tools button {
+        flex: 1 1 auto;
+      }
+    }
+
 
     /* FIELD MODE */
     #fieldMode {
@@ -1048,10 +1331,378 @@
       color: var(--text);
     }
 
+
+    /* SPHERE MODE */
+    #sphereMode {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sphere-intro {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .sphere-copy {
+      max-width: 720px;
+      line-height: 1.3;
+    }
+
+    .sphere-tools {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-left: auto;
+      white-space: nowrap;
+    }
+
+    #sphereSpeedSlider,
+    #sphereSizeSlider {
+      width: 140px;
+      min-width: 120px;
+      padding: 0;
+      box-shadow: none;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .sphere-label {
+      color: var(--text);
+      min-width: 42px;
+      font-size: 12px;
+    }
+
+    .sphere-stage {
+      flex: 1 1 auto;
+      height: min(74vh, calc(100dvh - 170px));
+      min-height: 400px;
+      overflow: hidden;
+      position: relative;
+      border-radius: 22px;
+      background: radial-gradient(circle at 50% 45%, #efe7d8 0%, var(--panel) 55%, #c9bea9 100%);
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .sphere-stage.dragging {
+      cursor: grabbing;
+    }
+
+    .sphere-stage canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .sphere-hint {
+      position: absolute;
+      left: 14px;
+      bottom: 12px;
+      z-index: 2;
+      color: rgba(47,38,29,0.62);
+      font-size: 12px;
+      pointer-events: none;
+    }
+
+
+    /* GEODESIC MODE */
+    .geodesic-intro {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .geodesic-copy {
+      max-width: 680px;
+      line-height: 1.25;
+    }
+
+    .geodesic-status {
+      color: var(--text);
+      margin-top: 4px;
+    }
+
+    .geodesic-tools {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .geodesic-tools input {
+      width: 160px;
+      min-width: 120px;
+      padding: 0;
+      box-shadow: none;
+      accent-color: var(--accent);
+    }
+
+    .geodesic-label {
+      min-width: 34px;
+      color: var(--text);
+      font-size: 12px;
+    }
+
+    .geodesic-stage {
+      flex: 1 1 auto;
+      height: min(74vh, calc(100dvh - 180px));
+      min-height: 420px;
+      overflow: hidden;
+      position: relative;
+      border-radius: 22px;
+      background: radial-gradient(circle at 50% 45%, #efe7d8 0%, var(--panel) 55%, #c9bea9 100%);
+      perspective: 950px;
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .geodesic-stage.dragging {
+      cursor: grabbing;
+    }
+
+    .geodesic-shell {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 0;
+      height: 0;
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+
+    .geo-face {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: var(--tile);
+      height: var(--tile);
+      margin-left: calc(var(--tile) * -0.5);
+      margin-top: calc(var(--tile) * -0.5);
+      background-size: cover;
+      background-position: center;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      box-shadow: inset 0 0 0 1px rgba(47,38,29,0.20);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .geo-face.hex {
+      clip-path: polygon(25% 4%, 75% 4%, 100% 50%, 75% 96%, 25% 96%, 0% 50%);
+    }
+
+    .geo-face.pent {
+      clip-path: polygon(50% 0%, 98% 35%, 80% 100%, 20% 100%, 2% 35%);
+    }
+
+    .geodesic-hint {
+      position: absolute;
+      left: 14px;
+      bottom: 12px;
+      z-index: 2;
+      color: rgba(47,38,29,0.62);
+      font-size: 12px;
+      pointer-events: none;
+    }
+
+
     .social-btn:active {
       transform: translateY(1px);
     }
-</style>
+
+
+    /* CALIBRATION MODE */
+    #calibrationMode {
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+
+    .calibration-layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 420px) minmax(0, 1fr);
+      gap: 16px;
+      align-items: stretch;
+      min-height: 68vh;
+    }
+
+    .calibration-panel,
+    .calibration-preview {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .calibration-kicker {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .calibration-title {
+      font-size: clamp(28px, 3vw, 48px);
+      line-height: 0.95;
+      margin: 0 0 14px 0;
+      font-weight: 600;
+      letter-spacing: -0.045em;
+    }
+
+    .calibration-row {
+      display: grid;
+      grid-template-columns: 86px minmax(0, 1fr) 72px;
+      align-items: center;
+      gap: 10px;
+      margin: 12px 0;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .calibration-row input[type="range"] {
+      min-width: 0;
+      width: 100%;
+      padding: 0;
+      box-shadow: none;
+      accent-color: var(--accent);
+    }
+
+    .calibration-row output {
+      color: var(--text);
+      font-size: 12px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .calibration-picker-wrap {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 14px;
+      align-items: center;
+      margin: 14px 0 18px;
+    }
+
+    #calibrationColorInput {
+      width: 90px;
+      height: 90px;
+      min-width: 0;
+      padding: 4px;
+      border-radius: 18px;
+      cursor: pointer;
+    }
+
+    .calibration-hex {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    #calibrationHexInput {
+      min-width: 0;
+      width: 130px;
+      padding: 9px 10px;
+      border-radius: 10px;
+      text-transform: uppercase;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .calibration-preview {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .calibration-preview-surface {
+      border-radius: 20px;
+      padding: clamp(18px, 4vw, 48px);
+      min-height: 420px;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--line);
+      display: grid;
+      align-content: center;
+      gap: 18px;
+    }
+
+    .calibration-preview-surface h3 {
+      font-size: clamp(36px, 6vw, 96px);
+      line-height: 0.9;
+      margin: 0;
+      letter-spacing: -0.06em;
+    }
+
+    .calibration-preview-card {
+      max-width: 520px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      color: var(--text);
+    }
+
+    .calibration-preview-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .calibration-favourites {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+    }
+
+    .calibration-swatch {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      cursor: pointer;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.25);
+    }
+
+    .calibration-swatch.active {
+      outline: 2px solid var(--text);
+      outline-offset: 2px;
+    }
+
+    .calibration-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    @media (max-width: 900px) {
+      .calibration-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+  </style>
 </head>
 
 <body>
@@ -1066,7 +1717,12 @@
         <button id="timelineModeBtn" class="active-mode-btn">Timeline</button>
         <button id="slotModeBtn">Explore / Slot</button>
         <button id="photosModeBtn">Photos</button>
+        <button id="cardsModeBtn">Cards</button>
         <button id="fieldModeBtn">Field</button>
+        <button id="flowModeBtn">Flow</button>
+        <button id="sphereModeBtn">Sphere</button>
+        <button id="geodesicModeBtn">Geodesic</button>
+        <button id="calibrationModeBtn">Calibration</button>
         <button id="aboutModeBtn">About</button>
 
         <div class="social-links">
@@ -1149,6 +1805,27 @@
         <div id="photosContent"></div>
       </div>
 
+
+
+      <div id="cardsMode" class="hidden">
+        <div class="cards-intro">
+          <div class="cards-copy">
+            Cards sit on a table-like field. Drag cards around; they lift into the screen rather than falling to the bottom. Click/tap a still card to open it.
+          </div>
+          <div class="cards-tools">
+            <span>Size</span>
+            <input id="cardsSizeSlider" type="range" min="80" max="190" value="138" />
+            <span id="cardsSizeValue" class="cards-label">138</span>
+            <button id="cardsTidyBtn" type="button">Tidy</button>
+            <button id="cardsShuffleBtn" type="button">Shuffle</button>
+          </div>
+        </div>
+        <div id="cardsStage" class="cards-stage">
+          <div id="cardsBoard" class="cards-board"></div>
+          <div class="cards-hint">Drag to rearrange · no downward gravity · double click/tap opens</div>
+        </div>
+      </div>
+
       <div id="fieldMode" class="hidden">
         <div class="field-intro">
           <div class="field-copy">
@@ -1168,6 +1845,128 @@
           </div>
         </div>
         <div id="fieldGrid" class="field-grid"></div>
+      </div>
+
+
+      <div id="flowMode" class="hidden">
+        <div class="flow-intro">
+          <div class="flow-copy">
+            Full-height image stream. Drag or flick left/right with mouse or finger. Speed controls the underlying drift.
+          </div>
+          <div class="flow-tools">
+            <span>Speed</span>
+            <input id="flowSpeedSlider" type="range" min="-80" max="80" value="18" />
+            <span id="flowSpeedValue" class="flow-speed-label">Left 18</span>
+          </div>
+        </div>
+        <div id="flowStage" class="flow-stage">
+          <div id="flowTrack" class="flow-track"></div>
+        </div>
+      </div>
+
+
+      <div id="sphereMode" class="hidden">
+        <div class="sphere-intro">
+          <div class="sphere-copy">
+            Image sphere. Drag or flick to rotate. Click/tap an image to open it.
+          </div>
+          <div class="sphere-tools">
+            <span>Speed</span>
+            <input id="sphereSpeedSlider" type="range" min="-80" max="80" value="10" />
+            <span id="sphereSpeedValue" class="sphere-label">10</span>
+            <span>Size</span>
+            <input id="sphereSizeSlider" type="range" min="70" max="130" value="100" />
+            <span id="sphereSizeValue" class="sphere-label">100</span>
+          </div>
+        </div>
+        <div id="sphereStage" class="sphere-stage">
+          <div class="sphere-hint">Drag / flick to rotate · tap image to open</div>
+        </div>
+      </div>
+
+
+      <div id="geodesicMode" class="hidden">
+        <div class="geodesic-intro">
+          <div class="geodesic-copy">
+            Football-like hex / pentagon image shell. Images are repeated or skipped to perfectly fill the shell. Drag or flick to rotate. Click/tap a face to open it.
+            <div id="geodesicStatus" class="geodesic-status"></div>
+          </div>
+          <div class="geodesic-tools">
+            <span>Speed</span>
+            <input id="geodesicSpeedSlider" type="range" min="-80" max="80" value="8" />
+            <span id="geodesicSpeedValue" class="geodesic-label">8</span>
+            <span>Size</span>
+            <input id="geodesicSizeSlider" type="range" min="70" max="130" value="100" />
+            <span id="geodesicSizeValue" class="geodesic-label">100</span>
+          </div>
+        </div>
+        <div id="geodesicStage" class="geodesic-stage">
+          <div id="geodesicShell" class="geodesic-shell"></div>
+          <div class="geodesic-hint">Hexagons and pentagons sit on tangent planes · repeat/discard images to fill the shell</div>
+        </div>
+      </div>
+
+
+      <div id="calibrationMode" class="hidden">
+        <div class="calibration-layout">
+          <div class="calibration-panel">
+            <div class="calibration-kicker">Calibration Mode</div>
+            <h2 class="calibration-title">Colour Calibration</h2>
+            <p class="caption">Choose a background colour. The text, panel, line and button colours are calculated automatically for contrast. Save useful colourways as favourites.</p>
+
+            <div class="calibration-picker-wrap">
+              <input id="calibrationColorInput" type="color" value="#e9e2d3" aria-label="Background colour" />
+              <div>
+                <div class="calibration-hex">
+                  <span class="caption">Hex</span>
+                  <input id="calibrationHexInput" type="text" value="#E9E2D3" maxlength="7" />
+                </div>
+                <div class="caption" id="calibrationContrastNote">Auto text and button contrast enabled.</div>
+              </div>
+            </div>
+
+            <div class="calibration-row">
+              <span>Hue</span>
+              <input id="calibrationHue" type="range" min="0" max="360" value="38" />
+              <output id="calibrationHueValue">38</output>
+            </div>
+            <div class="calibration-row">
+              <span>Saturation</span>
+              <input id="calibrationSat" type="range" min="0" max="100" value="10" />
+              <output id="calibrationSatValue">10%</output>
+            </div>
+            <div class="calibration-row">
+              <span>Value</span>
+              <input id="calibrationVal" type="range" min="0" max="100" value="91" />
+              <output id="calibrationValValue">91%</output>
+            </div>
+
+            <div class="calibration-actions">
+              <button id="calibrationSaveBtn" type="button">Add Favourite</button>
+              <button id="calibrationResetBtn" type="button">Reset</button>
+            </div>
+
+            <div id="calibrationFavourites" class="calibration-favourites" aria-label="Favourite colours"></div>
+          </div>
+
+          <div class="calibration-preview">
+            <div class="calibration-preview-surface">
+              <div>
+                <div class="calibration-kicker">Preview</div>
+                <h3>Dome Archive Prototype</h3>
+              </div>
+              <div class="calibration-preview-card">
+                <div class="date">30 May 2021</div>
+                <h4 class="headline" style="font-size:42px; margin-bottom:10px;">Mud</h4>
+                <div class="text">This preview uses the same background, text, panel, line and button variables as the live site.</div>
+                <div class="calibration-preview-actions">
+                  <button type="button" class="active-mode-btn">Active Button</button>
+                  <button type="button">Standard Button</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div id="aboutMode" class="hidden">
@@ -1201,6 +2000,7 @@
     </div>
   </div>
 
+  <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
   <script>
     const SHEET_ID = "1wDHuoi8_cpGx0wYemSWE86Oxwiz9_QIUAVNxUAhAk8A";
     const SHEET_TAB = "PUBLISH";
@@ -1211,12 +2011,34 @@
     let entries = [];
     let currentIndex = 0;
     let timelineScale = 98;
+    let currentMode = "timeline";
+    let flowSpeed = 18;
+    let sphereSpeed = 10;
+    let sphereScale = 100;
+    let flowPosition = 0;
+    let flowVelocity = 0;
+    let flowBaseWidth = 0;
+    let flowLastTs = null;
+    let flowDragging = false;
+    let flowPointerId = null;
+    let flowLastX = 0;
+    let flowLastT = 0;
+    let flowMoved = false;
+    let flowAnimationId = null;
     const reelCount = 5;
     const imageCache = new Map();
     let slotPreviewPool = [];
     let currentPhotoView = "years";
     let lightboxEntryIndex = null;
     let fieldCols = 10;
+    let cardsSize = 138;
+    let cardsLayoutSeed = 1;
+    let cardsBuilt = false;
+    let activeCard = null;
+    let cardPointerOffset = { x: 0, y: 0 };
+    let cardPointerStart = { x: 0, y: 0 };
+    let cardMoved = false;
+    let cardZCounter = 10;
     let fieldBehaviour = "default";
     let fieldSelectedEntry = null;
     let fieldShuffleSeed = 1;
@@ -1959,39 +2781,371 @@
     const timelineMode = document.getElementById("timelineMode");
     const slotMode = document.getElementById("slotMode");
     const photosMode = document.getElementById("photosMode");
+    const cardsMode = document.getElementById("cardsMode");
     const fieldMode = document.getElementById("fieldMode");
+    const flowMode = document.getElementById("flowMode");
+    const sphereMode = document.getElementById("sphereMode");
+    const geodesicMode = document.getElementById("geodesicMode");
+    const calibrationMode = document.getElementById("calibrationMode");
     const aboutMode = document.getElementById("aboutMode");
     const modeBadge = document.getElementById("modeBadge");
 
     const timelineModeBtn = document.getElementById("timelineModeBtn");
     const slotModeBtn = document.getElementById("slotModeBtn");
     const photosModeBtn = document.getElementById("photosModeBtn");
+    const cardsModeBtn = document.getElementById("cardsModeBtn");
     const fieldModeBtn = document.getElementById("fieldModeBtn");
+    const flowModeBtn = document.getElementById("flowModeBtn");
+    const sphereModeBtn = document.getElementById("sphereModeBtn");
+    const geodesicModeBtn = document.getElementById("geodesicModeBtn");
+    const calibrationModeBtn = document.getElementById("calibrationModeBtn");
     const aboutModeBtn = document.getElementById("aboutModeBtn");
+    const cardsStage = document.getElementById("cardsStage");
+    const cardsBoard = document.getElementById("cardsBoard");
+    const cardsSizeSlider = document.getElementById("cardsSizeSlider");
+    const cardsSizeValue = document.getElementById("cardsSizeValue");
+    const cardsTidyBtn = document.getElementById("cardsTidyBtn");
+    const cardsShuffleBtn = document.getElementById("cardsShuffleBtn");
     const fieldColsSlider = document.getElementById("fieldColsSlider");
     const fieldColsValue = document.getElementById("fieldColsValue");
     const fieldReleaseBtn = document.getElementById("fieldReleaseBtn");
+    const flowSpeedSlider = document.getElementById("flowSpeedSlider");
+    const flowSpeedValue = document.getElementById("flowSpeedValue");
+    const flowStage = document.getElementById("flowStage");
+    const flowTrack = document.getElementById("flowTrack");
+    const sphereStage = document.getElementById("sphereStage");
+    const sphereSpeedSlider = document.getElementById("sphereSpeedSlider");
+    const sphereSpeedValue = document.getElementById("sphereSpeedValue");
+    const sphereSizeSlider = document.getElementById("sphereSizeSlider");
+    const sphereSizeValue = document.getElementById("sphereSizeValue");
+    const geodesicStage = document.getElementById("geodesicStage");
+    const geodesicShell = document.getElementById("geodesicShell");
+    const geodesicStatus = document.getElementById("geodesicStatus");
+    const geodesicSpeedSlider = document.getElementById("geodesicSpeedSlider");
+    const geodesicSpeedValue = document.getElementById("geodesicSpeedValue");
+    const geodesicSizeSlider = document.getElementById("geodesicSizeSlider");
+    const geodesicSizeValue = document.getElementById("geodesicSizeValue");
 
     function setMode(mode) {
+      currentMode = mode;
       timelineMode.classList.toggle("hidden", mode !== "timeline");
       slotMode.classList.toggle("hidden", mode !== "slot");
       photosMode.classList.toggle("hidden", mode !== "photos");
+      cardsMode.classList.toggle("hidden", mode !== "cards");
       fieldMode.classList.toggle("hidden", mode !== "field");
+      flowMode.classList.toggle("hidden", mode !== "flow");
+      sphereMode.classList.toggle("hidden", mode !== "sphere");
+      geodesicMode.classList.toggle("hidden", mode !== "geodesic");
+      calibrationMode.classList.toggle("hidden", mode !== "calibration");
       aboutMode.classList.toggle("hidden", mode !== "about");
 
       timelineModeBtn.classList.toggle("active-mode-btn", mode === "timeline");
       slotModeBtn.classList.toggle("active-mode-btn", mode === "slot");
       photosModeBtn.classList.toggle("active-mode-btn", mode === "photos");
+      cardsModeBtn.classList.toggle("active-mode-btn", mode === "cards");
       fieldModeBtn.classList.toggle("active-mode-btn", mode === "field");
+      flowModeBtn.classList.toggle("active-mode-btn", mode === "flow");
+      sphereModeBtn.classList.toggle("active-mode-btn", mode === "sphere");
+      geodesicModeBtn.classList.toggle("active-mode-btn", mode === "geodesic");
+      calibrationModeBtn.classList.toggle("active-mode-btn", mode === "calibration");
       aboutModeBtn.classList.toggle("active-mode-btn", mode === "about");
 
       modeBadge.textContent =
         mode === "timeline" ? "Timeline Mode" :
         mode === "slot" ? "Explore / Slot Mode" :
         mode === "photos" ? "Photos Mode" :
+        mode === "cards" ? "Cards Mode" :
         mode === "field" ? "Field Mode" :
+        mode === "flow" ? "Flow Mode" :
+        mode === "sphere" ? "Sphere Mode" :
+        mode === "geodesic" ? "Geodesic Mode" :
+        mode === "calibration" ? "Calibration Mode" :
         "About";
+
+      if (mode === "cards") {
+        renderCardsMode(false);
+      }
+
+      if (mode === "flow") {
+        measureFlow();
+        startFlowAnimation();
+      }
+
+      if (mode === "sphere") {
+        renderSphereMode();
+        startSphereAnimation();
+      }
+      if (mode === "geodesic") {
+        renderGeodesicMode();
+        startGeodesicAnimation();
+      }
     }
+
+
+    function formatFlowSpeedLabel() {
+      if (!flowSpeedValue) return;
+      const value = Math.round(flowSpeed);
+      if (value === 0) {
+        flowSpeedValue.textContent = "Stopped";
+      } else {
+        flowSpeedValue.textContent = `${value > 0 ? "Left" : "Right"} ${Math.abs(value)}`;
+      }
+    }
+
+    function measureFlow() {
+      if (!flowTrack) return;
+      const total = flowTrack.scrollWidth;
+      flowBaseWidth = total > 0 ? total / 2 : 0;
+      applyFlowTransform();
+    }
+
+    function normaliseFlowPosition() {
+      if (!flowBaseWidth) return;
+      flowPosition = ((flowPosition % flowBaseWidth) + flowBaseWidth) % flowBaseWidth;
+    }
+
+    function applyFlowTransform() {
+      if (!flowTrack) return;
+      normaliseFlowPosition();
+      flowTrack.style.transform = `translate3d(${-flowPosition}px, 0, 0)`;
+    }
+
+    function renderFlowMode() {
+      if (!flowTrack) return;
+      const doubled = [...entries, ...entries];
+
+      flowTrack.innerHTML = doubled.map((entry, i) => {
+        const index = i % entries.length;
+        return `
+          <div class="flow-item" data-flow-index="${index}">
+            <img src="${escapeHtml(entry.mediaSmall)}" alt="${escapeHtml(entry.headline)}" loading="lazy" decoding="async" draggable="false" />
+            <div class="flow-caption">${escapeHtml(entry.headline)}<br>${escapeHtml(formatDate(entry))}</div>
+          </div>
+        `;
+      }).join("");
+
+      flowTrack.querySelectorAll(".flow-item").forEach(item => {
+        item.addEventListener("click", () => {
+          if (flowMoved) return;
+          const index = Number(item.dataset.flowIndex);
+          const entry = entries[index];
+          if (entry) openLightbox(entry.mediaLarge, entry.headline, index);
+        });
+      });
+
+      requestAnimationFrame(measureFlow);
+      formatFlowSpeedLabel();
+    }
+
+    function startFlowAnimation() {
+      if (flowAnimationId) return;
+
+      const tick = (ts) => {
+        if (!flowLastTs) flowLastTs = ts;
+        const dt = Math.min(0.05, (ts - flowLastTs) / 1000);
+        flowLastTs = ts;
+
+        if (currentMode === "flow" && !flowDragging) {
+          flowPosition += (flowSpeed + flowVelocity) * dt;
+          const decay = Math.exp(-dt * 3.2);
+          flowVelocity *= decay;
+          if (Math.abs(flowVelocity) < 0.5) flowVelocity = 0;
+          applyFlowTransform();
+        }
+
+        flowAnimationId = requestAnimationFrame(tick);
+      };
+
+      flowAnimationId = requestAnimationFrame(tick);
+    }
+
+    function setupFlowPointerControls() {
+      if (!flowStage) return;
+
+      flowStage.addEventListener("pointerdown", (e) => {
+        if (!flowBaseWidth) measureFlow();
+        flowDragging = true;
+        flowMoved = false;
+        flowPointerId = e.pointerId;
+        flowLastX = e.clientX;
+        flowLastT = performance.now();
+        flowVelocity = 0;
+        flowStage.classList.add("dragging");
+        flowStage.setPointerCapture(e.pointerId);
+      });
+
+      flowStage.addEventListener("pointermove", (e) => {
+        if (!flowDragging || e.pointerId !== flowPointerId) return;
+
+        const now = performance.now();
+        const dx = e.clientX - flowLastX;
+        const dt = Math.max(16, now - flowLastT) / 1000;
+
+        if (Math.abs(dx) > 2) flowMoved = true;
+
+        flowPosition -= dx;
+        flowVelocity = -dx / dt;
+        flowLastX = e.clientX;
+        flowLastT = now;
+        applyFlowTransform();
+        e.preventDefault();
+      }, { passive: false });
+
+      const endDrag = (e) => {
+        if (!flowDragging || e.pointerId !== flowPointerId) return;
+        flowDragging = false;
+        flowPointerId = null;
+        flowStage.classList.remove("dragging");
+        setTimeout(() => { flowMoved = false; }, 80);
+      };
+
+      flowStage.addEventListener("pointerup", endDrag);
+      flowStage.addEventListener("pointercancel", endDrag);
+      flowStage.addEventListener("pointerleave", endDrag);
+
+      window.addEventListener("resize", () => {
+        if (currentMode === "flow") requestAnimationFrame(measureFlow);
+      });
+    }
+
+
+
+    function cardsRandomValue(entry, seed = cardsLayoutSeed) {
+      return fieldRandomValue(entry, seed + 1000);
+    }
+
+    function cardsStageRect() {
+      if (!cardsBoard) return { width: 1, height: 1 };
+      const rect = cardsBoard.getBoundingClientRect();
+      return { width: Math.max(1, rect.width), height: Math.max(1, rect.height) };
+    }
+
+    function cardsPositionForIndex(entry, index, total, tidy = true) {
+      const rect = cardsStageRect();
+      const w = cardsSize;
+      const h = cardsSize / 0.72;
+      const cols = Math.max(1, Math.floor(rect.width / (w * 0.86)));
+      const gapX = cols <= 1 ? 0 : (rect.width - w) / Math.max(1, cols - 1);
+      const gapY = h * 0.46;
+      const row = Math.floor(index / cols);
+      const col = index % cols;
+      const baseX = cols <= 1 ? (rect.width - w) / 2 : col * gapX;
+      const baseY = Math.min(rect.height - h, row * gapY);
+      const jitter = tidy ? 0 : 1;
+      const rx = (cardsRandomValue(entry, cardsLayoutSeed) - 0.5) * w * 1.05 * jitter;
+      const ry = (cardsRandomValue(entry, cardsLayoutSeed + 7) - 0.5) * h * 0.55 * jitter;
+      const rz = Math.round((cardsRandomValue(entry, cardsLayoutSeed + 13) - 0.5) * 90 * jitter);
+      const rotate = (cardsRandomValue(entry, cardsLayoutSeed + 19) - 0.5) * 10 * jitter;
+      const x = clamp(baseX + rx, 0, Math.max(0, rect.width - w));
+      const y = clamp(baseY + ry, 0, Math.max(0, rect.height - h));
+      return { x, y, z: rz, r: rotate };
+    }
+
+    function applyCardTransform(card) {
+      const x = Number(card.dataset.x || 0);
+      const y = Number(card.dataset.y || 0);
+      const z = Number(card.dataset.z || 0);
+      const r = Number(card.dataset.r || 0);
+      card.style.transform = `translate3d(${x}px, ${y}px, ${z}px) rotate(${r}deg)`;
+    }
+
+    function layoutCards(tidy = true) {
+      if (!cardsBoard) return;
+      const cards = [...cardsBoard.querySelectorAll(".archive-card")];
+      cards.forEach((card, i) => {
+        const entry = entries[Number(card.dataset.index)];
+        const pos = cardsPositionForIndex(entry, i, cards.length, tidy);
+        card.dataset.x = pos.x;
+        card.dataset.y = pos.y;
+        card.dataset.z = pos.z;
+        card.dataset.r = pos.r;
+        card.style.zIndex = String(10 + i);
+        applyCardTransform(card);
+      });
+    }
+
+    function renderCardsMode(forceRebuild = false) {
+      if (!cardsBoard || !entries.length) return;
+      if (cardsSizeValue) cardsSizeValue.textContent = String(cardsSize);
+      if (cardsSizeSlider) cardsSizeSlider.value = String(cardsSize);
+      if (cardsBuilt && !forceRebuild) {
+        cardsBoard.style.setProperty("--card-w", `${cardsSize}px`);
+        return;
+      }
+
+      const ordered = [...entries].sort((a, b) => fieldDateValue(a) - fieldDateValue(b));
+      cardsBoard.style.setProperty("--card-w", `${cardsSize}px`);
+      cardsBoard.innerHTML = ordered.map((entry) => {
+        const index = entries.indexOf(entry);
+        return `
+          <div class="archive-card" data-index="${index}" data-x="0" data-y="0" data-z="0" data-r="0">
+            <img src="${escapeHtml(entry.mediaSmall)}" alt="${escapeHtml(entry.headline)}" loading="lazy" decoding="async" draggable="false" />
+            <div class="archive-card-caption">${escapeHtml(entry.headline)}<br>${escapeHtml(formatDate(entry))}</div>
+          </div>
+        `;
+      }).join("");
+
+      cardsBoard.querySelectorAll(".archive-card").forEach(card => setupCardPointer(card));
+      cardsBuilt = true;
+      requestAnimationFrame(() => layoutCards(true));
+    }
+
+    function setupCardPointer(card) {
+      card.addEventListener("pointerdown", (e) => {
+        activeCard = card;
+        cardMoved = false;
+        const boardRect = cardsBoard.getBoundingClientRect();
+        const x = Number(card.dataset.x || 0);
+        const y = Number(card.dataset.y || 0);
+        cardPointerOffset.x = e.clientX - boardRect.left - x;
+        cardPointerOffset.y = e.clientY - boardRect.top - y;
+        cardPointerStart.x = e.clientX;
+        cardPointerStart.y = e.clientY;
+        card.classList.add("dragging");
+        card.dataset.z = 120;
+        card.style.zIndex = String(++cardZCounter);
+        applyCardTransform(card);
+        try { card.setPointerCapture(e.pointerId); } catch (err) {}
+        e.preventDefault();
+      }, { passive: false });
+
+      card.addEventListener("pointermove", (e) => {
+        if (activeCard !== card || !cardsBoard) return;
+        const boardRect = cardsBoard.getBoundingClientRect();
+        const w = cardsSize;
+        const h = cardsSize / 0.72;
+        const x = clamp(e.clientX - boardRect.left - cardPointerOffset.x, 0, Math.max(0, boardRect.width - w));
+        const y = clamp(e.clientY - boardRect.top - cardPointerOffset.y, 0, Math.max(0, boardRect.height - h));
+        if (Math.abs(e.clientX - cardPointerStart.x) + Math.abs(e.clientY - cardPointerStart.y) > 5) cardMoved = true;
+        card.dataset.x = x;
+        card.dataset.y = y;
+        card.dataset.z = 120;
+        card.dataset.r = (e.clientX - cardPointerStart.x) * 0.018;
+        applyCardTransform(card);
+        e.preventDefault();
+      }, { passive: false });
+
+      const finish = (e) => {
+        if (activeCard !== card) return;
+        card.classList.remove("dragging");
+        card.dataset.z = 0;
+        card.dataset.r = Number(card.dataset.r || 0) * 0.35;
+        applyCardTransform(card);
+        activeCard = null;
+      };
+
+      card.addEventListener("pointerup", (e) => {
+        const index = Number(card.dataset.index);
+        finish(e);
+        if (!cardMoved && entries[index]) openLightbox(entries[index].mediaLarge, entries[index].headline, index);
+      });
+      card.addEventListener("pointercancel", finish);
+      card.addEventListener("dblclick", () => {
+        const index = Number(card.dataset.index);
+        if (entries[index]) openLightbox(entries[index].mediaLarge, entries[index].headline, index);
+      });
+    }
+
 
     function relationScore(a, b) {
       if (!a || !b) return 9999;
@@ -2139,13 +3293,676 @@
       });
     }
 
+
+    let sphereRenderer = null;
+    let sphereScene = null;
+    let sphereCamera = null;
+    let sphereGroup = null;
+    let sphereRaycaster = null;
+    let spherePointer = null;
+    let sphereAnimationStarted = false;
+    let sphereBuilt = false;
+    let sphereDrag = {
+      active: false,
+      moved: false,
+      lastX: 0,
+      lastY: 0,
+      vx: 0,
+      vy: 0,
+      downX: 0,
+      downY: 0
+    };
+
+    function updateSphereLabels() {
+      if (sphereSpeedValue) sphereSpeedValue.textContent = String(Math.round(sphereSpeed));
+      if (sphereSizeValue) sphereSizeValue.textContent = String(Math.round(sphereScale));
+    }
+
+    function initSphereScene() {
+      if (sphereBuilt || !sphereStage || typeof THREE === "undefined") return;
+
+      sphereScene = new THREE.Scene();
+      sphereCamera = new THREE.PerspectiveCamera(42, 1, 0.1, 1000);
+      sphereCamera.position.set(0, 0, 12);
+
+      sphereRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      sphereRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      sphereStage.appendChild(sphereRenderer.domElement);
+
+      sphereGroup = new THREE.Group();
+      sphereScene.add(sphereGroup);
+
+      sphereRaycaster = new THREE.Raycaster();
+      spherePointer = new THREE.Vector2();
+
+      const light = new THREE.AmbientLight(0xffffff, 1.0);
+      sphereScene.add(light);
+
+      const radius = 4.2;
+      const count = entries.length;
+      const golden = Math.PI * (3 - Math.sqrt(5));
+      const loader = new THREE.TextureLoader();
+      loader.crossOrigin = "anonymous";
+
+      entries.forEach((entry, i) => {
+        const y = count === 1 ? 0 : 1 - (i / (count - 1)) * 2;
+        const r = Math.sqrt(Math.max(0, 1 - y * y));
+        const theta = i * golden;
+        const x = Math.cos(theta) * r;
+        const z = Math.sin(theta) * r;
+
+        const texture = loader.load(entry.mediaSmall);
+        texture.colorSpace = THREE.SRGBColorSpace;
+
+        const aspect = 0.72;
+        const h = 0.72;
+        const w = h * aspect;
+        const geom = new THREE.PlaneGeometry(w, h);
+        const mat = new THREE.MeshBasicMaterial({
+          map: texture,
+          side: THREE.DoubleSide,
+          transparent: true
+        });
+        const mesh = new THREE.Mesh(geom, mat);
+        mesh.position.set(x * radius, y * radius, z * radius);
+        mesh.lookAt(0, 0, 0);
+        mesh.userData.entry = entry;
+        mesh.userData.index = i;
+        sphereGroup.add(mesh);
+      });
+
+      setupSpherePointerControls();
+      resizeSphere();
+      sphereBuilt = true;
+    }
+
+    function resizeSphere() {
+      if (!sphereRenderer || !sphereStage || !sphereCamera) return;
+      const rect = sphereStage.getBoundingClientRect();
+      const w = Math.max(1, rect.width);
+      const h = Math.max(1, rect.height);
+      sphereRenderer.setSize(w, h, false);
+      sphereCamera.aspect = w / h;
+      sphereCamera.updateProjectionMatrix();
+    }
+
+    function renderSphereMode() {
+      updateSphereLabels();
+      initSphereScene();
+      resizeSphere();
+      if (sphereGroup) {
+        const s = sphereScale / 100;
+        sphereGroup.scale.setScalar(s);
+      }
+    }
+
+    function startSphereAnimation() {
+      if (sphereAnimationStarted) return;
+      sphereAnimationStarted = true;
+      let last = performance.now();
+
+      function tick(now) {
+        const dt = Math.min(0.05, (now - last) / 1000);
+        last = now;
+
+        if (sphereRenderer && sphereScene && sphereCamera && sphereGroup) {
+          if (currentMode === "sphere") {
+            sphereGroup.rotation.y += (sphereSpeed * 0.0009 + sphereDrag.vx) * dt * 60;
+            sphereGroup.rotation.x += sphereDrag.vy * dt * 60;
+            sphereGroup.rotation.x = Math.max(-1.25, Math.min(1.25, sphereGroup.rotation.x));
+          } else {
+            sphereGroup.rotation.y += 0.0015;
+          }
+
+          sphereDrag.vx *= 0.94;
+          sphereDrag.vy *= 0.94;
+          sphereRenderer.render(sphereScene, sphereCamera);
+        }
+
+        requestAnimationFrame(tick);
+      }
+
+      requestAnimationFrame(tick);
+    }
+
+    function setupSpherePointerControls() {
+      if (!sphereStage || sphereStage.dataset.bound === "1") return;
+      sphereStage.dataset.bound = "1";
+
+      sphereStage.addEventListener("pointerdown", (e) => {
+        sphereDrag.active = true;
+        sphereDrag.moved = false;
+        sphereDrag.lastX = e.clientX;
+        sphereDrag.lastY = e.clientY;
+        sphereDrag.downX = e.clientX;
+        sphereDrag.downY = e.clientY;
+        sphereDrag.vx = 0;
+        sphereDrag.vy = 0;
+        sphereStage.classList.add("dragging");
+        sphereStage.setPointerCapture(e.pointerId);
+      });
+
+      sphereStage.addEventListener("pointermove", (e) => {
+        if (!sphereDrag.active || !sphereGroup) return;
+        const dx = e.clientX - sphereDrag.lastX;
+        const dy = e.clientY - sphereDrag.lastY;
+        if (Math.abs(e.clientX - sphereDrag.downX) + Math.abs(e.clientY - sphereDrag.downY) > 6) {
+          sphereDrag.moved = true;
+        }
+        sphereGroup.rotation.y += dx * 0.006;
+        sphereGroup.rotation.x += dy * 0.006;
+        sphereGroup.rotation.x = Math.max(-1.25, Math.min(1.25, sphereGroup.rotation.x));
+        sphereDrag.vx = dx * 0.004;
+        sphereDrag.vy = dy * 0.004;
+        sphereDrag.lastX = e.clientX;
+        sphereDrag.lastY = e.clientY;
+      });
+
+      sphereStage.addEventListener("pointerup", (e) => {
+        sphereStage.classList.remove("dragging");
+        if (!sphereDrag.moved) openSphereClickedImage(e);
+        sphereDrag.active = false;
+      });
+
+      sphereStage.addEventListener("pointercancel", () => {
+        sphereDrag.active = false;
+        sphereStage.classList.remove("dragging");
+      });
+    }
+
+    function openSphereClickedImage(e) {
+      if (!sphereRenderer || !sphereCamera || !sphereGroup || !sphereRaycaster || !spherePointer) return;
+      const rect = sphereRenderer.domElement.getBoundingClientRect();
+      spherePointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      spherePointer.y = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
+      sphereRaycaster.setFromCamera(spherePointer, sphereCamera);
+      const hits = sphereRaycaster.intersectObjects(sphereGroup.children, false);
+      if (!hits.length) return;
+      const mesh = hits[0].object;
+      const entry = mesh.userData.entry;
+      const index = entries.indexOf(entry);
+      if (entry) openLightbox(entry.mediaLarge, entry.headline, index);
+    }
+
+    window.addEventListener("resize", () => {
+      if (currentMode === "sphere") resizeSphere();
+      if (currentMode === "geodesic") renderGeodesicMode();
+    });
+
+
+    /* TRUE THREE.JS GEODESIC / FOOTBALL MODE */
+    let geodesicRotation = { x: -0.18, y: 0.35 };
+    let geodesicVelocity = { x: 0.001, y: 0.006 };
+    let geodesicSpeed = 8;
+    let geodesicSize = 100;
+    let geodesicDragging = false;
+    let geodesicMoved = false;
+    let geodesicLast = { x: 0, y: 0 };
+    let geodesicAnimationId = null;
+    let geodesicRenderer = null;
+    let geodesicScene = null;
+    let geodesicCamera = null;
+    let geodesicGroup = null;
+    let geodesicRaycaster = null;
+    let geodesicPointer = null;
+    let geodesicBuiltKey = "";
+    let geodesicPointerId = null;
+
+    function geodesicShellCount() {
+      const available = Math.max(1, entries.length || 1);
+      let bestF = 1;
+      let bestCount = 12;
+      let bestDiff = Math.abs(available - bestCount);
+
+      for (let f = 1; f <= 9; f++) {
+        const count = 10 * f * f + 2;
+        const diff = Math.abs(available - count);
+        if (diff < bestDiff) {
+          bestF = f;
+          bestCount = count;
+          bestDiff = diff;
+        }
+      }
+      return { frequency: bestF, count: bestCount };
+    }
+
+    function geodesicImageSet(count) {
+      if (!entries.length) return [];
+      const base = [...entries].sort((a, b) => fieldRandomValue(a, 17) - fieldRandomValue(b, 17));
+      const result = [];
+      for (let i = 0; i < count; i++) result.push(base[i % base.length]);
+      return result;
+    }
+
+    function updateGeodesicLabels() {
+      if (geodesicSpeedSlider) geodesicSpeedSlider.value = String(geodesicSpeed);
+      if (geodesicSpeedValue) geodesicSpeedValue.textContent = String(geodesicSpeed);
+      if (geodesicSizeSlider) geodesicSizeSlider.value = String(geodesicSize);
+      if (geodesicSizeValue) geodesicSizeValue.textContent = String(geodesicSize);
+    }
+
+    function geoVecKey(v) {
+      return `${v.x.toFixed(6)},${v.y.toFixed(6)},${v.z.toFixed(6)}`;
+    }
+
+    function geoNormaliseVector3(v) {
+      return v.clone().normalize();
+    }
+
+    function makeIcosahedron() {
+      const phi = (1 + Math.sqrt(5)) / 2;
+      const raw = [
+        [-1,  phi, 0], [ 1,  phi, 0], [-1, -phi, 0], [ 1, -phi, 0],
+        [0, -1,  phi], [0,  1,  phi], [0, -1, -phi], [0,  1, -phi],
+        [ phi, 0, -1], [ phi, 0,  1], [-phi, 0, -1], [-phi, 0,  1]
+      ];
+      const vertices = raw.map(p => new THREE.Vector3(p[0], p[1], p[2]).normalize());
+      const faces = [
+        [0,11,5], [0,5,1], [0,1,7], [0,7,10], [0,10,11],
+        [1,5,9], [5,11,4], [11,10,2], [10,7,6], [7,1,8],
+        [3,9,4], [3,4,2], [3,2,6], [3,6,8], [3,8,9],
+        [4,9,5], [2,4,11], [6,2,10], [8,6,7], [9,8,1]
+      ];
+      return { vertices, faces };
+    }
+
+    function buildGeodesicCells(frequency) {
+      const ico = makeIcosahedron();
+      const points = [];
+      const pointMap = new Map();
+      const triangles = [];
+      const adjacent = [];
+
+      function addPoint(v) {
+        const n = v.clone().normalize();
+        const key = geoVecKey(n);
+        if (pointMap.has(key)) return pointMap.get(key);
+        const id = points.length;
+        points.push(n);
+        adjacent.push([]);
+        pointMap.set(key, id);
+        return id;
+      }
+
+      ico.faces.forEach(face => {
+        const a = ico.vertices[face[0]];
+        const b = ico.vertices[face[1]];
+        const c = ico.vertices[face[2]];
+        const grid = [];
+
+        for (let i = 0; i <= frequency; i++) {
+          grid[i] = [];
+          for (let j = 0; j <= frequency - i; j++) {
+            const wa = (frequency - i - j) / frequency;
+            const wb = i / frequency;
+            const wc = j / frequency;
+            const p = new THREE.Vector3()
+              .addScaledVector(a, wa)
+              .addScaledVector(b, wb)
+              .addScaledVector(c, wc)
+              .normalize();
+            grid[i][j] = addPoint(p);
+          }
+        }
+
+        for (let i = 0; i < frequency; i++) {
+          for (let j = 0; j < frequency - i; j++) {
+            const t1 = [grid[i][j], grid[i + 1][j], grid[i][j + 1]];
+            const id1 = triangles.length;
+            triangles.push(t1);
+            t1.forEach(v => adjacent[v].push(id1));
+
+            if (j < frequency - i - 1) {
+              const t2 = [grid[i + 1][j], grid[i + 1][j + 1], grid[i][j + 1]];
+              const id2 = triangles.length;
+              triangles.push(t2);
+              t2.forEach(v => adjacent[v].push(id2));
+            }
+          }
+        }
+      });
+
+      const triCenters = triangles.map(t => {
+        return new THREE.Vector3()
+          .add(points[t[0]])
+          .add(points[t[1]])
+          .add(points[t[2]])
+          .multiplyScalar(1 / 3)
+          .normalize();
+      });
+
+      const cells = [];
+      points.forEach((normal, pointIndex) => {
+        let up = new THREE.Vector3(0, 1, 0);
+        if (Math.abs(normal.dot(up)) > 0.94) up = new THREE.Vector3(1, 0, 0);
+        const u = new THREE.Vector3().crossVectors(up, normal).normalize();
+        const v = new THREE.Vector3().crossVectors(normal, u).normalize();
+
+        const ordered = adjacent[pointIndex]
+          .map(triIndex => {
+            const center = triCenters[triIndex];
+            return {
+              triIndex,
+              angle: Math.atan2(center.dot(v), center.dot(u))
+            };
+          })
+          .sort((a, b) => a.angle - b.angle)
+          .map(item => triCenters[item.triIndex]);
+
+        if (ordered.length >= 5) {
+          cells.push({ normal: normal.clone(), vertices: ordered });
+        }
+      });
+
+      return cells;
+    }
+
+    function createClippedImageTexture(entry, sides) {
+      // The actual polygon mesh clips the image. This texture deliberately fills
+      // a square canvas, so the visible crop aligns with the real geodesic face
+      // edges instead of a separate regular hexagon/pentagon mask.
+      const canvas = document.createElement("canvas");
+      const size = 768;
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext("2d");
+
+      ctx.fillStyle = "#c8bead";
+      ctx.fillRect(0, 0, size, size);
+
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.anisotropy = 8;
+
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        ctx.clearRect(0, 0, size, size);
+        ctx.fillStyle = "#c8bead";
+        ctx.fillRect(0, 0, size, size);
+
+        const scale = Math.max(size / img.width, size / img.height);
+        const w = img.width * scale;
+        const h = img.height * scale;
+        const x = (size - w) / 2;
+        const y = (size - h) / 2;
+        ctx.drawImage(img, x, y, w, h);
+
+        tex.needsUpdate = true;
+      };
+      img.onerror = () => {
+        tex.needsUpdate = true;
+      };
+      img.src = entry.mediaSmall;
+      return tex;
+    }
+
+    function createCellMesh(cell, entry, radius) {
+      const sides = cell.vertices.length <= 5 ? 5 : 6;
+      const normal = cell.normal.clone().normalize();
+      const center = normal.clone().multiplyScalar(radius);
+      const verts = cell.vertices.map(v => v.clone().multiplyScalar(radius));
+
+      let up = new THREE.Vector3(0, 1, 0);
+      if (Math.abs(normal.dot(up)) > 0.94) up = new THREE.Vector3(1, 0, 0);
+      const u = new THREE.Vector3().crossVectors(up, normal).normalize();
+      const vv = new THREE.Vector3().crossVectors(normal, u).normalize();
+
+      const projected = verts.map(p => {
+        const d = p.clone().sub(center);
+        return { x: d.dot(u), y: d.dot(vv) };
+      });
+      const minX = Math.min(...projected.map(p => p.x));
+      const maxX = Math.max(...projected.map(p => p.x));
+      const minY = Math.min(...projected.map(p => p.y));
+      const maxY = Math.max(...projected.map(p => p.y));
+      const dx = maxX - minX || 1;
+      const dy = maxY - minY || 1;
+
+      const positions = [];
+      const uvs = [];
+      const centerUv = [0.5, 0.5];
+
+      for (let i = 0; i < verts.length; i++) {
+        const a = verts[i];
+        const b = verts[(i + 1) % verts.length];
+        const pa = projected[i];
+        const pb = projected[(i + 1) % projected.length];
+        positions.push(center.x, center.y, center.z, a.x, a.y, a.z, b.x, b.y, b.z);
+        uvs.push(
+          centerUv[0], centerUv[1],
+          (pa.x - minX) / dx, 1 - (pa.y - minY) / dy,
+          (pb.x - minX) / dx, 1 - (pb.y - minY) / dy
+        );
+      }
+
+      const geom = new THREE.BufferGeometry();
+      geom.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+      geom.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+      geom.computeVertexNormals();
+
+      const material = new THREE.MeshBasicMaterial({
+        map: createClippedImageTexture(entry, sides),
+        side: THREE.DoubleSide,
+        transparent: false,
+        toneMapped: false
+      });
+
+      const mesh = new THREE.Mesh(geom, material);
+      mesh.userData.entry = entry;
+      mesh.userData.index = entries.indexOf(entry);
+
+      const lineGeom = new THREE.BufferGeometry().setFromPoints([...verts, verts[0]]);
+      const lineMat = new THREE.LineBasicMaterial({ color: 0xf7f4ec, transparent: true, opacity: 0.95 });
+      const line = new THREE.Line(lineGeom, lineMat);
+      line.userData.ignoreRay = true;
+
+      const group = new THREE.Group();
+      group.add(mesh);
+      group.add(line);
+      group.userData.mesh = mesh;
+      return group;
+    }
+
+    function initGeodesicRenderer() {
+      if (!geodesicStage || !window.THREE) return false;
+      if (geodesicRenderer) return true;
+
+      geodesicStage.innerHTML = "";
+      geodesicScene = new THREE.Scene();
+      geodesicCamera = new THREE.PerspectiveCamera(35, 1, 0.1, 4000);
+      geodesicCamera.position.z = 920;
+      geodesicGroup = new THREE.Group();
+      geodesicScene.add(geodesicGroup);
+
+      const light = new THREE.AmbientLight(0xffffff, 1);
+      geodesicScene.add(light);
+
+      geodesicRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      geodesicRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      geodesicRenderer.outputColorSpace = THREE.SRGBColorSpace;
+      geodesicStage.appendChild(geodesicRenderer.domElement);
+
+      geodesicRaycaster = new THREE.Raycaster();
+      geodesicPointer = new THREE.Vector2();
+      return true;
+    }
+
+    function resizeGeodesicRenderer() {
+      if (!geodesicRenderer || !geodesicCamera || !geodesicStage) return;
+      const rect = geodesicStage.getBoundingClientRect();
+      const w = Math.max(320, rect.width);
+      const h = Math.max(320, rect.height);
+      geodesicRenderer.setSize(w, h, false);
+      geodesicCamera.aspect = w / h;
+      geodesicCamera.updateProjectionMatrix();
+    }
+
+    function clearGeodesicGroup() {
+      if (!geodesicGroup) return;
+      while (geodesicGroup.children.length) {
+        const child = geodesicGroup.children.pop();
+        child.traverse(obj => {
+          if (obj.geometry) obj.geometry.dispose();
+          if (obj.material) {
+            if (obj.material.map) obj.material.map.dispose();
+            obj.material.dispose();
+          }
+        });
+      }
+    }
+
+    function renderGeodesicMode() {
+      if (!geodesicStage || !entries.length) return;
+      if (!initGeodesicRenderer()) return;
+      updateGeodesicLabels();
+      resizeGeodesicRenderer();
+
+      const { frequency, count } = geodesicShellCount();
+      const key = `${frequency}-${count}-${entries.length}-${geodesicSize}`;
+      const rect = geodesicStage.getBoundingClientRect();
+      const radius = Math.min(rect.width, rect.height) * 0.38 * (geodesicSize / 100);
+
+      clearGeodesicGroup();
+      const source = geodesicImageSet(count);
+      const cells = buildGeodesicCells(frequency);
+
+      cells.forEach((cell, i) => {
+        const entry = source[i % source.length];
+        geodesicGroup.add(createCellMesh(cell, entry, radius));
+      });
+
+      geodesicBuiltKey = key;
+
+      if (geodesicStatus) {
+        const pentagons = cells.filter(c => c.vertices.length === 5).length;
+        const hexagons = cells.length - pentagons;
+        const repeated = source.length > entries.length;
+        const imageNote = repeated
+          ? `${entries.length} images repeated to fill ${source.length} faces`
+          : `${source.length} of ${entries.length} images used`;
+        geodesicStatus.textContent = `frequency ${frequency} / ${imageNote} / ${hexagons} hexagons + ${pentagons} pentagons`;
+      }
+
+      startGeodesicAnimation();
+    }
+
+    function renderGeodesicFrame() {
+      if (!geodesicRenderer || !geodesicScene || !geodesicCamera || !geodesicGroup) return;
+      geodesicGroup.rotation.x = geodesicRotation.x;
+      geodesicGroup.rotation.y = geodesicRotation.y;
+      geodesicRenderer.render(geodesicScene, geodesicCamera);
+    }
+
+    function startGeodesicAnimation() {
+      if (geodesicAnimationId) return;
+      const step = () => {
+        if (currentMode === "geodesic") {
+          if (!geodesicDragging) {
+            geodesicRotation.y += geodesicVelocity.y + geodesicSpeed * 0.00012;
+            geodesicRotation.x += geodesicVelocity.x;
+            geodesicVelocity.x *= 0.965;
+            geodesicVelocity.y *= 0.965;
+          }
+          renderGeodesicFrame();
+        }
+        geodesicAnimationId = requestAnimationFrame(step);
+      };
+      geodesicAnimationId = requestAnimationFrame(step);
+    }
+
+    function setupGeodesicPointerControls() {
+      if (!geodesicStage) return;
+
+      geodesicStage.addEventListener("pointerdown", (e) => {
+        if (!geodesicRenderer) return;
+        geodesicDragging = true;
+        geodesicMoved = false;
+        geodesicPointerId = e.pointerId;
+        geodesicLast.x = e.clientX;
+        geodesicLast.y = e.clientY;
+        geodesicVelocity.x = 0;
+        geodesicVelocity.y = 0;
+        geodesicStage.classList.add("dragging");
+        try { geodesicStage.setPointerCapture(e.pointerId); } catch (err) {}
+      });
+
+      geodesicStage.addEventListener("pointermove", (e) => {
+        if (!geodesicDragging || e.pointerId !== geodesicPointerId) return;
+        const dx = e.clientX - geodesicLast.x;
+        const dy = e.clientY - geodesicLast.y;
+        if (Math.abs(dx) + Math.abs(dy) > 3) geodesicMoved = true;
+        geodesicRotation.y += dx * 0.008;
+        geodesicRotation.x += dy * 0.008;
+        geodesicRotation.x = Math.max(-1.45, Math.min(1.45, geodesicRotation.x));
+        geodesicVelocity.y = dx * 0.0009;
+        geodesicVelocity.x = dy * 0.0009;
+        geodesicLast.x = e.clientX;
+        geodesicLast.y = e.clientY;
+        renderGeodesicFrame();
+        e.preventDefault();
+      }, { passive: false });
+
+      const endDrag = (e) => {
+        if (!geodesicDragging || e.pointerId !== geodesicPointerId) return;
+        geodesicDragging = false;
+        geodesicPointerId = null;
+        geodesicStage.classList.remove("dragging");
+        try { geodesicStage.releasePointerCapture(e.pointerId); } catch (err) {}
+
+        if (!geodesicMoved && geodesicRenderer && geodesicRaycaster && geodesicPointer) {
+          const rect = geodesicRenderer.domElement.getBoundingClientRect();
+          geodesicPointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+          geodesicPointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+          geodesicRaycaster.setFromCamera(geodesicPointer, geodesicCamera);
+          const meshes = [];
+          geodesicGroup.traverse(obj => {
+            if (obj.isMesh && !obj.userData.ignoreRay) meshes.push(obj);
+          });
+          const hits = geodesicRaycaster.intersectObjects(meshes, false);
+          if (hits.length) {
+            const mesh = hits[0].object;
+            const entry = mesh.userData.entry;
+            const index = mesh.userData.index;
+            if (entry) openLightbox(entry.mediaLarge, entry.headline, index);
+          }
+        }
+
+        setTimeout(() => { geodesicMoved = false; }, 80);
+      };
+
+      geodesicStage.addEventListener("pointerup", endDrag);
+      geodesicStage.addEventListener("pointercancel", endDrag);
+      window.addEventListener("resize", () => {
+        if (currentMode === "geodesic") renderGeodesicMode();
+      });
+    }
+
     timelineModeBtn.addEventListener("click", () => setMode("timeline"));
     slotModeBtn.addEventListener("click", () => setMode("slot"));
     photosModeBtn.addEventListener("click", () => setMode("photos"));
+    cardsModeBtn.addEventListener("click", () => {
+      setMode("cards");
+      renderCardsMode(false);
+    });
     fieldModeBtn.addEventListener("click", () => {
       setMode("field");
       renderFieldMode();
     });
+    flowModeBtn.addEventListener("click", () => {
+      setMode("flow");
+      renderFlowMode();
+    });
+    sphereModeBtn.addEventListener("click", () => {
+      setMode("sphere");
+      renderSphereMode();
+    });
+    geodesicModeBtn.addEventListener("click", () => {
+      setMode("geodesic");
+      renderGeodesicMode();
+      startGeodesicAnimation();
+    });
+    calibrationModeBtn.addEventListener("click", () => setMode("calibration"));
     aboutModeBtn.addEventListener("click", () => setMode("about"));
 
     const timelineScaleSlider = document.getElementById("timelineScaleSlider");
@@ -2160,6 +3977,51 @@
           const mode = timelineScaleMode();
           timelineScaleValue.textContent = mode === "years" ? "Years" : mode === "months" ? "Months" : "Days";
         }
+      });
+    }
+
+    if (cardsSizeSlider) {
+      cardsSizeSlider.addEventListener("input", () => {
+        cardsSize = Number(cardsSizeSlider.value) || 138;
+        if (cardsSizeValue) cardsSizeValue.textContent = String(cardsSize);
+        if (cardsBoard) cardsBoard.style.setProperty("--card-w", `${cardsSize}px`);
+        layoutCards(true);
+      });
+    }
+
+    if (cardsTidyBtn) {
+      cardsTidyBtn.addEventListener("click", () => layoutCards(true));
+    }
+
+    if (cardsShuffleBtn) {
+      cardsShuffleBtn.addEventListener("click", () => {
+        cardsLayoutSeed++;
+        layoutCards(false);
+      });
+    }
+
+    window.addEventListener("resize", () => {
+      if (currentMode === "cards") requestAnimationFrame(() => layoutCards(true));
+    });
+
+    if (flowSpeedSlider) {
+      flowSpeedSlider.addEventListener("input", () => {
+        flowSpeed = Number(flowSpeedSlider.value) || 0;
+        formatFlowSpeedLabel();
+      });
+    }
+
+    if (sphereSpeedSlider) {
+      sphereSpeedSlider.addEventListener("input", () => {
+        sphereSpeed = Number(sphereSpeedSlider.value) || 0;
+        updateSphereLabels();
+      });
+    }
+
+    if (sphereSizeSlider) {
+      sphereSizeSlider.addEventListener("input", () => {
+        sphereScale = Number(sphereSizeSlider.value) || 100;
+        renderSphereMode();
       });
     }
 
@@ -2196,6 +4058,21 @@
         if (e.target === fieldGridEl) {
           resetFieldMode();
         }
+      });
+    }
+
+
+    if (geodesicSpeedSlider) {
+      geodesicSpeedSlider.addEventListener("input", () => {
+        geodesicSpeed = Number(geodesicSpeedSlider.value) || 0;
+        updateGeodesicLabels();
+      });
+    }
+
+    if (geodesicSizeSlider) {
+      geodesicSizeSlider.addEventListener("input", () => {
+        geodesicSize = Number(geodesicSizeSlider.value) || 100;
+        renderGeodesicMode();
       });
     }
 
@@ -2277,7 +4154,188 @@
       }
     });
 
+
+
+    /* CALIBRATION MODE */
+    const calibrationDefaults = ["#e9e2d3", "#f7f4ec", "#d8cfbe", "#c2a06f", "#8d7558", "#2f261d", "#1f1f1f", "#ffffff", "#b36b4a", "#c2a23d", "#6f8a62", "#62778a"];
+
+    function clamp(n, min, max) { return Math.max(min, Math.min(max, n)); }
+
+    function hexToRgb(hex) {
+      const clean = String(hex || "").replace("#", "").trim();
+      if (!/^[0-9a-fA-F]{6}$/.test(clean)) return null;
+      return {
+        r: parseInt(clean.slice(0, 2), 16),
+        g: parseInt(clean.slice(2, 4), 16),
+        b: parseInt(clean.slice(4, 6), 16)
+      };
+    }
+
+    function rgbToHex(r, g, b) {
+      return "#" + [r, g, b].map(v => clamp(Math.round(v), 0, 255).toString(16).padStart(2, "0")).join("").toUpperCase();
+    }
+
+    function rgbToHsv(r, g, b) {
+      r /= 255; g /= 255; b /= 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      const d = max - min;
+      let h = 0;
+      if (d !== 0) {
+        if (max === r) h = ((g - b) / d) % 6;
+        else if (max === g) h = (b - r) / d + 2;
+        else h = (r - g) / d + 4;
+        h *= 60;
+        if (h < 0) h += 360;
+      }
+      return { h: Math.round(h), s: Math.round((max === 0 ? 0 : d / max) * 100), v: Math.round(max * 100) };
+    }
+
+    function hsvToRgb(h, s, v) {
+      h = ((Number(h) || 0) % 360 + 360) % 360;
+      s = clamp(Number(s) || 0, 0, 100) / 100;
+      v = clamp(Number(v) || 0, 0, 100) / 100;
+      const c = v * s;
+      const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+      const m = v - c;
+      let r = 0, g = 0, b = 0;
+      if (h < 60) [r, g, b] = [c, x, 0];
+      else if (h < 120) [r, g, b] = [x, c, 0];
+      else if (h < 180) [r, g, b] = [0, c, x];
+      else if (h < 240) [r, g, b] = [0, x, c];
+      else if (h < 300) [r, g, b] = [x, 0, c];
+      else [r, g, b] = [c, 0, x];
+      return { r: Math.round((r + m) * 255), g: Math.round((g + m) * 255), b: Math.round((b + m) * 255) };
+    }
+
+    function mixRgb(a, b, t) {
+      return {
+        r: a.r + (b.r - a.r) * t,
+        g: a.g + (b.g - a.g) * t,
+        b: a.b + (b.b - a.b) * t
+      };
+    }
+
+    function luminance(rgb) {
+      const srgb = [rgb.r, rgb.g, rgb.b].map(v => {
+        v /= 255;
+        return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+      });
+      return 0.2126 * srgb[0] + 0.7152 * srgb[1] + 0.0722 * srgb[2];
+    }
+
+    function applyCalibrationColour(hex, updateControls = true) {
+      const rgb = hexToRgb(hex);
+      if (!rgb) return;
+      const lum = luminance(rgb);
+      const dark = lum < 0.45;
+      const text = dark ? { r: 248, g: 244, b: 236 } : { r: 47, g: 38, b: 29 };
+      const opposite = dark ? { r: 255, g: 255, b: 255 } : { r: 0, g: 0, b: 0 };
+      const panel = mixRgb(rgb, dark ? { r: 255, g: 255, b: 255 } : { r: 0, g: 0, b: 0 }, dark ? 0.16 : 0.08);
+      const line = mixRgb(rgb, opposite, dark ? 0.35 : 0.22);
+      const muted = mixRgb(text, rgb, 0.38);
+      const accent = mixRgb(text, rgb, 0.18);
+
+      document.documentElement.style.setProperty("--bg", rgbToHex(rgb.r, rgb.g, rgb.b));
+      document.documentElement.style.setProperty("--text", rgbToHex(text.r, text.g, text.b));
+      document.documentElement.style.setProperty("--panel", rgbToHex(panel.r, panel.g, panel.b));
+      document.documentElement.style.setProperty("--line", rgbToHex(line.r, line.g, line.b));
+      document.documentElement.style.setProperty("--muted", rgbToHex(muted.r, muted.g, muted.b));
+      document.documentElement.style.setProperty("--accent", rgbToHex(accent.r, accent.g, accent.b));
+
+      localStorage.setItem("domeCalibrationColour", rgbToHex(rgb.r, rgb.g, rgb.b));
+      const note = document.getElementById("calibrationContrastNote");
+      if (note) note.textContent = dark ? "Dark background: light text/buttons selected automatically." : "Light background: dark text/buttons selected automatically.";
+
+      if (updateControls) {
+        const hsv = rgbToHsv(rgb.r, rgb.g, rgb.b);
+        const colorInput = document.getElementById("calibrationColorInput");
+        const hexInput = document.getElementById("calibrationHexInput");
+        const hue = document.getElementById("calibrationHue");
+        const sat = document.getElementById("calibrationSat");
+        const val = document.getElementById("calibrationVal");
+        if (colorInput) colorInput.value = rgbToHex(rgb.r, rgb.g, rgb.b);
+        if (hexInput) hexInput.value = rgbToHex(rgb.r, rgb.g, rgb.b);
+        if (hue) hue.value = hsv.h;
+        if (sat) sat.value = hsv.s;
+        if (val) val.value = hsv.v;
+        updateCalibrationOutputs();
+        renderCalibrationFavourites();
+      }
+    }
+
+    function updateCalibrationOutputs() {
+      const hue = document.getElementById("calibrationHue");
+      const sat = document.getElementById("calibrationSat");
+      const val = document.getElementById("calibrationVal");
+      const hueOut = document.getElementById("calibrationHueValue");
+      const satOut = document.getElementById("calibrationSatValue");
+      const valOut = document.getElementById("calibrationValValue");
+      if (hueOut && hue) hueOut.textContent = hue.value;
+      if (satOut && sat) satOut.textContent = `${sat.value}%`;
+      if (valOut && val) valOut.textContent = `${val.value}%`;
+    }
+
+    function calibrationFavourites() {
+      try {
+        const saved = JSON.parse(localStorage.getItem("domeCalibrationFavourites") || "[]");
+        return Array.isArray(saved) && saved.length ? saved : calibrationDefaults;
+      } catch (e) {
+        return calibrationDefaults;
+      }
+    }
+
+    function saveCalibrationFavourites(list) {
+      localStorage.setItem("domeCalibrationFavourites", JSON.stringify([...new Set(list)].slice(0, 24)));
+    }
+
+    function renderCalibrationFavourites() {
+      const wrap = document.getElementById("calibrationFavourites");
+      const current = document.getElementById("calibrationHexInput")?.value?.toUpperCase();
+      if (!wrap) return;
+      wrap.innerHTML = calibrationFavourites().map(hex => `<button type="button" class="calibration-swatch ${hex.toUpperCase() === current ? "active" : ""}" data-hex="${escapeHtml(hex)}" style="background:${escapeHtml(hex)}" aria-label="${escapeHtml(hex)}"></button>`).join("");
+      wrap.querySelectorAll(".calibration-swatch").forEach(btn => {
+        btn.addEventListener("click", () => applyCalibrationColour(btn.dataset.hex));
+      });
+    }
+
+    function setupCalibrationMode() {
+      const colorInput = document.getElementById("calibrationColorInput");
+      const hexInput = document.getElementById("calibrationHexInput");
+      const hue = document.getElementById("calibrationHue");
+      const sat = document.getElementById("calibrationSat");
+      const val = document.getElementById("calibrationVal");
+      const saveBtn = document.getElementById("calibrationSaveBtn");
+      const resetBtn = document.getElementById("calibrationResetBtn");
+
+      if (colorInput) colorInput.addEventListener("input", () => applyCalibrationColour(colorInput.value));
+      if (hexInput) hexInput.addEventListener("change", () => applyCalibrationColour(hexInput.value));
+
+      [hue, sat, val].forEach(el => {
+        if (!el) return;
+        el.addEventListener("input", () => {
+          const rgb = hsvToRgb(hue.value, sat.value, val.value);
+          applyCalibrationColour(rgbToHex(rgb.r, rgb.g, rgb.b), false);
+          if (colorInput) colorInput.value = rgbToHex(rgb.r, rgb.g, rgb.b);
+          if (hexInput) hexInput.value = rgbToHex(rgb.r, rgb.g, rgb.b);
+          updateCalibrationOutputs();
+        });
+      });
+
+      if (saveBtn) saveBtn.addEventListener("click", () => {
+        const current = hexInput?.value || colorInput?.value || "#e9e2d3";
+        const list = calibrationFavourites();
+        saveCalibrationFavourites([current.toUpperCase(), ...list]);
+        renderCalibrationFavourites();
+      });
+
+      if (resetBtn) resetBtn.addEventListener("click", () => applyCalibrationColour("#e9e2d3"));
+
+      applyCalibrationColour(localStorage.getItem("domeCalibrationColour") || "#e9e2d3");
+      renderCalibrationFavourites();
+    }
+
     async function init() {
+      setupCalibrationMode();
       try {
         entries = await loadSheetData();
 
@@ -2294,7 +4352,16 @@
         renderEntry(0);
         buildSlotGrid();
         renderPhotosMode("years");
+        renderCardsMode(true);
         renderFieldMode();
+        renderFlowMode();
+        setupFlowPointerControls();
+        startFlowAnimation();
+        setupGeodesicPointerControls();
+        renderSphereMode();
+        startSphereAnimation();
+        renderGeodesicMode();
+        startGeodesicAnimation();
 
         for (let i = 0; i < reelCount; i++) {
           const entry = entries[i % entries.length];
