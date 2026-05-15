@@ -2187,16 +2187,8 @@
         <div class="about-panel">
           <div class="about-kicker">About</div>
           <h2 class="about-title">Dome Archive Prototype</h2>
-          <div class="about-text">
-            <p>This is a loosely curated collection of images, mostly documenting the mud dome, along with a range of related (and unrelated) experiments and side projects involving the house—a timber California Bungalow—as well as ceramics, lighting, finishes, and whatever has become my latest obsession (the possibility of doing web design being just another manifestation of this).</p>
-            <p>This is largely a weekend and holiday activity, and is somewhat antithetical to the everyday practice of architecture, with its programmes, deadlines, and critical paths. As with architecture, however, budget remains a constant constraint, and as with any project, a larger budget allows for more ambition and perhaps more risk-taking. There are points where I would prefer not to be digging 1100mm footings myself—having already done some damage in the process. Employing someone younger and fitter would, at times, be a welcome option.</p>
-            <p>The dome itself is less a finished object and more a vehicle for testing ideas. These include different approaches to concrete formwork—both traditional and 3D printed—along with incorporating 3D printed custom lighting directly into the concrete, as well as learning, by doing, how to build with mud, make bricks, and render in lime.</p>
-            <p>Alongside this are ongoing material experiments, particularly with clay and casting. This includes developing slip casting processes using clay sourced directly from the site—working through particle size, mixing ratios, deflocculants, and measuring consistency with a hydrometer. While technical, these processes have largely been developed through trial, error, and iteration rather than any formal setup.</p>
-            <p>The project began during COVID, during a period of working alone at home. It started with digging out an area under a veranda and making mud bricks. From there, the idea of building a dome emerged. The first batch of bricks proved to be the wrong shape and size, so the process started again. Those original bricks are still stacked on pallets, waiting for another use—possibly a kiln.</p>
-            <p>The house more broadly acts as a kind of laboratory for ideas—some more resolved than others, and some which should definitely not be tested on client projects. There is no particular intention for it to ever be finished.</p>
-            <p>This website follows the same thinking. It is not designed to be polished, but instead explores how the same set of images can be organised and experienced in different ways. It also reflects a broader idea: that most things can be learned by doing.</p>
-            <p>I don’t have a background in web development or coding. This website is built directly in HTML and JavaScript, without templates or software layers. Alongside this, I’ve also written bits of code in Python and VB for other applications as needed. AI hasn’t replaced something I already did, or simply made it easier—it has made some of this possible in the first place. This is not a dumbing down, as I would not have invested the time, or had the time, to do it otherwise.</p>
-            <p>That’s the project as it currently stands.</p>
+          <div class="about-text" id="aboutText">
+            <p>Loading about text…</p>
           </div>
         </div>
       </div>
@@ -2294,16 +2286,7 @@
 
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-        let data = await res.json();
-
-        data = data.filter(row => {
-          const publish = String(row.Publish ?? row.PUBLISH ?? row.publish ?? "Y").trim().toUpperCase();
-          const status = String(row.Status ?? row.STATUS ?? row.status ?? "Live").trim().toLowerCase();
-
-          return publish !== "N" &&
-                 status !== "archived" &&
-                 status !== "deleted";
-        });
+        const data = await res.json();
 
         return data
           .map((row, index) => {
@@ -5011,6 +4994,24 @@
 
     init();
   </script>
-<script src="settings-loader.js?v=1"></script>
+
+  <script>
+    async function loadAboutContent() {
+      const aboutText = document.getElementById("aboutText");
+      if (!aboutText) return;
+
+      try {
+        const res = await fetch("Content/about.html?v=1", { cache: "no-store" });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const html = await res.text();
+        aboutText.innerHTML = html;
+      } catch (err) {
+        aboutText.innerHTML = "<p>About text could not be loaded. Check Content/about.html.</p>";
+        console.error("About content failed to load", err);
+      }
+    }
+
+    loadAboutContent();
+  </script>
 </body>
 </html>
