@@ -2294,7 +2294,16 @@
 
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-        const data = await res.json();
+        let data = await res.json();
+
+        data = data.filter(row => {
+          const publish = String(row.Publish ?? row.PUBLISH ?? row.publish ?? "Y").trim().toUpperCase();
+          const status = String(row.Status ?? row.STATUS ?? row.status ?? "Live").trim().toLowerCase();
+
+          return publish !== "N" &&
+                 status !== "archived" &&
+                 status !== "deleted";
+        });
 
         return data
           .map((row, index) => {
