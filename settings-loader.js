@@ -1,93 +1,60 @@
-(async function(){
+(async function () {
+  const SHEET_ID = "1wDHuoi8_cpGx0wYemSWE86Oxwiz9_QIUAVNxUAhAk8A";
 
-const SHEET_ID="1wDHuoi8_cpGx0wYemSWE86Oxwiz9_QIUAVNxUAhAk8A";
+  const map = {
+    timeline: "timelineModeBtn",
+    slot: "slotModeBtn",
+    photos: "photosModeBtn",
+    cards: "cardsModeBtn",
+    field: "fieldModeBtn",
+    flow: "flowModeBtn",
+    sphere: "sphereModeBtn",
+    geodesic: "geodesicModeBtn",
+    corbusier: "corbusierModeBtn",
+    eno: "enoModeBtn",
+    font: "fontModeBtn",
+    calibration: "calibrationModeBtn",
+    about: "aboutModeBtn"
+  };
 
-try{
+  try {
+    const rows = await fetch(
+      `https://opensheet.elk.sh/${SHEET_ID}/SETTINGS`,
+      { cache: "no-store" }
+    ).then(r => r.json());
 
-const url=
-`https://opensheet.elk.sh/${SHEET_ID}/SETTINGS`;
+    const controls = document.querySelector(".topbar .controls");
+    const socialLinks = document.querySelector(".social-links");
 
-const rows=
-await fetch(url)
-.then(r=>r.json());
+    if (!controls) return;
 
-const settings={};
+    const settings = rows
+      .map(row => ({
+        key: String(row.Key || "").trim().toLowerCase(),
+        enabled: String(row.Value || "Y").trim().toUpperCase() === "Y",
+        order: Number(row.Order || 999)
+      }))
+      .filter(row => row.key && map[row.key])
+      .sort((a, b) => a.order - b.order);
 
-rows.forEach(r=>{
+    settings.forEach(item => {
+      const btn = document.getElementById(map[item.key]);
+      if (!btn) return;
 
-const key=
-String(
-r.Key||''
-)
-.trim()
-.toLowerCase();
+      btn.style.display = item.enabled ? "" : "none";
 
-const value=
-String(
-r.Value||''
-)
-.trim()
-.toUpperCase();
+      if (item.enabled) {
+        controls.appendChild(btn);
+      }
+    });
 
-settings[key]=
-value==="Y";
+    if (socialLinks) {
+      controls.appendChild(socialLinks);
+    }
 
-});
+    console.log("Dome mode settings loaded", settings);
 
-const map={
-
-timeline:"Timeline",
-slot:"Explore / Slot",
-photos:"Photos",
-cards:"Cards",
-field:"Field",
-flow:"Flow",
-sphere:"Sphere",
-geodesic:"Geodesic",
-about:"About"
-
-};
-
-Object.entries(map)
-.forEach(
-([key,label])=>{
-
-if(
-settings[key]===false
-){
-
-const buttons=
-[...document.querySelectorAll(
-"button"
-)];
-
-buttons
-.filter(
-b=>
-b.textContent
-.trim()
-===label
-)
-.forEach(
-b=>b.remove()
-);
-
-}
-
-});
-
-console.log(
-"Dome settings loaded",
-settings
-);
-
-}catch(e){
-
-console.log(
-"SETTINGS load failed",
-e
-);
-
-}
-
+  } catch (err) {
+    console.log("Could not load Dome settings", err);
+  }
 })();
