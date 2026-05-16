@@ -2288,7 +2288,16 @@
 
         const data = await res.json();
 
-        return data
+        const liveData = data.filter(row => {
+  const publish = String(row.Publish || row.PUBLISH || "Y").trim().toUpperCase();
+  const status = String(row.Status || row.STATUS || "").trim().toUpperCase();
+
+  return publish !== "N" &&
+         status !== "ARCHIVED" &&
+         status !== "DELETED";
+});
+
+        return liveData
           .map((row, index) => {
             const fileName = cleanFileName(
               row.Filename ??
