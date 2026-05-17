@@ -3410,9 +3410,10 @@
     function fieldSourceList(selectedEntry = fieldSelectedEntry) {
       let list = [...entries];
 
+     /*
       if (selectedEntry) {
         list.sort((a, b) => relationScore(a, selectedEntry) - relationScore(b, selectedEntry));
-      }
+      }*/
 
       if (fieldBehaviour === "shuffle") {
         list.sort((a, b) => fieldRandomValue(a, fieldShuffleSeed) - fieldRandomValue(b, fieldShuffleSeed));
@@ -3493,7 +3494,7 @@
       if (slider) slider.value = String(fieldCols);
       if (value) value.textContent = String(fieldCols);
 
-      const source = fieldSourceList(selectedEntry);
+      const source = fieldSourceList(null);
       grid.innerHTML = "";
 
       const behaviourLabel =
