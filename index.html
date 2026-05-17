@@ -457,7 +457,7 @@
 
     .photos-back-btn {
       padding: 8px 12px;
-      
+
    .photos-grid-years,
 .photos-grid-months,
 .photos-grid-days,
@@ -1829,6 +1829,38 @@
         grid-template-columns: 1fr;
       }
     }
+    @media (max-width:900px){
+   .calibration-layout{
+      grid-template-columns:1fr;
+   }
+}
+
+/* PHOTOS MODE — final consistent card sizing */
+.photos-grid-years,
+.photos-grid-months,
+.photos-grid-days,
+.photos-grid-all {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(180px,220px));
+  gap:18px;
+  justify-content:start;
+}
+
+.photo-group-card,
+.photo-card-image{
+  aspect-ratio:0.72;
+  width:100%;
+}
+
+.photo-group-card img,
+.photo-card-image img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center center;
+}
+
+</style>
 
   </style>
 </head>
