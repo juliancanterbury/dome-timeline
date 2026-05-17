@@ -1061,8 +1061,7 @@
 
     .field-item.active {
       transform: scale(1.45);
-      transform-origin: center center;
-      z-index: 50;
+      z-index: 5;
     }
 
     .field-item.dim {
@@ -3434,11 +3433,12 @@
       return new Date(entry.year, entry.month - 1, entry.day).getTime();
     }
 
-    function fieldSourceList(selectedEntry = null) {
+    function fieldSourceList(selectedEntry = fieldSelectedEntry) {
       let list = [...entries];
 
-      // Selection should not reorder the grid.
-      // It only highlights/dims items so the tapped image stays in place.
+      if (selectedEntry) {
+        list.sort((a, b) => relationScore(a, selectedEntry) - relationScore(b, selectedEntry));
+      }
 
       if (fieldBehaviour === "shuffle") {
         list.sort((a, b) => fieldRandomValue(a, fieldShuffleSeed) - fieldRandomValue(b, fieldShuffleSeed));
@@ -3519,7 +3519,7 @@
       if (slider) slider.value = String(fieldCols);
       if (value) value.textContent = String(fieldCols);
 
-      const source = fieldSourceList(null);
+      const source = fieldSourceList(selectedEntry);
       grid.innerHTML = "";
 
       const behaviourLabel =
