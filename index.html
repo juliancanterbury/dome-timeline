@@ -1057,9 +1057,10 @@
     }
 
     .field-item.active {
-      transform: scale(1.45);
-      z-index: 5;
-    }
+  transform: translateZ(120px) scale(1.65);
+  transform-origin: center center;
+  z-index: 50;
+}
 
     .field-item.dim {
       opacity: 0.36;
@@ -1089,9 +1090,11 @@
       pointer-events: none;
     }
 
-    .field-item.active .field-caption {
-      opacity: 1;
-    }
+    .field-item.active {
+  transform: translateZ(120px) scale(1.65);
+  transform-origin: center center;
+  z-index: 50;
+}
 
     .field-open-label {
       position: absolute;
