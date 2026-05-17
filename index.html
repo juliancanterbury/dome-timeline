@@ -457,22 +457,14 @@
 
     .photos-back-btn {
       padding: 8px 12px;
-    }
-
-   .photos-grid-years{
-    grid-template-columns:repeat(4,minmax(0,1fr));
-}
-
-.photos-grid-months{
-    grid-template-columns:repeat(4,minmax(0,1fr));
-}
-
-.photos-grid-days{
-    grid-template-columns:repeat(4,minmax(0,1fr));
-}
-
+      
+   .photos-grid-years,
+.photos-grid-months,
+.photos-grid-days,
 .photos-grid-all{
-    grid-template-columns:repeat(4,minmax(0,1fr));
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    gap:18px;
 }
 
     .photo-group-card {
