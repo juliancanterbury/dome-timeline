@@ -1,60 +1,66 @@
 (async function () {
   const SHEET_ID = "1wDHuoi8_cpGx0wYemSWE86Oxwiz9_QIUAVNxUAhAk8A";
+  const url = `https://opensheet.elk.sh/${SHEET_ID}/SETTINGS`;
 
-  const map = {
-    timeline: "timelineModeBtn",
-    slot: "slotModeBtn",
-    photos: "photosModeBtn",
-    cards: "cardsModeBtn",
-    field: "fieldModeBtn",
-    flow: "flowModeBtn",
-    sphere: "sphereModeBtn",
-    geodesic: "geodesicModeBtn",
-    corbusier: "corbusierModeBtn",
-    eno: "enoModeBtn",
-    font: "fontModeBtn",
-    calibration: "calibrationModeBtn",
-    about: "aboutModeBtn"
+  const modeLabels = {
+    timeline: "Timeline",
+    slot: "Explore / Slot",
+    photos: "Photos",
+    cards: "Cards",
+    field: "Field",
+    flow: "Flow",
+    sphere: "Sphere",
+    geodesic: "Geodesic",
+    corbusier: "Corbusier",
+    eno: "Eno",
+    font: "Font",
+    calibration: "Calibration",
+    about: "About",
+    videos: "Videos",
+    shop: "Shop"
   };
 
+  function findButton(key) {
+    return (
+      document.getElementById(key + "ModeBtn") ||
+      document.querySelector(`[data-mode="${key}"]`) ||
+      [...document.querySelectorAll(".controls button")]
+        .find(b => b.textContent.trim().toLowerCase() === modeLabels[key].toLowerCase())
+    );
+  }
+
   try {
-    const rows = await fetch(
-      `https://opensheet.elk.sh/${SHEET_ID}/SETTINGS`,
-      { cache: "no-store" }
-    ).then(r => r.json());
+    const res = await fetch(url, { cache: "no-store" });
+    const rows = await res.json();
 
-    const controls = document.querySelector(".topbar .controls");
-    const socialLinks = document.querySelector(".social-links");
-
-    if (!controls) return;
-
-    const settings = rows
-      .map(row => ({
-        key: String(row.Key || "").trim().toLowerCase(),
-        enabled: String(row.Value || "Y").trim().toUpperCase() === "Y",
+    const settings = {};
+    rows.forEach(row => {
+      const key = String(row.Key || "").trim().toLowerCase();
+      if (!key) return;
+      settings[key] = {
+        enabled: String(row.Value || "").trim().toUpperCase() === "Y",
         order: Number(row.Order || 999)
-      }))
-      .filter(row => row.key && map[row.key])
-      .sort((a, b) => a.order - b.order);
+      };
+    });
 
-    settings.forEach(item => {
-      const btn = document.getElementById(map[item.key]);
+    Object.keys(modeLabels).forEach(key => {
+      const btn = findButton(key);
       if (!btn) return;
 
-      btn.style.display = item.enabled ? "" : "none";
+      const setting = settings[key];
 
-      if (item.enabled) {
-        controls.appendChild(btn);
+      if (!setting || setting.enabled !== true) {
+        btn.style.display = "none";
+      } else {
+        btn.style.display = "";
+      }
+
+      if (setting) {
+        btn.style.order = setting.order;
       }
     });
 
-    if (socialLinks) {
-      controls.appendChild(socialLinks);
-    }
-
-    console.log("Dome mode settings loaded", settings);
-
   } catch (err) {
-    console.log("Could not load Dome settings", err);
+    console.log("Settings loader failed", err);
   }
 })();
