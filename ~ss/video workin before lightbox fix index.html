@@ -2017,7 +2017,6 @@
       line-height: 1.3;
     }
 
-    /* VIDEO LIGHTBOX — image style */
     .video-lightbox {
       position: fixed;
       inset: 0;
@@ -2026,7 +2025,7 @@
       align-items: center;
       justify-content: center;
       background: rgba(20,16,12,0.96);
-      padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+      padding: max(60px, calc(env(safe-area-inset-top) + 18px)) max(18px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
     }
 
     .video-lightbox.open {
@@ -2034,69 +2033,45 @@
     }
 
     .video-player-shell {
-      width: auto;
-      height: auto;
-      max-width: 96vw;
-      max-height: calc(100dvh - 32px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: min(96vw, 1100px);
+      max-height: calc(100dvh - 100px);
+      display: grid;
+      gap: 12px;
+      color: white;
     }
 
     .video-player-frame {
-      background: transparent;
-      border-radius: 18px;
-      overflow: hidden;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
-    }
-
-    .video-player-frame video {
-      display: block;
-      width: auto;
-      height: auto;
-      max-width: 96vw;
-      max-height: calc(100dvh - 32px);
-      object-fit: contain;
-      background: transparent;
-      border: 0;
-      border-radius: 18px;
-    }
-
-    .video-player-frame iframe {
-      display: block;
-      width: min(96vw, calc((100dvh - 32px) * 1.777));
+      width: 100%;
       aspect-ratio: 16 / 9;
-      height: auto;
-      max-height: calc(100dvh - 32px);
-      background: transparent;
-      border: 0;
-      border-radius: 18px;
+      background: #000;
+      border-radius: 16px;
+      overflow: hidden;
     }
 
-    .video-player-frame video::-webkit-media-controls-panel {
-      background: rgba(0,0,0,0.18);
+    .video-player-frame iframe,
+    .video-player-frame video {
+      width: 100%;
+      height: 100%;
+      display: block;
+      border: 0;
+      background: #000;
     }
 
     .video-close {
       position: fixed;
       top: max(12px, env(safe-area-inset-top));
       right: max(12px, env(safe-area-inset-right));
-      width: 36px;
-      min-width: 36px;
-      height: 36px;
+      width: 34px;
+      min-width: 34px;
+      height: 34px;
       padding: 0;
       border-radius: 50%;
-      border: 1px solid rgba(255,255,255,0.25);
-      background: rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.16);
       color: white;
-      line-height: 36px;
-      font-size: 20px;
+      border: 1px solid rgba(255,255,255,0.24);
+      line-height: 34px;
+      font-size: 18px;
       z-index: 10021;
-      box-shadow: none;
-    }
-
-    .video-close:hover {
-      background: rgba(255,255,255,0.28);
     }
 
     @media (max-width: 900px) {
@@ -2563,6 +2538,11 @@
     <button id="videoClose" class="video-close" aria-label="Close video">×</button>
     <div class="video-player-shell">
       <div id="videoPlayerFrame" class="video-player-frame"></div>
+      <div>
+        <div class="date" id="videoPlayerDate"></div>
+        <div class="headline" id="videoPlayerTitle" style="color:white; font-size:clamp(28px,4vw,52px);"></div>
+        <div class="text" id="videoPlayerText" style="color:rgba(255,255,255,0.72);"></div>
+      </div>
     </div>
   </div>
 
@@ -5438,9 +5418,9 @@
       if (!box || !frame) return;
 
       frame.innerHTML = videoEmbedHtml(video);
-      if (title) title.textContent = video.title || "";
-      if (text) text.textContent = video.text || "";
-      if (date) date.textContent = video.date || "";
+      title.textContent = video.title || "";
+      text.textContent = video.text || "";
+      date.textContent = video.date || "";
       box.classList.add("open");
       box.setAttribute("aria-hidden", "false");
       document.body.style.overflow = "hidden";
@@ -5682,6 +5662,6 @@
 
     loadAboutContent();
   </script>
-  <script src="settings-loader.js?v=4"></script>
+ <script src="settings-loader.js?v=6"></script>
 </body>
 </html>
