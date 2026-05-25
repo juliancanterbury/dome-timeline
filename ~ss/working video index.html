@@ -5351,94 +5351,6 @@
       }
     }
 
-    async function loadPublicSettingsRows() {
-      try {
-        const url = `https://opensheet.elk.sh/${SHEET_ID}/SETTINGS`;
-        const res = await fetch(url, { cache: "no-store" });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const rows = await res.json();
-        return Array.isArray(rows) ? rows : [];
-      } catch (err) {
-        console.warn("SETTINGS sheet not loaded for theme defaults", err);
-        return [];
-      }
-    }
-
-    function settingValue(rows, key, fallback = "") {
-      const target = String(key || "").trim().toLowerCase();
-      const row = (rows || []).find(r => String(r.Key || r.KEY || "").trim().toLowerCase() === target);
-      return row ? String(row.Value ?? row.VALUE ?? fallback).trim() : fallback;
-    }
-
-    function applyThemeVars(vars) {
-      if (!vars) return;
-      Object.entries(vars).forEach(([key, value]) => {
-        if (value) document.documentElement.style.setProperty(`--${key}`, value);
-      });
-    }
-
-    function calibrationVarsForHex(hex) {
-      const rgb = hexToRgb(hex || "#e9e2d3");
-      if (!rgb) return null;
-      const lum = luminance(rgb);
-      const dark = lum < 0.45;
-      const text = dark ? { r: 248, g: 244, b: 236 } : { r: 47, g: 38, b: 29 };
-      const opposite = dark ? { r: 255, g: 255, b: 255 } : { r: 0, g: 0, b: 0 };
-      const panel = mixRgb(rgb, dark ? { r: 255, g: 255, b: 255 } : { r: 0, g: 0, b: 0 }, dark ? 0.16 : 0.08);
-      const line = mixRgb(rgb, opposite, dark ? 0.35 : 0.22);
-      const muted = mixRgb(text, rgb, 0.38);
-      const accent = mixRgb(text, rgb, 0.18);
-      return {
-        bg: rgbToHex(rgb.r, rgb.g, rgb.b),
-        text: rgbToHex(text.r, text.g, text.b),
-        panel: rgbToHex(panel.r, panel.g, panel.b),
-        line: rgbToHex(line.r, line.g, line.b),
-        muted: rgbToHex(muted.r, muted.g, muted.b),
-        accent: rgbToHex(accent.r, accent.g, accent.b)
-      };
-    }
-
-    function applyAdminThemeDefaultFromRows(rows) {
-      // Admin default is only used until this visitor chooses their own theme.
-      // Calibration / Corbusier / Eno buttons still write localStorage and override this.
-      if (localStorage.getItem("domeLastTheme")) return;
-
-      const mode = settingValue(rows, "themeDefault", "calibration").toLowerCase();
-      const colour = settingValue(rows, "themeColour", "#e9e2d3");
-      const paletteId = settingValue(rows, "themePalette", "1931-white-umber-blue");
-      const enoId = settingValue(rows, "themeEnoPalette", "eno-1");
-
-      if (mode === "corbusier") {
-        const palette = corbusierPalettes.find(p => p.id === paletteId) || corbusierPalettes[0];
-        const resolved = corbusierResolvedPalette(palette);
-        applyThemeVars({
-          bg: resolved.bg,
-          panel: resolved.panel,
-          text: resolved.text,
-          muted: resolved.muted,
-          line: resolved.line,
-          accent: resolved.accent
-        });
-        return;
-      }
-
-      if (mode === "eno") {
-        const palette = enoPalettes.find(p => p.id === enoId) || enoPalettes[0];
-        applyThemeVars({
-          bg: palette.bg,
-          panel: palette.panel,
-          text: palette.text,
-          muted: palette.muted,
-          line: palette.line,
-          accent: palette.accent
-        });
-        return;
-      }
-
-      applyThemeVars(calibrationVarsForHex(colour));
-    }
-
-
     function normaliseVideoRow(row, index) {
       const title = String(row.Title || row.TITLE || row.Headline || row.HEADLINE || `Video ${index + 1}`).trim();
       const filename = cleanFileName(row.Filename || row.FileName || row.Video || row.VIDEO || "");
@@ -5687,8 +5599,6 @@
       setupEnoMode();
       setupFontMode();
       try {
-        const publicSettingsRows = await loadPublicSettingsRows();
-        applyAdminThemeDefaultFromRows(publicSettingsRows);
         entries = await loadSheetData();
         videos = (await loadOptionalSheet(VIDEOS_TAB)).map(normaliseVideoRow);
         shopProducts = (await loadOptionalSheet(SHOP_TAB)).map(normaliseShopRow);
@@ -5772,6 +5682,6 @@
 
     loadAboutContent();
   </script>
-  <script src="settings-loader.js?v=7"></script>
+  <script src="settings-loader.js?v=4"></script>
 </body>
 </html>
