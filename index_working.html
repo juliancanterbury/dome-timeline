@@ -3079,7 +3079,7 @@
       await Promise.all(spinPromises);
     }
 
-    function openLightbox(src, alt = "", entryIndex = null, updateUrl = true) {
+    function openLightbox(src, alt = "", entryIndex = null) {
       if (!src) return;
 
       const lightbox = document.getElementById("lightbox");
@@ -3096,14 +3096,6 @@
         lightboxEntryIndex = foundIndex >= 0 ? foundIndex : null;
       }
 
-      if (updateUrl && lightboxEntryIndex !== null && entries[lightboxEntryIndex]) {
-        history.replaceState(
-          {},
-          "",
-          "#image=" + encodeURIComponent(entries[lightboxEntryIndex].fileName)
-        );
-      }
-
       lightboxImage.src = src;
       lightboxImage.alt = alt;
       lightbox.classList.remove("hidden");
@@ -3112,8 +3104,7 @@
       document.body.style.overflow = "hidden";
     }
 
-
-    function closeLightbox(clearUrl = true) {
+    function closeLightbox() {
       const lightbox = document.getElementById("lightbox");
       const lightboxImage = document.getElementById("lightboxImage");
 
@@ -3124,12 +3115,7 @@
       lightboxImage.alt = "";
       lightboxEntryIndex = null;
       document.body.style.overflow = "";
-
-      if (clearUrl) {
-        history.replaceState({}, "", location.pathname + location.search);
-      }
     }
-
 
     function scrollTimelineItemIntoView(index) {
       const items = document.querySelectorAll(".timeline-item");
@@ -5531,20 +5517,13 @@
       return `<video src="${escapeHtml(src)}" controls autoplay playsinline preload="metadata"></video>`;
     }
 
-    function openVideo(video, updateUrl = true) {
+    function openVideo(video) {
       const box = document.getElementById("videoLightbox");
       const frame = document.getElementById("videoPlayerFrame");
       const title = document.getElementById("videoPlayerTitle");
       const text = document.getElementById("videoPlayerText");
       const date = document.getElementById("videoPlayerDate");
-      if (!box || !frame || !video) return;
-
-      if (updateUrl) {
-        const key = video.filename || video.title || video.videoSrc || "";
-        if (key) {
-          history.replaceState({}, "", "#video=" + encodeURIComponent(key));
-        }
-      }
+      if (!box || !frame) return;
 
       frame.innerHTML = videoEmbedHtml(video);
       if (title) title.textContent = video.title || "";
@@ -5555,8 +5534,7 @@
       document.body.style.overflow = "hidden";
     }
 
-
-    function closeVideo(clearUrl = true) {
+    function closeVideo() {
       const box = document.getElementById("videoLightbox");
       const frame = document.getElementById("videoPlayerFrame");
       if (!box || !frame) return;
@@ -5564,12 +5542,7 @@
       box.setAttribute("aria-hidden", "true");
       frame.innerHTML = "";
       document.body.style.overflow = "";
-
-      if (clearUrl) {
-        history.replaceState({}, "", location.pathname + location.search);
-      }
     }
-
 
     function renderVideosMode() {
       const grid = document.getElementById("videosGrid");
@@ -5708,44 +5681,6 @@
     }
 
 
-
-    function openDeepLinkFromHash() {
-      const rawHash = location.hash || "";
-      if (!rawHash) return;
-
-      const hash = decodeURIComponent(rawHash);
-
-      if (hash.startsWith("#image=")) {
-        const filename = hash.replace("#image=", "").trim();
-        const index = entries.findIndex(entry => entry.fileName === filename);
-
-        if (index >= 0) {
-          setMode("timeline");
-          currentIndex = index;
-          renderEntry(currentIndex);
-          setTimeout(() => scrollTimelineItemIntoView(currentIndex), 80);
-          openLightbox(entries[index].mediaLarge, entries[index].headline, index, false);
-        }
-
-        return;
-      }
-
-      if (hash.startsWith("#video=")) {
-        const key = hash.replace("#video=", "").trim();
-        const video = videos.find(v =>
-          v.filename === key ||
-          v.title === key ||
-          v.videoSrc === key
-        );
-
-        if (video) {
-          setMode("videos");
-          renderVideosMode();
-          openVideo(video, false);
-        }
-      }
-    }
-
     async function init() {
       setupCalibrationMode();
       setupCorbusierMode();
@@ -5799,7 +5734,6 @@
 
         await preloadEntriesImages(entries, 2);
         slotPreviewPool = sampleEntries(entries, 8);
-        openDeepLinkFromHash();
       } catch (err) {
         const msg =
           err.name === "AbortError"
@@ -5816,14 +5750,6 @@
     if (videoBox) videoBox.addEventListener("click", (e) => { if (e.target === videoBox) closeVideo(); });
     const shopSubmitBtn = document.getElementById("shopSubmitBtn");
     if (shopSubmitBtn) shopSubmitBtn.addEventListener("click", submitShopEnquiry);
-
-    window.addEventListener("hashchange", () => {
-      const imageBox = document.getElementById("lightbox");
-      const videoBox = document.getElementById("videoLightbox");
-      if (imageBox && imageBox.classList.contains("open")) closeLightbox(false);
-      if (videoBox && videoBox.classList.contains("open")) closeVideo(false);
-      openDeepLinkFromHash();
-    });
 
     init();
   </script>
