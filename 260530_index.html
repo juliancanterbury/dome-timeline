@@ -2099,35 +2099,6 @@
       background: rgba(255,255,255,0.28);
     }
 
-    .video-download {
-      position: fixed;
-      top: max(12px, env(safe-area-inset-top));
-      right: calc(max(12px, env(safe-area-inset-right)) + 46px);
-      height: 36px;
-      min-height: 36px;
-      padding: 0 13px;
-      border-radius: 18px;
-      border: 1px solid rgba(255,255,255,0.25);
-      background: rgba(255,255,255,0.15);
-      color: white;
-      line-height: 36px;
-      font-size: 13px;
-      font-family: inherit;
-      font-weight: 500;
-      text-decoration: none;
-      z-index: 10021;
-      box-shadow: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-    }
-
-    .video-download:hover {
-      background: rgba(255,255,255,0.28);
-    }
-
     @media (max-width: 900px) {
       .shop-layout {
         grid-template-columns: 1fr;
@@ -2590,7 +2561,6 @@
 
   <div id="videoLightbox" class="video-lightbox" aria-hidden="true">
     <button id="videoClose" class="video-close" aria-label="Close video">×</button>
-    <a id="videoDownloadOriginal" class="video-download hidden" href="#" download>Download Original</a>
     <div class="video-player-shell">
       <div id="videoPlayerFrame" class="video-player-frame"></div>
     </div>
@@ -2606,7 +2576,6 @@
     const SMALL_IMAGE_PATH = "https://juliancanterbury.github.io/dome-timeline/Images/Small/";
     const LARGE_IMAGE_PATH = "https://juliancanterbury.github.io/dome-timeline/Images/Large/";
     const VIDEO_THUMB_PATH = "https://juliancanterbury.github.io/dome-timeline/Videos/Thumbs/";
-    const VIDEO_WEB_PATH = "https://juliancanterbury.github.io/dome-timeline/Videos/Web/";
     const VIDEO_FILE_PATH = "https://juliancanterbury.github.io/dome-timeline/Videos/Files/";
     const SHOP_IMAGE_PATH = "https://juliancanterbury.github.io/dome-timeline/Shop/Images/";
 
@@ -5487,19 +5456,6 @@
     }
 
 
-    function videoBaseName(filename) {
-      return String(filename || "").replace(/\.[^/.]+$/, "");
-    }
-
-    function webVideoPathForFilename(filename) {
-      const base = videoBaseName(filename);
-      return base ? VIDEO_WEB_PATH + encodeURI(base + ".mp4") : "";
-    }
-
-    function originalVideoPathForFilename(filename) {
-      return filename ? VIDEO_FILE_PATH + encodeURI(filename) : "";
-    }
-
     function normaliseVideoRow(row, index) {
       const title = String(row.Title || row.TITLE || row.Headline || row.HEADLINE || `Video ${index + 1}`).trim();
       const filename = cleanFileName(row.Filename || row.FileName || row.Video || row.VIDEO || "");
@@ -5508,9 +5464,6 @@
       const publish = String(row.Publish || row.PUBLISH || "Y").trim().toUpperCase();
       const status = String(row.Status || row.STATUS || "").trim().toUpperCase();
 
-      const originalSrc = url || originalVideoPathForFilename(filename);
-      const webSrc = url ? url : webVideoPathForFilename(filename);
-
       return {
         title,
         text: String(row.Text || row.TEXT || row.Description || "").trim(),
@@ -5518,9 +5471,7 @@
         filename,
         thumb,
         url,
-        originalSrc,
-        webSrc,
-        videoSrc: webSrc || originalSrc,
+        videoSrc: url || (filename ? VIDEO_FILE_PATH + encodeURI(filename) : ""),
         thumbSrc: thumb ? (thumb.startsWith("http") ? thumb : VIDEO_THUMB_PATH + encodeURI(thumb)) : "",
         publish,
         status
@@ -5564,7 +5515,6 @@
 
     function videoEmbedHtml(video) {
       const src = video.videoSrc;
-      const fallbackSrc = video.originalSrc && video.originalSrc !== src ? video.originalSrc : "";
       if (!src) return `<div class="caption" style="padding:20px;color:white;">No video URL supplied.</div>`;
 
       if (/youtube\.com|youtu\.be/.test(src)) {
@@ -5581,10 +5531,7 @@
         return match ? `<iframe src="https://player.vimeo.com/video/${escapeHtml(match[1])}?autoplay=1" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>` : "";
       }
 
-      return `<video controls autoplay playsinline preload="metadata">
-        <source src="${escapeHtml(src)}" type="video/mp4">
-        ${fallbackSrc ? `<source src="${escapeHtml(fallbackSrc)}">` : ""}
-      </video>`;
+      return `<video src="${escapeHtml(src)}" controls autoplay playsinline preload="metadata"></video>`;
     }
 
     function openVideo(video, updateUrl = true) {
@@ -5593,7 +5540,6 @@
       const title = document.getElementById("videoPlayerTitle");
       const text = document.getElementById("videoPlayerText");
       const date = document.getElementById("videoPlayerDate");
-      const download = document.getElementById("videoDownloadOriginal");
       if (!box || !frame || !video) return;
 
       if (updateUrl) {
@@ -5604,16 +5550,6 @@
       }
 
       frame.innerHTML = videoEmbedHtml(video);
-      if (download) {
-        if (video.originalSrc && !video.url) {
-          download.href = video.originalSrc;
-          download.setAttribute("download", video.filename || "original-video");
-          download.classList.remove("hidden");
-        } else {
-          download.removeAttribute("href");
-          download.classList.add("hidden");
-        }
-      }
       if (title) title.textContent = video.title || "";
       if (text) text.textContent = video.text || "";
       if (date) date.textContent = video.date || "";
@@ -5626,15 +5562,10 @@
     function closeVideo(clearUrl = true) {
       const box = document.getElementById("videoLightbox");
       const frame = document.getElementById("videoPlayerFrame");
-      const download = document.getElementById("videoDownloadOriginal");
       if (!box || !frame) return;
       box.classList.remove("open");
       box.setAttribute("aria-hidden", "true");
       frame.innerHTML = "";
-      if (download) {
-        download.removeAttribute("href");
-        download.classList.add("hidden");
-      }
       document.body.style.overflow = "";
 
       if (clearUrl) {
@@ -5864,11 +5795,8 @@
         const key = decodeURIComponent(rawHash.replace("#video=", "")).trim();
         const video = videos.find(v =>
           v.filename === key ||
-          videoBaseName(v.filename) === videoBaseName(key) ||
           v.title === key ||
-          v.videoSrc === key ||
-          v.webSrc === key ||
-          v.originalSrc === key
+          v.videoSrc === key
         );
 
         if (video) {
