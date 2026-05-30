@@ -1,0 +1,77 @@
+name: Optimise Dome Videos
+
+on:
+  push:
+    paths:
+      - 'Videos/Files/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  optimise-videos:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Create web videos and thumbnails
+        shell: bash
+        run: |
+          mkdir -p Videos/Web Videos/Thumbs
+
+          shopt -s nullglob
+          for input in Videos/Files/*.{mov,MOV,mp4,MP4,m4v,M4V}; do
+            filename="$(basename "$input")"
+            base="${filename%.*}"
+            output="Videos/Web/${base}.mp4"
+            thumb="Videos/Thumbs/${base}.jpg"
+
+            echo "Processing: $input"
+
+            if [ ! -f "$output" ]; then
+              ffmpeg -y -i "$input" \
+                -vf "scale='min(1920,iw)':-2,fps=30" \
+                -c:v libx264 \
+                -preset medium \
+                -crf 23 \
+                -pix_fmt yuv420p \
+                -movflags +faststart \
+                -c:a aac \
+                -b:a 128k \
+                "$output"
+            else
+              echo "Web MP4 already exists: $output"
+            fi
+
+            if [ ! -f "$thumb" ]; then
+              ffmpeg -y -ss 1 -i "$input" \
+                -vf "scale='min(1200,iw)':-2" \
+                -frames:v 1 \
+                -q:v 3 \
+                "$thumb"
+            else
+              echo "Thumbnail already exists: $thumb"
+            fi
+          done
+
+      - name: Commit generated files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Videos/Web Videos/Thumbs
+          if git diff --cached --quiet; then
+            echo "No generated video files to commit."
+          else
+            git commit -m "Generate optimised web videos"
+            git push
+          fi
