@@ -3206,7 +3206,6 @@
           photoNav.day = null;
         }
         renderPhotosMode(currentPhotoView);
-        updatePhotosHash();
       });
     }
 
@@ -3244,7 +3243,6 @@
             photoNav.month = null;
             photoNav.day = null;
             renderPhotosMode("months");
-            updatePhotosHash();
           });
         });
       }
@@ -3276,7 +3274,6 @@
             photoNav.month = Number(el.dataset.month);
             photoNav.day = null;
             renderPhotosMode("days");
-            updatePhotosHash();
           });
         });
       }
@@ -3314,7 +3311,6 @@
             photoNav.month = Number(el.dataset.month);
             photoNav.day = Number(el.dataset.day);
             renderPhotosMode("all");
-            updatePhotosHash();
           });
         });
       }
@@ -4641,50 +4637,52 @@
       });
     }
 
-    timelineModeBtn.addEventListener("click", () => openModeFromUi("timeline"));
-    slotModeBtn.addEventListener("click", () => openModeFromUi("slot"));
-    photosModeBtn.addEventListener("click", () => openModeFromUi("photos"));
+    timelineModeBtn.addEventListener("click", () => setMode("timeline"));
+    slotModeBtn.addEventListener("click", () => setMode("slot"));
+    photosModeBtn.addEventListener("click", () => setMode("photos"));
     cardsModeBtn.addEventListener("click", () => {
-      openModeFromUi("cards");
+      setMode("cards");
       renderCardsMode(false);
     });
     fieldModeBtn.addEventListener("click", () => {
-      openModeFromUi("field");
+      setMode("field");
       renderFieldMode();
     });
     flowModeBtn.addEventListener("click", () => {
-      openModeFromUi("flow");
+      setMode("flow");
       renderFlowMode();
+        renderVideosMode();
+        renderShopMode();
     });
     videosModeBtn.addEventListener("click", () => {
-      openModeFromUi("videos");
+      setMode("videos");
       renderVideosMode();
     });
     shopModeBtn.addEventListener("click", () => {
-      openModeFromUi("shop");
+      setMode("shop");
       renderShopMode();
     });
     sphereModeBtn.addEventListener("click", () => {
-      openModeFromUi("sphere");
+      setMode("sphere");
       renderSphereMode();
     });
     geodesicModeBtn.addEventListener("click", () => {
-      openModeFromUi("geodesic");
+      setMode("geodesic");
     });
     corbusierModeBtn.addEventListener("click", () => {
-      openModeFromUi("corbusier");
+      setMode("corbusier");
       renderCorbusierMode();
     });
     enoModeBtn.addEventListener("click", () => {
-      openModeFromUi("eno");
+      setMode("eno");
       renderEnoMode();
     });
     fontModeBtn.addEventListener("click", () => {
-      openModeFromUi("font");
+      setMode("font");
       renderFontMode();
     });
-    calibrationModeBtn.addEventListener("click", () => openModeFromUi("calibration"));
-    aboutModeBtn.addEventListener("click", () => openModeFromUi("about"));
+    calibrationModeBtn.addEventListener("click", () => setMode("calibration"));
+    aboutModeBtn.addEventListener("click", () => setMode("about"));
 
     const timelineScaleSlider = document.getElementById("timelineScaleSlider");
     const timelineScaleValue = document.getElementById("timelineScaleValue");
@@ -4817,7 +4815,6 @@
         }
 
         renderPhotosMode(view);
-        updatePhotosHash();
       });
     });
 
@@ -5712,71 +5709,14 @@
 
 
 
-    function parseHashRoute() {
-      const raw = decodeURIComponent((location.hash || "").replace(/^#/, "")).trim();
-      const result = { raw, params: new URLSearchParams(raw), mode: "" };
-
-      if (!raw) return result;
-
-      if (!raw.includes("=") && raw.includes("/")) {
-        const parts = raw.split("/").map(part => part.trim()).filter(Boolean);
-        result.mode = parts[0] || "";
-        if (parts[1]) result.params.set("year", parts[1]);
-        if (parts[2]) result.params.set("month", parts[2]);
-        if (parts[3]) result.params.set("day", parts[3]);
-        return result;
-      }
-
-      result.mode = result.params.get("mode") || "";
-      return result;
-    }
-
-    function replaceHash(hash) {
-      const clean = String(hash || "").replace(/^#/, "");
-      history.replaceState({}, "", clean ? "#" + clean : location.pathname + location.search);
-    }
-
-    function updateModeHash(mode, extra = {}) {
-      const params = new URLSearchParams();
-      params.set("mode", mode);
-      Object.entries(extra).forEach(([key, value]) => {
-        if (value !== null && value !== undefined && value !== "") params.set(key, value);
-      });
-      replaceHash(params.toString());
-    }
-
-    function updatePhotosHash() {
-      const extra = {};
-      if (photoNav.year) extra.year = photoNav.year;
-      if (photoNav.month) extra.month = photoNav.month;
-      if (photoNav.day) extra.day = photoNav.day;
-      updateModeHash("photos", extra);
-    }
-
-    function openModeFromUi(mode) {
-      setMode(mode);
-
-      if (mode === "photos") renderPhotosMode(currentPhotoView || "years");
-      if (mode === "field") renderFieldMode();
-      if (mode === "flow") renderFlowMode();
-      if (mode === "videos") renderVideosMode();
-      if (mode === "shop") renderShopMode();
-      if (mode === "sphere") renderSphereMode();
-      if (mode === "corbusier") renderCorbusierMode();
-      if (mode === "eno") renderEnoMode();
-      if (mode === "font") renderFontMode();
-
-      if (mode === "photos") updatePhotosHash();
-      else updateModeHash(mode);
-    }
-
     function openDeepLinkFromHash() {
-      const route = parseHashRoute();
       const rawHash = location.hash || "";
-      if (!rawHash) return false;
+      if (!rawHash) return;
 
-      if (rawHash.startsWith("#image=")) {
-        const filename = decodeURIComponent(rawHash.replace("#image=", "")).trim();
+      const hash = decodeURIComponent(rawHash);
+
+      if (hash.startsWith("#image=")) {
+        const filename = hash.replace("#image=", "").trim();
         const index = entries.findIndex(entry => entry.fileName === filename);
 
         if (index >= 0) {
@@ -5785,14 +5725,13 @@
           renderEntry(currentIndex);
           setTimeout(() => scrollTimelineItemIntoView(currentIndex), 80);
           openLightbox(entries[index].mediaLarge, entries[index].headline, index, false);
-          return true;
         }
 
-        return false;
+        return;
       }
 
-      if (rawHash.startsWith("#video=")) {
-        const key = decodeURIComponent(rawHash.replace("#video=", "")).trim();
+      if (hash.startsWith("#video=")) {
+        const key = hash.replace("#video=", "").trim();
         const video = videos.find(v =>
           v.filename === key ||
           v.title === key ||
@@ -5803,49 +5742,8 @@
           setMode("videos");
           renderVideosMode();
           openVideo(video, false);
-          return true;
         }
-
-        return false;
       }
-
-      const mode = (route.mode || "").toLowerCase();
-      const validModes = new Set(["timeline","slot","photos","cards","field","flow","videos","shop","sphere","geodesic","corbusier","eno","font","calibration","about"]);
-
-      if (!validModes.has(mode)) return false;
-
-      if (mode === "photos") {
-        const year = Number(route.params.get("year") || "");
-        const month = Number(route.params.get("month") || "");
-        const day = Number(route.params.get("day") || "");
-
-        photoNav.year = year || null;
-        photoNav.month = month || null;
-        photoNav.day = day || null;
-
-        setMode("photos");
-
-        if (photoNav.year && photoNav.month && photoNav.day) renderPhotosMode("all");
-        else if (photoNav.year && photoNav.month) renderPhotosMode("days");
-        else if (photoNav.year) renderPhotosMode("months");
-        else renderPhotosMode("years");
-
-        return true;
-      }
-
-      setMode(mode);
-
-      if (mode === "field") renderFieldMode();
-      if (mode === "flow") renderFlowMode();
-      if (mode === "videos") renderVideosMode();
-      if (mode === "shop") renderShopMode();
-      if (mode === "sphere") renderSphereMode();
-      if (mode === "geodesic") renderGeodesicMode();
-      if (mode === "corbusier") renderCorbusierMode();
-      if (mode === "eno") renderEnoMode();
-      if (mode === "font") renderFontMode();
-
-      return true;
     }
 
     async function init() {
@@ -5865,6 +5763,9 @@
             "No rows found. Check PUBLISH tab, Filename column, and image folders.";
           return;
         }
+
+        document.getElementById("loadingMessage").classList.add("hidden");
+        document.getElementById("appShell").classList.remove("hidden");
 
         buildTimeline();
         renderEntry(0);
@@ -5899,9 +5800,6 @@
         await preloadEntriesImages(entries, 2);
         slotPreviewPool = sampleEntries(entries, 8);
         openDeepLinkFromHash();
-
-        document.getElementById("loadingMessage").classList.add("hidden");
-        document.getElementById("appShell").classList.remove("hidden");
       } catch (err) {
         const msg =
           err.name === "AbortError"
