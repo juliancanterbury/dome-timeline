@@ -138,7 +138,6 @@
     #cardsMode,
     #fieldMode,
     #flowMode,
-    #storyMode,
     #sphereMode,
     #geodesicMode,
     #aboutMode,
@@ -1653,104 +1652,6 @@
     .font-preview-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
     @media (max-width: 900px) { .font-layout { grid-template-columns: 1fr; } }
 
-
-    /* STORY MODE — sticky scroll / Guardian-style prototype */
-    function storyPauseFor(entry, index) {
-      const raw = fieldRandomValue(entry, storyPauseSeed + index * 17);
-      return Math.round(72 + raw * 58);
-    }
-
-    function setStoryVisual(entry) {
-      if (!entry || !storyImage) return;
-
-      const current = storyImage.dataset.currentSrc || "";
-      if (current !== entry.mediaSmall) {
-        storyImage.classList.add("story-changing");
-        setTimeout(() => {
-          storyImage.src = entry.mediaSmall;
-          storyImage.alt = entry.headline || "";
-          storyImage.dataset.currentSrc = entry.mediaSmall;
-
-          const visualDate = document.getElementById("storyVisualDate");
-          const visualTitle = document.getElementById("storyVisualTitle");
-          if (visualDate) visualDate.textContent = formatDate(entry);
-          if (visualTitle) visualTitle.textContent = entry.headline || "Untitled";
-
-          storyImage.onload = () => storyImage.classList.remove("story-changing");
-          setTimeout(() => storyImage.classList.remove("story-changing"), 520);
-        }, 120);
-      } else {
-        const visualDate = document.getElementById("storyVisualDate");
-        const visualTitle = document.getElementById("storyVisualTitle");
-        if (visualDate) visualDate.textContent = formatDate(entry);
-        if (visualTitle) visualTitle.textContent = entry.headline || "Untitled";
-      }
-    }
-
-    function renderStoryMode() {
-      if (!storyText || !entries.length) return;
-
-      const ordered = sortEntriesChronological(entries);
-
-      storyText.innerHTML = ordered.map((entry, i) => {
-        const index = entries.indexOf(entry);
-        const pause = storyPauseFor(entry, i);
-        const body = String(entry.text || "").trim() || "No text entered yet.";
-        const caption = String(entry.caption || "").trim();
-
-        return `
-          <section class="story-chapter" data-story-index="${index}" style="--story-pause:${pause}vh;--story-mobile-pause:${Math.max(62, Math.round(pause * 0.72))}vh">
-            <div class="date">${escapeHtml(formatDate(entry))}</div>
-            <h2>${escapeHtml(entry.headline || "Untitled")}</h2>
-            <p>${escapeHtml(body)}</p>
-            ${caption ? `<div class="caption">${escapeHtml(caption)}</div>` : ""}
-            <button type="button" class="story-open-btn" data-story-open="${index}">Open Image</button>
-          </section>
-        `;
-      }).join("");
-
-      storyText.querySelectorAll("[data-story-open]").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const index = Number(btn.dataset.storyOpen);
-          const entry = entries[index];
-          if (entry) openLightbox(entry.mediaLarge, entry.headline, index);
-        });
-      });
-
-      if (storyObserver) {
-        storyObserver.disconnect();
-        storyObserver = null;
-      }
-
-      storyObserver = new IntersectionObserver((observerEntries) => {
-        observerEntries.forEach(item => {
-          if (!item.isIntersecting) return;
-          const index = Number(item.target.dataset.storyIndex);
-          const entry = entries[index];
-          if (entry) setStoryVisual(entry);
-        });
-      }, {
-        root: null,
-        threshold: 0.52,
-        rootMargin: "-12% 0px -28% 0px"
-      });
-
-      storyText.querySelectorAll(".story-chapter").forEach(section => {
-        storyObserver.observe(section);
-      });
-
-      const first = ordered[0];
-      if (first) setStoryVisual(first);
-    }
-
-    if (storyShuffleBtn) {
-      storyShuffleBtn.addEventListener("click", () => {
-        storyPauseSeed++;
-        renderStoryMode();
-      });
-    }
-
-
     /* CALIBRATION MODE */
     #calibrationMode {
       flex: 1 1 auto;
@@ -1928,158 +1829,6 @@
     }
 
   
-
-
-
-    /* STORY MODE — sticky scroll / scrollytelling test */
-    #storyMode {
-      flex: 1 1 auto;
-      min-height: 0;
-    }
-
-    .story-intro {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 16px;
-      flex-wrap: wrap;
-      margin-bottom: 14px;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.35;
-    }
-
-    .story-shell {
-      display: grid;
-      grid-template-columns: minmax(320px, 58%) minmax(280px, 42%);
-      gap: 18px;
-      align-items: start;
-    }
-
-    .story-visual {
-      position: sticky;
-      top: 14px;
-      height: calc(100dvh - 150px);
-      min-height: 520px;
-      border-radius: 24px;
-      background: var(--panel);
-      border: 1px solid var(--line);
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: var(--shadow);
-    }
-
-    .story-visual img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      opacity: 1;
-      transform: scale(1);
-      transition: opacity .42s ease, transform .7s ease;
-    }
-
-    .story-visual img.story-changing {
-      opacity: .35;
-      transform: scale(1.018);
-    }
-
-    .story-visual::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to top, rgba(0,0,0,.34), rgba(0,0,0,0) 48%);
-      pointer-events: none;
-    }
-
-    .story-visual-label {
-      position: absolute;
-      left: 18px;
-      right: 18px;
-      bottom: 18px;
-      z-index: 2;
-      color: white;
-      text-shadow: 0 1px 12px rgba(0,0,0,.55);
-      pointer-events: none;
-    }
-
-    .story-visual-label .date {
-      color: rgba(255,255,255,.78);
-      margin-bottom: 4px;
-    }
-
-    .story-visual-label h3 {
-      margin: 0;
-      font-size: clamp(28px, 4vw, 58px);
-      line-height: .92;
-      letter-spacing: -.055em;
-      font-weight: 650;
-    }
-
-    .story-text {
-      display: grid;
-      gap: 0;
-    }
-
-    .story-chapter {
-      min-height: var(--story-pause, 86vh);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      border-bottom: 1px solid var(--line);
-      padding: 8vh 0;
-    }
-
-    .story-chapter .date {
-      margin-bottom: 10px;
-    }
-
-    .story-chapter h2 {
-      font-size: clamp(34px, 4.2vw, 76px);
-      line-height: .9;
-      margin: 0 0 16px;
-      letter-spacing: -.06em;
-      font-weight: 650;
-    }
-
-    .story-chapter p {
-      max-width: 620px;
-      margin: 0;
-      font-size: clamp(16px, 1.35vw, 21px);
-      line-height: 1.45;
-      letter-spacing: -.018em;
-    }
-
-    .story-chapter .caption {
-      max-width: 620px;
-      margin-top: 14px;
-    }
-
-    .story-open-btn {
-      align-self: flex-start;
-      margin-top: 18px;
-    }
-
-    @media (max-width: 900px) {
-      .story-shell {
-        display: block;
-      }
-
-      .story-visual {
-        position: sticky;
-        top: 8px;
-        height: 56dvh;
-        min-height: 320px;
-        margin-bottom: 18px;
-      }
-
-      .story-chapter {
-        min-height: var(--story-mobile-pause, 75vh);
-        padding: 9vh 0;
-      }
-    }
 
 
     /* VIDEOS MODE */
@@ -2431,7 +2180,6 @@
         <button id="cardsModeBtn">Cards</button>
         <button id="fieldModeBtn">Field</button>
         <button id="flowModeBtn">Flow</button>
-        <button id="storyModeBtn">Story</button>
         <button id="videosModeBtn">Videos</button>
         <button id="shopModeBtn">Shop</button>
         <button id="sphereModeBtn">Sphere</button>
@@ -2782,31 +2530,6 @@
       </div>
 
 
-
-      <div id="storyMode" class="hidden">
-        <div class="story-intro">
-          <div>
-            <strong>Story</strong><br>
-            Sticky-scroll test using the existing timeline images and text. The image side holds still while the text side moves, with varied pause lengths to judge the rhythm.
-          </div>
-          <div class="story-tools">
-            <button id="storyShuffleBtn" type="button">Randomise Pauses</button>
-          </div>
-        </div>
-
-        <div class="story-shell">
-          <div class="story-visual" id="storyVisual">
-            <img id="storyImage" src="" alt="" loading="eager" decoding="async">
-            <div class="story-visual-label">
-              <div class="date" id="storyVisualDate"></div>
-              <h3 id="storyVisualTitle"></h3>
-            </div>
-          </div>
-          <div class="story-text" id="storyText"></div>
-        </div>
-      </div>
-
-
       <div id="videosMode" class="hidden">
         <div class="videos-intro">
           <div>
@@ -2891,8 +2614,6 @@
     let currentIndex = 0;
     let timelineScale = 98;
     let currentMode = "timeline";
-    let storyPauseSeed = 1;
-    let storyObserver = null;
     let flowSpeed = 18;
     let sphereSpeed = 10;
     let sphereScale = 100;
@@ -3695,7 +3416,6 @@
     const cardsMode = document.getElementById("cardsMode");
     const fieldMode = document.getElementById("fieldMode");
     const flowMode = document.getElementById("flowMode");
-    const storyMode = document.getElementById("storyMode");
     const sphereMode = document.getElementById("sphereMode");
     const geodesicMode = document.getElementById("geodesicMode");
     const calibrationMode = document.getElementById("calibrationMode");
@@ -3713,7 +3433,6 @@
     const cardsModeBtn = document.getElementById("cardsModeBtn");
     const fieldModeBtn = document.getElementById("fieldModeBtn");
     const flowModeBtn = document.getElementById("flowModeBtn");
-    const storyModeBtn = document.getElementById("storyModeBtn");
     const sphereModeBtn = document.getElementById("sphereModeBtn");
     const geodesicModeBtn = document.getElementById("geodesicModeBtn");
     const calibrationModeBtn = document.getElementById("calibrationModeBtn");
@@ -3736,9 +3455,6 @@
     const flowSpeedValue = document.getElementById("flowSpeedValue");
     const flowStage = document.getElementById("flowStage");
     const flowTrack = document.getElementById("flowTrack");
-    const storyImage = document.getElementById("storyImage");
-    const storyText = document.getElementById("storyText");
-    const storyShuffleBtn = document.getElementById("storyShuffleBtn");
     const sphereStage = document.getElementById("sphereStage");
     const sphereSpeedSlider = document.getElementById("sphereSpeedSlider");
     const sphereSpeedValue = document.getElementById("sphereSpeedValue");
@@ -3760,7 +3476,6 @@
       cardsMode.classList.toggle("hidden", mode !== "cards");
       fieldMode.classList.toggle("hidden", mode !== "field");
       flowMode.classList.toggle("hidden", mode !== "flow");
-      storyMode.classList.toggle("hidden", mode !== "story");
       sphereMode.classList.toggle("hidden", mode !== "sphere");
       geodesicMode.classList.toggle("hidden", mode !== "geodesic");
       calibrationMode.classList.toggle("hidden", mode !== "calibration");
@@ -3777,7 +3492,6 @@
       cardsModeBtn.classList.toggle("active-mode-btn", mode === "cards");
       fieldModeBtn.classList.toggle("active-mode-btn", mode === "field");
       flowModeBtn.classList.toggle("active-mode-btn", mode === "flow");
-      storyModeBtn.classList.toggle("active-mode-btn", mode === "story");
       sphereModeBtn.classList.toggle("active-mode-btn", mode === "sphere");
       geodesicModeBtn.classList.toggle("active-mode-btn", mode === "geodesic");
       calibrationModeBtn.classList.toggle("active-mode-btn", mode === "calibration");
@@ -3795,7 +3509,6 @@
         mode === "cards" ? "Cards Mode" :
         mode === "field" ? "Field Mode" :
         mode === "flow" ? "Flow Mode" :
-        mode === "story" ? "Story Mode" :
         mode === "videos" ? "Videos Mode" :
         mode === "shop" ? "Shop Mode" :
         mode === "sphere" ? "Sphere Mode" :
@@ -3808,10 +3521,6 @@
 
       if (mode === "cards") {
         renderCardsMode(false);
-      }
-
-      if (mode === "story") {
-        renderStoryMode();
       }
 
       if (mode === "videos") {
@@ -4978,10 +4687,6 @@
       openModeFromUi("flow");
       renderFlowMode();
     });
-    storyModeBtn.addEventListener("click", () => {
-      openModeFromUi("story");
-      renderStoryMode();
-    });
     videosModeBtn.addEventListener("click", () => {
       openModeFromUi("videos");
       renderVideosMode();
@@ -6123,7 +5828,6 @@
       if (mode === "photos") renderPhotosMode(currentPhotoView || "years");
       if (mode === "field") renderFieldMode();
       if (mode === "flow") renderFlowMode();
-      if (mode === "story") renderStoryMode();
       if (mode === "videos") renderVideosMode();
       if (mode === "shop") renderShopMode();
       if (mode === "sphere") renderSphereMode();
@@ -6178,7 +5882,7 @@
       }
 
       const mode = (route.mode || "").toLowerCase();
-      const validModes = new Set(["timeline","slot","photos","cards","field","flow","story","videos","shop","sphere","geodesic","corbusier","eno","font","calibration","about"]);
+      const validModes = new Set(["timeline","slot","photos","cards","field","flow","videos","shop","sphere","geodesic","corbusier","eno","font","calibration","about"]);
 
       if (!validModes.has(mode)) return false;
 
@@ -6205,7 +5909,6 @@
 
       if (mode === "field") renderFieldMode();
       if (mode === "flow") renderFlowMode();
-      if (mode === "story") renderStoryMode();
       if (mode === "videos") renderVideosMode();
       if (mode === "shop") renderShopMode();
       if (mode === "sphere") renderSphereMode();
@@ -6242,7 +5945,6 @@
         renderCardsMode(true);
         renderFieldMode();
         renderFlowMode();
-        renderStoryMode();
         setupFlowPointerControls();
         startFlowAnimation();
         setupGeodesicPointerControls();
