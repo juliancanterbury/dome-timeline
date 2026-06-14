@@ -138,12 +138,12 @@
     #cardsMode,
     #fieldMode,
     #flowMode,
-    #storyMode,
     #sphereMode,
     #geodesicMode,
     #aboutMode,
     #videosMode,
-    #shopMode {
+    #shopMode,
+    #storyMode {
       flex: 1 1 auto;
       min-height: 0;
     }
@@ -780,7 +780,8 @@
     /* ABOUT / INFO MODE */
     #aboutMode,
     #videosMode,
-    #shopMode {
+    #shopMode,
+    #storyMode {
       flex: 1 1 auto;
       min-height: 0;
     }
@@ -1653,104 +1654,6 @@
     .font-preview-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
     @media (max-width: 900px) { .font-layout { grid-template-columns: 1fr; } }
 
-
-    /* STORY MODE — sticky scroll / Guardian-style prototype */
-    function storyPauseFor(entry, index) {
-      const raw = fieldRandomValue(entry, storyPauseSeed + index * 17);
-      return Math.round(72 + raw * 58);
-    }
-
-    function setStoryVisual(entry) {
-      if (!entry || !storyImage) return;
-
-      const current = storyImage.dataset.currentSrc || "";
-      if (current !== entry.mediaSmall) {
-        storyImage.classList.add("story-changing");
-        setTimeout(() => {
-          storyImage.src = entry.mediaSmall;
-          storyImage.alt = entry.headline || "";
-          storyImage.dataset.currentSrc = entry.mediaSmall;
-
-          const visualDate = document.getElementById("storyVisualDate");
-          const visualTitle = document.getElementById("storyVisualTitle");
-          if (visualDate) visualDate.textContent = formatDate(entry);
-          if (visualTitle) visualTitle.textContent = entry.headline || "Untitled";
-
-          storyImage.onload = () => storyImage.classList.remove("story-changing");
-          setTimeout(() => storyImage.classList.remove("story-changing"), 520);
-        }, 120);
-      } else {
-        const visualDate = document.getElementById("storyVisualDate");
-        const visualTitle = document.getElementById("storyVisualTitle");
-        if (visualDate) visualDate.textContent = formatDate(entry);
-        if (visualTitle) visualTitle.textContent = entry.headline || "Untitled";
-      }
-    }
-
-    function renderStoryMode() {
-      if (!storyText || !entries.length) return;
-
-      const ordered = sortEntriesChronological(entries);
-
-      storyText.innerHTML = ordered.map((entry, i) => {
-        const index = entries.indexOf(entry);
-        const pause = storyPauseFor(entry, i);
-        const body = String(entry.text || "").trim() || "No text entered yet.";
-        const caption = String(entry.caption || "").trim();
-
-        return `
-          <section class="story-chapter" data-story-index="${index}" style="--story-pause:${pause}vh;--story-mobile-pause:${Math.max(62, Math.round(pause * 0.72))}vh">
-            <div class="date">${escapeHtml(formatDate(entry))}</div>
-            <h2>${escapeHtml(entry.headline || "Untitled")}</h2>
-            <p>${escapeHtml(body)}</p>
-            ${caption ? `<div class="caption">${escapeHtml(caption)}</div>` : ""}
-            <button type="button" class="story-open-btn" data-story-open="${index}">Open Image</button>
-          </section>
-        `;
-      }).join("");
-
-      storyText.querySelectorAll("[data-story-open]").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const index = Number(btn.dataset.storyOpen);
-          const entry = entries[index];
-          if (entry) openLightbox(entry.mediaLarge, entry.headline, index);
-        });
-      });
-
-      if (storyObserver) {
-        storyObserver.disconnect();
-        storyObserver = null;
-      }
-
-      storyObserver = new IntersectionObserver((observerEntries) => {
-        observerEntries.forEach(item => {
-          if (!item.isIntersecting) return;
-          const index = Number(item.target.dataset.storyIndex);
-          const entry = entries[index];
-          if (entry) setStoryVisual(entry);
-        });
-      }, {
-        root: null,
-        threshold: 0.52,
-        rootMargin: "-12% 0px -28% 0px"
-      });
-
-      storyText.querySelectorAll(".story-chapter").forEach(section => {
-        storyObserver.observe(section);
-      });
-
-      const first = ordered[0];
-      if (first) setStoryVisual(first);
-    }
-
-    if (storyShuffleBtn) {
-      storyShuffleBtn.addEventListener("click", () => {
-        storyPauseSeed++;
-        renderStoryMode();
-      });
-    }
-
-
     /* CALIBRATION MODE */
     #calibrationMode {
       flex: 1 1 auto;
@@ -1928,158 +1831,6 @@
     }
 
   
-
-
-
-    /* STORY MODE — sticky scroll / scrollytelling test */
-    #storyMode {
-      flex: 1 1 auto;
-      min-height: 0;
-    }
-
-    .story-intro {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 16px;
-      flex-wrap: wrap;
-      margin-bottom: 14px;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.35;
-    }
-
-    .story-shell {
-      display: grid;
-      grid-template-columns: minmax(320px, 58%) minmax(280px, 42%);
-      gap: 18px;
-      align-items: start;
-    }
-
-    .story-visual {
-      position: sticky;
-      top: 14px;
-      height: calc(100dvh - 150px);
-      min-height: 520px;
-      border-radius: 24px;
-      background: var(--panel);
-      border: 1px solid var(--line);
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: var(--shadow);
-    }
-
-    .story-visual img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      opacity: 1;
-      transform: scale(1);
-      transition: opacity .42s ease, transform .7s ease;
-    }
-
-    .story-visual img.story-changing {
-      opacity: .35;
-      transform: scale(1.018);
-    }
-
-    .story-visual::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to top, rgba(0,0,0,.34), rgba(0,0,0,0) 48%);
-      pointer-events: none;
-    }
-
-    .story-visual-label {
-      position: absolute;
-      left: 18px;
-      right: 18px;
-      bottom: 18px;
-      z-index: 2;
-      color: white;
-      text-shadow: 0 1px 12px rgba(0,0,0,.55);
-      pointer-events: none;
-    }
-
-    .story-visual-label .date {
-      color: rgba(255,255,255,.78);
-      margin-bottom: 4px;
-    }
-
-    .story-visual-label h3 {
-      margin: 0;
-      font-size: clamp(28px, 4vw, 58px);
-      line-height: .92;
-      letter-spacing: -.055em;
-      font-weight: 650;
-    }
-
-    .story-text {
-      display: grid;
-      gap: 0;
-    }
-
-    .story-chapter {
-      min-height: var(--story-pause, 86vh);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      border-bottom: 1px solid var(--line);
-      padding: 8vh 0;
-    }
-
-    .story-chapter .date {
-      margin-bottom: 10px;
-    }
-
-    .story-chapter h2 {
-      font-size: clamp(34px, 4.2vw, 76px);
-      line-height: .9;
-      margin: 0 0 16px;
-      letter-spacing: -.06em;
-      font-weight: 650;
-    }
-
-    .story-chapter p {
-      max-width: 620px;
-      margin: 0;
-      font-size: clamp(16px, 1.35vw, 21px);
-      line-height: 1.45;
-      letter-spacing: -.018em;
-    }
-
-    .story-chapter .caption {
-      max-width: 620px;
-      margin-top: 14px;
-    }
-
-    .story-open-btn {
-      align-self: flex-start;
-      margin-top: 18px;
-    }
-
-    @media (max-width: 900px) {
-      .story-shell {
-        display: block;
-      }
-
-      .story-visual {
-        position: sticky;
-        top: 8px;
-        height: 56dvh;
-        min-height: 320px;
-        margin-bottom: 18px;
-      }
-
-      .story-chapter {
-        min-height: var(--story-mobile-pause, 75vh);
-        padding: 9vh 0;
-      }
-    }
 
 
     /* VIDEOS MODE */
@@ -2389,6 +2140,128 @@
     }
 
 
+    /* STORY MODE — sticky scroll / scrollytelling test */
+    #storyMode {
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+
+    .story-intro {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .story-layout {
+      display: grid;
+      grid-template-columns: minmax(320px, 56%) minmax(280px, 44%);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .story-visual {
+      position: sticky;
+      top: 14px;
+      height: calc(100dvh - 140px);
+      min-height: 420px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .story-visual img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      display: block;
+      opacity: 1;
+      transition: opacity 0.32s ease, transform 0.32s ease;
+      cursor: zoom-in;
+    }
+
+    .story-visual img.changing {
+      opacity: 0.35;
+      transform: scale(1.012);
+    }
+
+    .story-text {
+      min-width: 0;
+    }
+
+    .story-chapter {
+      min-height: var(--story-pause, 92vh);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 18vh 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .story-chapter:last-child {
+      border-bottom: 0;
+    }
+
+    .story-date {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .story-title {
+      font-size: clamp(34px, 5vw, 76px);
+      line-height: 0.92;
+      margin: 0 0 18px 0;
+      font-weight: 650;
+      letter-spacing: -0.06em;
+    }
+
+    .story-copy {
+      font-size: clamp(16px, 1.3vw, 21px);
+      line-height: 1.42;
+      max-width: 560px;
+    }
+
+    .story-caption {
+      margin-top: 12px;
+      font-size: 13px;
+      line-height: 1.35;
+      color: var(--muted);
+      max-width: 520px;
+    }
+
+    @media (max-width: 900px) {
+      .story-layout {
+        display: block;
+      }
+      .story-visual {
+        height: 56vh;
+        min-height: 300px;
+        top: 8px;
+        z-index: 2;
+        margin-bottom: 18px;
+      }
+      .story-chapter {
+        min-height: var(--story-pause-mobile, 82vh);
+        padding: 22vh 0;
+      }
+    }
+
+
 /* PHOTOS MODE — final corrected portrait sizing */
 .photos-grid-years,
 .photos-grid-months,
@@ -2581,6 +2454,21 @@
         </div>
       </div>
 
+
+      <div id="storyMode" class="hidden">
+        <div class="story-intro">
+          <div>
+            <strong>Story</strong><br>
+            Sticky-scroll test using the existing timeline images and text. The image stays pinned while the text scrolls past with varied pauses.
+          </div>
+        </div>
+        <div class="story-layout">
+          <div class="story-visual">
+            <img id="storyImage" src="" alt="" decoding="async" loading="eager" />
+          </div>
+          <div id="storyText" class="story-text"></div>
+        </div>
+      </div>
 
       <div id="sphereMode" class="hidden">
         <div class="sphere-intro">
@@ -2782,31 +2670,6 @@
       </div>
 
 
-
-      <div id="storyMode" class="hidden">
-        <div class="story-intro">
-          <div>
-            <strong>Story</strong><br>
-            Sticky-scroll test using the existing timeline images and text. The image side holds still while the text side moves, with varied pause lengths to judge the rhythm.
-          </div>
-          <div class="story-tools">
-            <button id="storyShuffleBtn" type="button">Randomise Pauses</button>
-          </div>
-        </div>
-
-        <div class="story-shell">
-          <div class="story-visual" id="storyVisual">
-            <img id="storyImage" src="" alt="" loading="eager" decoding="async">
-            <div class="story-visual-label">
-              <div class="date" id="storyVisualDate"></div>
-              <h3 id="storyVisualTitle"></h3>
-            </div>
-          </div>
-          <div class="story-text" id="storyText"></div>
-        </div>
-      </div>
-
-
       <div id="videosMode" class="hidden">
         <div class="videos-intro">
           <div>
@@ -2891,8 +2754,6 @@
     let currentIndex = 0;
     let timelineScale = 98;
     let currentMode = "timeline";
-    let storyPauseSeed = 1;
-    let storyObserver = null;
     let flowSpeed = 18;
     let sphereSpeed = 10;
     let sphereScale = 100;
@@ -3736,9 +3597,6 @@
     const flowSpeedValue = document.getElementById("flowSpeedValue");
     const flowStage = document.getElementById("flowStage");
     const flowTrack = document.getElementById("flowTrack");
-    const storyImage = document.getElementById("storyImage");
-    const storyText = document.getElementById("storyText");
-    const storyShuffleBtn = document.getElementById("storyShuffleBtn");
     const sphereStage = document.getElementById("sphereStage");
     const sphereSpeedSlider = document.getElementById("sphereSpeedSlider");
     const sphereSpeedValue = document.getElementById("sphereSpeedValue");
@@ -3866,6 +3724,77 @@
       if (!flowTrack) return;
       normaliseFlowPosition();
       flowTrack.style.transform = `translate3d(${-flowPosition}px, 0, 0)`;
+    }
+
+    function storyPauseForEntry(entry, index) {
+      const seed = fieldRandomValue(entry, 420 + index);
+      return 78 + Math.round(seed * 72);
+    }
+
+    function setStoryVisual(entry) {
+      const img = document.getElementById("storyImage");
+      if (!img || !entry || !entry.mediaSmall) return;
+      if (img.dataset.currentSrc === entry.mediaSmall) return;
+      img.classList.add("changing");
+      const nextSrc = entry.mediaSmall;
+      const nextAlt = entry.headline || "";
+      setTimeout(() => {
+        img.src = nextSrc;
+        img.alt = nextAlt;
+        img.dataset.currentSrc = nextSrc;
+        img.onload = () => img.classList.remove("changing");
+        setTimeout(() => img.classList.remove("changing"), 450);
+      }, 90);
+    }
+
+    function renderStoryMode() {
+      const wrap = document.getElementById("storyText");
+      const img = document.getElementById("storyImage");
+      if (!wrap || !img || !entries.length) return;
+
+      const source = entries.map((entry, index) => ({ entry, index }));
+      wrap.innerHTML = source.map(({ entry, index }) => {
+        const pause = storyPauseForEntry(entry, index);
+        const copy = entry.text || entry.caption || "";
+        return `
+          <section class="story-chapter" data-index="${index}" style="--story-pause:${pause}vh; --story-pause-mobile:${Math.max(64, pause - 18)}vh;">
+            <div class="story-date">${escapeHtml(formatDate(entry))}</div>
+            <h2 class="story-title">${escapeHtml(entry.headline || "Untitled")}</h2>
+            <div class="story-copy">${escapeHtml(copy)}</div>
+            ${entry.caption && entry.caption !== copy ? `<div class="story-caption">${escapeHtml(entry.caption)}</div>` : ""}
+          </section>
+        `;
+      }).join("");
+
+      const first = entries[0];
+      if (first) setStoryVisual(first);
+
+      wrap.querySelectorAll(".story-chapter").forEach(chapter => {
+        chapter.addEventListener("click", () => {
+          const index = Number(chapter.dataset.index);
+          const entry = entries[index];
+          if (entry) setStoryVisual(entry);
+        });
+      });
+
+      const observer = new IntersectionObserver((items) => {
+        const visible = items
+          .filter(item => item.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (!visible) return;
+        const index = Number(visible.target.dataset.index);
+        const entry = entries[index];
+        if (entry) setStoryVisual(entry);
+      }, { root: null, threshold: [0.32, 0.52, 0.72] });
+
+      wrap.querySelectorAll(".story-chapter").forEach(chapter => observer.observe(chapter));
+
+      img.onclick = () => {
+        const filename = decodeURI((img.dataset.currentSrc || "").split("/").pop() || "");
+        const index = entries.findIndex(entry => entry.fileName === filename || entry.mediaSmall === img.dataset.currentSrc);
+        const entry = entries[index];
+        if (entry) openLightbox(entry.mediaLarge, entry.headline, index);
+      };
     }
 
     function renderFlowMode() {
