@@ -2216,8 +2216,6 @@
       letter-spacing: -0.055em;
     }
 
-    .curated-set-select { height:34px; border-radius:999px; border:1px solid rgba(255,255,255,0.28); background:rgba(0,0,0,0.24); color:var(--curated-fg, #fff); padding:0 10px; max-width:260px; }
-
     .curated-actions {
       display: flex;
       gap: 8px;
@@ -2310,9 +2308,7 @@
     @media (max-width: 700px) {
       .curated-topbar { align-items: flex-start; }
       .curated-heading { font-size: 30px; }
-      .curated-set-select { height:34px; border-radius:999px; border:1px solid rgba(255,255,255,0.28); background:rgba(0,0,0,0.24); color:var(--curated-fg, #fff); padding:0 10px; max-width:260px; }
-
-    .curated-actions { max-width: 120px; }
+      .curated-actions { max-width: 120px; }
       .curated-btn { height: 34px; line-height: 34px; padding: 0 10px; font-size: 12px; }
       .curated-bottom { display: block; }
       .curated-meta { max-width: 92vw; }
@@ -2666,7 +2662,6 @@
             <div class="curated-titleblock">
               <div class="curated-kicker">Curated</div>
               <h2 class="curated-heading">Dome Archive</h2>
-              <select id="curatedPublicSetSelect" class="curated-set-select" aria-label="Curated slideshow"></select>
             </div>
             <div class="curated-actions">
               <button id="curatedPrevBtn" class="curated-btn" type="button">Previous</button>
@@ -6524,7 +6519,6 @@
         applyCuratedBackground();
         applyAdminThemeDefaultFromRows(publicSettingsRows);
         entries = await loadSheetData();
-        await loadCuratedSetsPublic();
         videos = (await loadOptionalSheet(VIDEOS_TAB)).map(normaliseVideoRow);
         shopProducts = (await loadOptionalSheet(SHOP_TAB)).map(normaliseShopRow);
 
@@ -6545,7 +6539,6 @@
         buildCuratedEntries();
         renderCuratedMode();
         setupCuratedControls();
-        setupCuratedPublicSetSelect();
         setupFlowPointerControls();
         startFlowAnimation();
         setupGeodesicPointerControls();
@@ -6621,154 +6614,6 @@
 
     loadAboutContent();
   </script>
-  <script src="settings-loader.js?v=7">
-/* CURATED SETS PUBLIC v4 */
-const CURATED_SETS_TAB = "CURATED_SETS";
-let curatedSetRows = [];
-let curatedPublicSets = [];
-let currentCuratedSetId = "main";
-
-async function loadCuratedSetsPublic() {
-  try {
-    const rows = await loadOptionalSheet(CURATED_SETS_TAB);
-    curatedSetRows = Array.isArray(rows) ? rows : [];
-  } catch (e) {
-    curatedSetRows = [];
-  }
-  const map = new Map();
-  curatedSetRows.forEach(row => {
-    const id = String(row.SetId ?? row.SETID ?? row.setId ?? "").trim();
-    if (!id) return;
-    if (!map.has(id)) {
-      map.set(id, {
-        setId: id,
-        setName: String(row.SetName ?? row.SETNAME ?? row.setName ?? id).trim() || id,
-        background: String(row.Background ?? row.BACKGROUND ?? row.background ?? "black").trim() || "black",
-        pageRatio: String(row.PageRatio ?? row.PAGERATIO ?? row.pageRatio ?? "16:9").trim() || "16:9"
-      });
-    }
-  });
-  curatedPublicSets = [...map.values()].sort((a,b) => a.setName.localeCompare(b.setName));
-  if (!curatedPublicSets.length) curatedPublicSets = [{ setId:"main", setName:"Main Curated", background:curatedPublicConfig.background || "black", pageRatio:"16:9", fallback:true }];
-  const hashMatch = String(location.hash || "").match(/curated=([^&]+)/i);
-  const requested = hashMatch ? decodeURIComponent(hashMatch[1]) : "";
-  if (requested && curatedPublicSets.some(s => s.setId === requested)) currentCuratedSetId = requested;
-  else if (!curatedPublicSets.some(s => s.setId === currentCuratedSetId)) currentCuratedSetId = curatedPublicSets[0].setId;
-  applyCurrentCuratedSetConfig();
-}
-
-function currentPublicSet() {
-  return curatedPublicSets.find(s => s.setId === currentCuratedSetId) || curatedPublicSets[0] || { setId:"main", setName:"Main Curated", background:"black", pageRatio:"16:9" };
-}
-
-function applyCurrentCuratedSetConfig() {
-  const set = currentPublicSet();
-  curatedPublicConfig.background = set.background || "black";
-  curatedPublicConfig.pageRatio = set.pageRatio || "16:9";
-  applyCuratedBackground();
-}
-
-function curatedRowsForCurrentSet() {
-  return curatedSetRows.filter(row => String(row.SetId ?? row.SETID ?? row.setId ?? "").trim() === currentCuratedSetId && String(row.Filename ?? row.FILENAME ?? row.filename ?? "").trim());
-}
-
-function setupCuratedPublicSetSelect() {
-  const sel = document.getElementById("curatedPublicSetSelect");
-  if (!sel) return;
-  sel.innerHTML = curatedPublicSets.map(s => `<option value="${escapeHtml(s.setId)}" ${s.setId===currentCuratedSetId?"selected":""}>${escapeHtml(s.setName)}</option>`).join("");
-  sel.onchange = () => {
-    currentCuratedSetId = sel.value || currentCuratedSetId;
-    curatedIndex = 0;
-    applyCurrentCuratedSetConfig();
-    buildCuratedEntries();
-    renderCuratedMode();
-    history.replaceState({}, "", "#mode=curated&curated=" + encodeURIComponent(currentCuratedSetId));
-  };
-}
-
-function normaliseCuratedSetRow(row) {
-  const filename = cleanFileName(row.Filename ?? row.FILENAME ?? row.filename ?? "");
-  return {
-    filename,
-    order: numberCell(row.Order ?? row.ORDER ?? row.order, null),
-    display: String(row.Display ?? row.DISPLAY ?? row.display ?? "Contain").trim() || "Contain",
-    cropX: numberCell(row.CropX ?? row.CROPX ?? row.cropX, null),
-    cropY: numberCell(row.CropY ?? row.CROPY ?? row.cropY, null),
-    cropW: numberCell(row.CropW ?? row.CROPW ?? row.cropW, null),
-    cropH: numberCell(row.CropH ?? row.CROPH ?? row.cropH, null),
-    caption: String(row.Caption ?? row.CAPTION ?? row.caption ?? "").trim()
-  };
-}
-
-function buildCuratedEntries() {
-  const rows = curatedRowsForCurrentSet().map(normaliseCuratedSetRow).filter(r => r.filename);
-  if (rows.length) {
-    const byFile = new Map(entries.map(e => [e.fileName, e]));
-    curatedEntries = rows.map(r => {
-      const e = byFile.get(r.filename);
-      if (!e) return null;
-      return Object.assign({}, e, {
-        curated: true,
-        curatedOrder: Number.isFinite(r.order) ? r.order : 999999,
-        curatedDisplay: r.display,
-        curatedCropX: r.cropX,
-        curatedCropY: r.cropY,
-        curatedCropW: r.cropW,
-        curatedCropH: r.cropH,
-        curatedSetCaption: r.caption
-      });
-    }).filter(Boolean).sort((a,b) => {
-      const ao = Number.isFinite(a.curatedOrder) ? a.curatedOrder : 999999;
-      const bo = Number.isFinite(b.curatedOrder) ? b.curatedOrder : 999999;
-      if (ao !== bo) return ao - bo;
-      return fieldDateValue(a) - fieldDateValue(b);
-    });
-  } else {
-    curatedEntries = entries.filter(entry => entry.curated).sort((a, b) => {
-      const ao = Number.isFinite(a.curatedOrder) ? a.curatedOrder : 999999;
-      const bo = Number.isFinite(b.curatedOrder) ? b.curatedOrder : 999999;
-      if (ao !== bo) return ao - bo;
-      return fieldDateValue(a) - fieldDateValue(b);
-    });
-  }
-  if (curatedIndex >= curatedEntries.length) curatedIndex = Math.max(0, curatedEntries.length - 1);
-}
-
-function renderCuratedMode() {
-  buildCuratedEntries();
-  setupCuratedPublicSetSelect();
-  applyCurrentCuratedSetConfig();
-  const stage = document.getElementById("curatedStage");
-  const empty = document.getElementById("curatedEmpty");
-  const img = document.getElementById("curatedImage");
-  const title = document.getElementById("curatedCaptionTitle");
-  const text = document.getElementById("curatedCaptionText");
-  const counter = document.getElementById("curatedCounter");
-  const heading = document.querySelector(".curated-heading");
-  if (heading) heading.textContent = currentPublicSet().setName || "Curated";
-  if (!stage || !empty || !img) return;
-  if (!curatedEntries.length) { stage.classList.add("hidden"); empty.classList.remove("hidden"); return; }
-  empty.classList.add("hidden");
-  stage.classList.remove("hidden");
-  const entry = curatedEntries[curatedIndex] || curatedEntries[0];
-  if (!entry) return;
-  const nextSrc = entry.mediaLarge || entry.mediaSmall;
-  img.classList.add("changing");
-  img.onload = () => img.classList.remove("changing");
-  img.src = nextSrc;
-  img.alt = entry.headline || "Curated image";
-  const displayMode = curatedDisplayMode(entry);
-  img.classList.toggle("contain", displayMode === "Contain");
-  img.classList.toggle("cover", displayMode === "Cover");
-  img.style.objectPosition = displayMode === "Cover" ? curatedCropPosition(entry) : "center center";
-  setTimeout(() => img.classList.remove("changing"), 520);
-  if (title) title.textContent = entry.headline || "Untitled";
-  if (text) text.textContent = entry.curatedSetCaption || entry.caption || formatDate(entry);
-  if (counter) counter.textContent = `${curatedIndex + 1} / ${curatedEntries.length}`;
-  const preloadNext = curatedEntries[(curatedIndex + 1) % curatedEntries.length];
-  if (preloadNext) preloadImage(preloadNext.mediaLarge || preloadNext.mediaSmall);
-}
-
-</script>
+  <script src="settings-loader.js?v=7"></script>
 </body>
 </html>
