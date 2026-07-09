@@ -3040,115 +3040,30 @@
       return Number.isFinite(n) ? n : fallback;
     }
 
-    function csvToRows(csv) {
-      const rows = [];
-      let row = [];
-      let cell = "";
-      let quoted = false;
-
-      for (let i = 0; i < csv.length; i++) {
-        const ch = csv[i];
-        const next = csv[i + 1];
-
-        if (quoted) {
-          if (ch === '"' && next === '"') {
-            cell += '"';
-            i++;
-          } else if (ch === '"') {
-            quoted = false;
-          } else {
-            cell += ch;
-          }
-        } else {
-          if (ch === '"') {
-            quoted = true;
-          } else if (ch === ",") {
-            row.push(cell);
-            cell = "";
-          } else if (ch === "\n") {
-            row.push(cell);
-            rows.push(row);
-            row = [];
-            cell = "";
-          } else if (ch !== "\r") {
-            cell += ch;
-          }
-        }
-      }
-
-      row.push(cell);
-      rows.push(row);
-      return rows.filter(r => r.some(v => String(v || "").trim() !== ""));
-    }
-
-    function normaliseHeaderName(name) {
-      return String(name || "").trim();
-    }
-
-    async function loadSheetRows(tabName, signal) {
-      const openSheetUrl = `https://opensheet.elk.sh/${SHEET_ID}/${encodeURIComponent(tabName)}`;
-
-      try {
-        const res = await fetch(openSheetUrl, {
-          method: "GET",
-          cache: "no-store",
-          signal
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data)) return data;
-          console.warn("OpenSheet returned non-array data for " + tabName, data);
-        } else {
-          console.warn("OpenSheet failed for " + tabName + ": HTTP " + res.status);
-        }
-      } catch (err) {
-        console.warn("OpenSheet failed for " + tabName, err);
-      }
-
-      const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tabName)}`;
-      const csvRes = await fetch(csvUrl, {
-        method: "GET",
-        cache: "no-store",
-        signal
-      });
-
-      if (!csvRes.ok) throw new Error(`${tabName} CSV fallback failed: HTTP ${csvRes.status}`);
-
-      const csv = await csvRes.text();
-      const matrix = csvToRows(csv);
-      if (!matrix.length) return [];
-
-      const headers = matrix[0].map(normaliseHeaderName);
-      return matrix.slice(1).map(r => {
-        const obj = {};
-        headers.forEach((h, i) => {
-          if (!h) return;
-          obj[h] = r[i] ?? "";
-        });
-        return obj;
-      });
-    }
-
     async function loadSheetData() {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 12000);
 
       try {
-        const data = await loadSheetRows(SHEET_TAB, controller.signal);
+        const url = `https://opensheet.elk.sh/${SHEET_ID}/${SHEET_TAB}`;
+        const res = await fetch(url, {
+          method: "GET",
+          cache: "no-store",
+          signal: controller.signal
+        });
 
-        if (!Array.isArray(data)) {
-          throw new Error("PUBLISH did not return a row array.");
-        }
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        const data = await res.json();
 
         const liveData = data.filter(row => {
-          const publish = String(row.Publish || row.PUBLISH || "Y").trim().toUpperCase();
-          const status = String(row.Status || row.STATUS || "").trim().toUpperCase();
+  const publish = String(row.Publish || row.PUBLISH || "Y").trim().toUpperCase();
+  const status = String(row.Status || row.STATUS || "").trim().toUpperCase();
 
-          return publish !== "N" &&
-                 status !== "ARCHIVED" &&
-                 status !== "DELETED";
-        });
+  return publish !== "N" &&
+         status !== "ARCHIVED" &&
+         status !== "DELETED";
+});
 
         return liveData
           .map((row, index) => {
@@ -6061,7 +5976,10 @@
     
     async function loadOptionalSheet(tabName) {
       try {
-        const rows = await loadSheetRows(tabName);
+        const url = `https://opensheet.elk.sh/${SHEET_ID}/${tabName}`;
+        const res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const rows = await res.json();
         return Array.isArray(rows) ? rows : [];
       } catch (err) {
         console.warn(`Optional sheet ${tabName} not loaded`, err);
@@ -6071,7 +5989,10 @@
 
     async function loadPublicSettingsRows() {
       try {
-        const rows = await loadSheetRows("SETTINGS");
+        const url = `https://opensheet.elk.sh/${SHEET_ID}/SETTINGS`;
+        const res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const rows = await res.json();
         return Array.isArray(rows) ? rows : [];
       } catch (err) {
         console.warn("SETTINGS sheet not loaded for theme defaults", err);
@@ -6658,7 +6579,7 @@
         const msg =
           err.name === "AbortError"
             ? "Timed out loading sheet data."
-            : "Failed to load sheet data: " + (err && err.message ? err.message : err);
+            : "Failed to load sheet data.";
         document.getElementById("loadingMessage").textContent = msg;
         console.error(err);
       }
