@@ -641,7 +641,7 @@
 
 
 
-    /* FLOW MODE: full-screen and virtualised for mobile */
+    /* FLOW MODE: original horizontal portrait stream, full-viewport and virtualised */
     #flowMode {
       position: fixed; inset: 0; z-index: 50;
       display: flex;
@@ -694,12 +694,13 @@
 
     .flow-stage {
       width: 100%; height: 100vh; height: 100dvh;
-      overflow-x: hidden; overflow-y: auto;
+      overflow: hidden;
       position: relative;
       border-radius: 0; background: #000;
-      overscroll-behavior: contain; scroll-snap-type: y mandatory;
-      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      touch-action: pan-y;
       user-select: none;
+      cursor: grab;
     }
 
     .flow-stage.dragging {
@@ -707,23 +708,30 @@
     }
 
     .flow-track {
-      position: relative; width: 100%; min-height: 100%; padding: 0;
+      position: absolute; inset: 0 auto 0 0;
+      height: 100%; padding: 0;
+      will-change: transform;
+      transform: translate3d(0,0,0);
     }
 
     .flow-item {
-      position: absolute; left: 0; width: 100%; height: 100vh; height: 100dvh;
-      border-radius: 0;
-      overflow: hidden;
-      background: #000;
+      position: absolute;
+      top: max(30px, env(safe-area-inset-top));
+      height: calc(100vh - 60px); height: calc(100dvh - 60px);
+      aspect-ratio: .72;
+      border-radius: 18px;
+      overflow: visible;
+      background: #c8bead;
       cursor: zoom-in;
-      scroll-snap-align: start;
+      box-shadow: 0 16px 38px rgba(0,0,0,.38);
     }
 
     .flow-item img {
       width: 100%;
       height: 100%;
-      object-fit: contain;
+      object-fit: cover;
       display: block;
+      border-radius: inherit;
       -webkit-user-drag: none;
       user-select: none;
       pointer-events: none;
@@ -731,14 +739,14 @@
 
     .flow-caption {
       position: absolute;
-      left: 10px;
-      right: 10px;
-      bottom: auto; top: max(58px, calc(env(safe-area-inset-top) + 48px));
+      left: 2px;
+      right: 2px;
+      bottom: calc(100% + 7px); top: auto;
       z-index: 2;
       color: white;
       font-size: 12px;
       line-height: 1.15;
-      text-shadow: 0 1px 8px rgba(0,0,0,0.45);
+      text-shadow: 0 1px 8px rgba(0,0,0,0.7);
       opacity: 1;
       transition: opacity 0.18s ease;
       pointer-events: none;
@@ -757,7 +765,7 @@
     .flow-close { width:34px; padding:0 !important; font-size:18px !important; line-height:1; }
     .flow-travel-status { position:absolute; left:50%; bottom:max(18px,env(safe-area-inset-bottom)); z-index:9; transform:translateX(-50%); padding:6px 11px; border-radius:999px; background:rgba(0,0,0,.55); color:#fff; font-size:12px; opacity:0; transition:opacity .2s; pointer-events:none; }
     .flow-travel-status.active { opacity:1; }
-    @media (max-width:760px) { .flow-copy{display:none}.flow-tools{width:100%;justify-content:flex-end;gap:5px}.flow-tools select{width:66px;padding-inline:5px} }
+    @media (max-width:760px) { .flow-copy{display:none}.flow-tools{width:100%;justify-content:flex-end;gap:5px}.flow-tools select{width:66px;padding-inline:5px}.flow-item{height:calc(100dvh - 72px);top:36px;border-radius:14px} }
 
     .flow-stage::before,
     .flow-stage::after {
@@ -2626,21 +2634,22 @@
       <div id="flowMode" class="hidden">
         <div class="flow-intro">
           <div class="flow-copy">
-            Full-screen image stream. Swipe or scroll vertically through time.
+            Drag or flick left and right through the archive.
           </div>
           <div class="flow-tools">
+            <label>Speed <input id="flowSpeedSlider" type="range" min="-90" max="90" value="18" step="1" /><span id="flowSpeedValue" class="flow-speed-label">Left 18</span></label>
             <label><input id="flowDatesToggle" type="checkbox" /> Dates</label>
             <select id="flowYearSelect" aria-label="Go to year"><option value="">Year</option></select>
             <select id="flowMonthSelect" aria-label="Go to month"><option value="">Month</option></select>
             <select id="flowDaySelect" aria-label="Go to day"><option value="">Day</option></select>
             <button id="flowGoBtn" type="button">Go</button>
-            <button id="flowCloseBtn" class="flow-close" type="button" aria-label="Close Flow">Ã—</button>
+            <button id="flowCloseBtn" class="flow-close" type="button" aria-label="Close Flow">&times;</button>
           </div>
         </div>
         <div id="flowStage" class="flow-stage">
           <div id="flowTrack" class="flow-track"></div>
         </div>
-        <div id="flowTravelStatus" class="flow-travel-status" aria-live="polite">Travelling through timeâ€¦</div>
+        <div id="flowTravelStatus" class="flow-travel-status" aria-live="polite">Travelling through time&hellip;</div>
       </div>
 
 
@@ -4046,6 +4055,7 @@
 
       if (mode === "flow") {
         showFlowControls();
+        startFlowAnimation();
       }
 
       if (mode === "sphere") {
@@ -4266,8 +4276,11 @@
       if (nextHit) nextHit.addEventListener("click", () => showCuratedRelative(1));
     }
 
-    function flowViewportHeight() {
-      return Math.max(1, flowStage ? flowStage.clientHeight : window.innerHeight);
+    function flowMetrics() {
+      const stageWidth = Math.max(1, flowStage?.clientWidth || window.innerWidth);
+      const card = flowTrack?.querySelector(".flow-item");
+      const cardWidth = card?.getBoundingClientRect().width || Math.max(180, (flowStage?.clientHeight || window.innerHeight) * .72 - 44);
+      return { stageWidth, cardWidth, stride: cardWidth + 12 };
     }
 
     function populateFlowDateControls() {
@@ -4284,8 +4297,8 @@
     function updateFlowWindow(index = flowCurrentIndex) {
       if (!flowTrack || !entries.length) return;
       flowCurrentIndex = Math.max(0, Math.min(entries.length - 1, index));
-      const start = Math.max(0, flowCurrentIndex - FLOW_WINDOW_RADIUS);
-      const end = Math.min(entries.length - 1, flowCurrentIndex + FLOW_WINDOW_RADIUS);
+      const start = Math.max(0, flowCurrentIndex - FLOW_WINDOW_RADIUS - 1);
+      const end = Math.min(entries.length - 1, flowCurrentIndex + FLOW_WINDOW_RADIUS + 1);
       const wanted = new Set();
       for (let i=start;i<=end;i++) wanted.add(i);
       flowTrack.querySelectorAll(".flow-item").forEach(item => {
@@ -4297,29 +4310,55 @@
         const item = document.createElement("div");
         item.className = "flow-item";
         item.dataset.flowIndex = String(i);
-        item.style.top = `${i * flowViewportHeight()}px`;
-        item.innerHTML = `<img src="${escapeHtml(entry.mediaSmall)}" alt="${escapeHtml(entry.headline)}" decoding="async" draggable="false" fetchpriority="${i===flowCurrentIndex?"high":"low"}" /><div class="flow-caption">${escapeHtml(formatDate(entry))}</div>`;
+        item.innerHTML = `<img src="${escapeHtml(entry.mediaSmall)}" alt="${escapeHtml(entry.headline)}" loading="lazy" decoding="async" draggable="false" fetchpriority="${i===flowCurrentIndex?"high":"low"}" /><div class="flow-caption">${escapeHtml(formatDate(entry))}</div>`;
         item.addEventListener("click", () => {
-          if (Math.abs(flowStage.scrollTop - i * flowViewportHeight()) < 8) openLightbox(entry.mediaLarge, entry.headline, i);
+          if (!flowMoved) openLightbox(entry.mediaLarge, entry.headline, i);
         });
         flowTrack.appendChild(item);
       }
+      const { stride } = flowMetrics();
+      flowTrack.querySelectorAll(".flow-item").forEach(item => {
+        item.style.left = `${Number(item.dataset.flowIndex) * stride}px`;
+      });
     }
 
     function renderFlowMode(forceRandom = false) {
       if (!flowTrack || !entries.length) return;
       populateFlowDateControls();
-      const h = flowViewportHeight();
-      flowTrack.style.height = `${entries.length * h}px`;
       if (!flowInitialised || forceRandom) {
         flowCurrentIndex = Math.floor(Math.random() * entries.length);
         flowInitialised = true;
       }
       updateFlowWindow(flowCurrentIndex);
-      requestAnimationFrame(() => { flowStage.scrollTop = flowCurrentIndex * h; });
+      requestAnimationFrame(() => {
+        const { stageWidth, cardWidth, stride } = flowMetrics();
+        flowPosition = flowCurrentIndex * stride - (stageWidth - cardWidth) / 2;
+        applyFlowTransform();
+        formatFlowSpeedLabel();
+      });
     }
 
-    function startFlowAnimation() { /* Native scrolling replaces the old permanent animation loop. */ }
+    function startFlowAnimation() {
+      if (flowAnimationId) return;
+      const tick = ts => {
+        if (!flowLastTs) flowLastTs = ts;
+        const dt = Math.min(.05, (ts - flowLastTs) / 1000);
+        flowLastTs = ts;
+        if (currentMode === "flow" && !flowDragging && !flowTravelAnimation) {
+          flowPosition += (flowSpeed + flowVelocity) * dt;
+          flowVelocity *= Math.exp(-dt * 3.2);
+          if (Math.abs(flowVelocity) < .5) flowVelocity = 0;
+          const { stageWidth, cardWidth, stride } = flowMetrics();
+          const max = Math.max(0, (entries.length - 1) * stride - (stageWidth - cardWidth) / 2);
+          flowPosition = Math.max(0, Math.min(max, flowPosition));
+          const centreIndex = Math.round((flowPosition + (stageWidth - cardWidth) / 2) / stride);
+          if (centreIndex !== flowCurrentIndex) updateFlowWindow(centreIndex);
+          applyFlowTransform();
+        }
+        flowAnimationId = requestAnimationFrame(tick);
+      };
+      flowAnimationId = requestAnimationFrame(tick);
+    }
 
     function showFlowControls() {
       if (!flowMode) return;
@@ -4344,20 +4383,21 @@
     function travelFlowTo(target) {
       if (!flowStage || target === flowCurrentIndex) return;
       if (flowTravelAnimation) cancelAnimationFrame(flowTravelAnimation);
-      const from = flowStage.scrollTop, to = target * flowViewportHeight();
+      const { stageWidth, cardWidth, stride } = flowMetrics();
+      const from = flowPosition, to = Math.max(0, target * stride - (stageWidth - cardWidth) / 2);
       const distance = Math.abs(target-flowCurrentIndex);
       const duration = Math.min(3200, 850 + Math.sqrt(distance) * 105);
       const start = performance.now();
       const status = document.getElementById("flowTravelStatus");
       status?.classList.add("active");
-      flowStage.style.scrollSnapType = "none";
       const tick = now => {
         const t = Math.min(1,(now-start)/duration);
         const eased = t<.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2;
-        flowStage.scrollTop = from + (to-from)*eased;
-        updateFlowWindow(Math.max(0,Math.min(entries.length-1,Math.round(flowStage.scrollTop/flowViewportHeight()))));
+        flowPosition = from + (to-from)*eased;
+        updateFlowWindow(Math.max(0,Math.min(entries.length-1,Math.round((flowPosition+(stageWidth-cardWidth)/2)/stride))));
+        applyFlowTransform();
         if (t<1) flowTravelAnimation=requestAnimationFrame(tick);
-        else { flowTravelAnimation=null; flowCurrentIndex=target; updateFlowWindow(target); flowStage.style.scrollSnapType="y mandatory"; status?.classList.remove("active"); }
+        else { flowTravelAnimation=null; flowCurrentIndex=target; updateFlowWindow(target); status?.classList.remove("active"); }
       };
       flowTravelAnimation=requestAnimationFrame(tick);
     }
@@ -4365,13 +4405,31 @@
     function setupFlowPointerControls() {
       if (!flowStage || flowStage.dataset.ready) return;
       flowStage.dataset.ready = "1";
-      let queued = false;
-      flowStage.addEventListener("scroll", () => {
+      flowStage.addEventListener("pointerdown", e => {
+        if (flowTravelAnimation) cancelAnimationFrame(flowTravelAnimation);
+        flowTravelAnimation = null; flowDragging = true; flowMoved = false;
+        flowPointerId = e.pointerId; flowLastX = e.clientX; flowLastT = performance.now(); flowVelocity = 0;
+        flowStage.classList.add("dragging");
+        try { flowStage.setPointerCapture(e.pointerId); } catch (err) {}
         showFlowControls();
-        if (flowTravelAnimation || queued) return;
-        queued = true;
-        requestAnimationFrame(() => { queued=false; updateFlowWindow(Math.round(flowStage.scrollTop/flowViewportHeight())); });
-      }, {passive:true});
+      });
+      flowStage.addEventListener("pointermove", e => {
+        if (!flowDragging || e.pointerId !== flowPointerId) return;
+        const now = performance.now(), dx = e.clientX - flowLastX, dt = Math.max(16, now-flowLastT)/1000;
+        if (Math.abs(dx) > 2) flowMoved = true;
+        flowPosition -= dx; flowVelocity = -dx/dt; flowLastX = e.clientX; flowLastT = now;
+        const { stageWidth, cardWidth, stride } = flowMetrics();
+        updateFlowWindow(Math.max(0,Math.min(entries.length-1,Math.round((flowPosition+(stageWidth-cardWidth)/2)/stride))));
+        applyFlowTransform(); e.preventDefault();
+      }, {passive:false});
+      const endFlowDrag = e => {
+        if (!flowDragging || e.pointerId !== flowPointerId) return;
+        flowDragging=false; flowPointerId=null; flowStage.classList.remove("dragging");
+        try { flowStage.releasePointerCapture(e.pointerId); } catch (err) {}
+        setTimeout(() => { flowMoved=false; }, 90);
+      };
+      flowStage.addEventListener("pointerup", endFlowDrag);
+      flowStage.addEventListener("pointercancel", endFlowDrag);
       ["pointerdown","touchstart","mousemove"].forEach(type => flowStage.addEventListener(type, showFlowControls, {passive:true}));
       document.getElementById("flowDatesToggle")?.addEventListener("change", e => flowMode.classList.toggle("show-dates", e.target.checked));
       document.getElementById("flowGoBtn")?.addEventListener("click", () => travelFlowTo(flowTargetIndex()));
