@@ -641,25 +641,23 @@
 
 
 
-    /* FLOW MODE: full-screen and virtualised for mobile */
+    /* FLOW MODE */
     #flowMode {
-      position: fixed; inset: 0; z-index: 50;
+      flex: 1 1 auto;
+      min-height: 0;
       display: flex;
       flex-direction: column;
-      min-height: 100vh; min-height: 100dvh;
-      background: #000; color: #fff;
     }
 
     .flow-intro {
-      position: absolute; inset: 0 0 auto 0; z-index: 8; display: flex;
+      display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 16px;
       flex-wrap: wrap;
-      margin: 0; padding: max(10px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) 12px max(12px, env(safe-area-inset-left));
-      color: rgba(255,255,255,.82); background: linear-gradient(to bottom, rgba(0,0,0,.72), transparent);
+      margin-bottom: 12px;
+      color: var(--muted);
       font-size: 13px;
-      transition: opacity .3s ease; pointer-events: none;
     }
 
     .flow-copy {
@@ -673,7 +671,6 @@
       gap: 10px;
       margin-left: auto;
       white-space: nowrap;
-      pointer-events: auto;
     }
 
     #flowSpeedSlider {
@@ -693,12 +690,15 @@
     }
 
     .flow-stage {
-      width: 100%; height: 100vh; height: 100dvh;
-      overflow-x: hidden; overflow-y: auto;
+      flex: 1 1 auto;
+      height: min(72vh, calc(100dvh - 170px));
+      min-height: 360px;
+      overflow: hidden;
       position: relative;
-      border-radius: 0; background: #000;
-      overscroll-behavior: contain; scroll-snap-type: y mandatory;
-      -webkit-overflow-scrolling: touch;
+      border-radius: 22px;
+      background: var(--panel);
+      cursor: grab;
+      touch-action: pan-y;
       user-select: none;
     }
 
@@ -707,22 +707,30 @@
     }
 
     .flow-track {
-      position: relative; width: 100%; min-height: 100%; padding: 0;
+      height: 100%;
+      display: flex;
+      gap: 12px;
+      padding: 12px;
+      will-change: transform;
+      transform: translate3d(0,0,0);
     }
 
     .flow-item {
-      position: absolute; left: 0; width: 100%; height: 100vh; height: 100dvh;
-      border-radius: 0;
+      height: 100%;
+      aspect-ratio: 0.72;
+      flex: 0 0 auto;
+      border-radius: 18px;
       overflow: hidden;
-      background: #000;
+      background: #c8bead;
+      position: relative;
       cursor: zoom-in;
-      scroll-snap-align: start;
+      box-shadow: var(--shadow);
     }
 
     .flow-item img {
       width: 100%;
       height: 100%;
-      object-fit: contain;
+      object-fit: cover;
       display: block;
       -webkit-user-drag: none;
       user-select: none;
@@ -733,13 +741,13 @@
       position: absolute;
       left: 10px;
       right: 10px;
-      bottom: auto; top: max(58px, calc(env(safe-area-inset-top) + 48px));
+      bottom: 10px;
       z-index: 2;
       color: white;
       font-size: 12px;
       line-height: 1.15;
       text-shadow: 0 1px 8px rgba(0,0,0,0.45);
-      opacity: 1;
+      opacity: 0;
       transition: opacity 0.18s ease;
       pointer-events: none;
     }
@@ -747,17 +755,6 @@
     .flow-item:hover .flow-caption {
       opacity: 1;
     }
-
-    #flowMode:not(.show-dates) .flow-caption { opacity: 0; }
-    #flowMode.flow-controls-idle .flow-intro { opacity: 0; }
-    .flow-tools button, .flow-tools select { min-height:32px; padding:5px 9px; border-radius:999px; border:1px solid rgba(255,255,255,.42); background:rgba(0,0,0,.48); color:#fff; font:inherit; backdrop-filter:blur(10px); }
-    .flow-tools select { max-width:88px; }
-    .flow-tools label { display:inline-flex; align-items:center; gap:5px; }
-    .flow-tools input { accent-color:#fff; }
-    .flow-close { width:34px; padding:0 !important; font-size:18px !important; line-height:1; }
-    .flow-travel-status { position:absolute; left:50%; bottom:max(18px,env(safe-area-inset-bottom)); z-index:9; transform:translateX(-50%); padding:6px 11px; border-radius:999px; background:rgba(0,0,0,.55); color:#fff; font-size:12px; opacity:0; transition:opacity .2s; pointer-events:none; }
-    .flow-travel-status.active { opacity:1; }
-    @media (max-width:760px) { .flow-copy{display:none}.flow-tools{width:100%;justify-content:flex-end;gap:5px}.flow-tools select{width:66px;padding-inline:5px} }
 
     .flow-stage::before,
     .flow-stage::after {
@@ -779,7 +776,6 @@
       right: 0;
       background: linear-gradient(to left, var(--panel), rgba(216,207,190,0));
     }
-    .flow-stage::before, .flow-stage::after { display: none; }
 
 
     /* ABOUT / INFO MODE */
@@ -2626,21 +2622,17 @@
       <div id="flowMode" class="hidden">
         <div class="flow-intro">
           <div class="flow-copy">
-            Full-screen image stream. Swipe or scroll vertically through time.
+            Full-height image stream. Drag or flick left/right with mouse or finger. Speed controls the underlying drift.
           </div>
           <div class="flow-tools">
-            <label><input id="flowDatesToggle" type="checkbox" /> Dates</label>
-            <select id="flowYearSelect" aria-label="Go to year"><option value="">Year</option></select>
-            <select id="flowMonthSelect" aria-label="Go to month"><option value="">Month</option></select>
-            <select id="flowDaySelect" aria-label="Go to day"><option value="">Day</option></select>
-            <button id="flowGoBtn" type="button">Go</button>
-            <button id="flowCloseBtn" class="flow-close" type="button" aria-label="Close Flow">Ã—</button>
+            <span>Speed</span>
+            <input id="flowSpeedSlider" type="range" min="-80" max="80" value="18" />
+            <span id="flowSpeedValue" class="flow-speed-label">Left 18</span>
           </div>
         </div>
         <div id="flowStage" class="flow-stage">
           <div id="flowTrack" class="flow-track"></div>
         </div>
-        <div id="flowTravelStatus" class="flow-travel-status" aria-live="polite">Travelling through timeâ€¦</div>
       </div>
 
 
@@ -2990,11 +2982,6 @@
     let flowLastT = 0;
     let flowMoved = false;
     let flowAnimationId = null;
-    let flowInitialised = false;
-    let flowCurrentIndex = 0;
-    let flowTravelAnimation = null;
-    let flowControlsTimer = null;
-    const FLOW_WINDOW_RADIUS = 3;
     const reelCount = 5;
     const imageCache = new Map();
     let slotPreviewPool = [];
@@ -3430,7 +3417,7 @@
         item.className = `timeline-item ${mode === "years" ? "micro" : mode === "months" ? "compact" : ""}`;
         item.innerHTML = `
           <div class="timeline-thumb">
-            <img data-src="${escapeHtml(entry.mediaSmall)}" alt="${escapeHtml(entry.headline)}" loading="lazy" decoding="async" fetchpriority="low" />
+            <img src="${escapeHtml(entry.mediaSmall)}" alt="${escapeHtml(entry.headline)}" loading="lazy" decoding="async" fetchpriority="low" />
           </div>
           <div class="mini-date">${escapeHtml(timelineLabel(entry, i))}</div>
           <div class="mini-headline">${escapeHtml(timelineHeadline(entry))}</div>
@@ -3442,20 +3429,6 @@
         });
         track.appendChild(item);
       });
-      observeDeferredImages(track);
-    }
-
-    function observeDeferredImages(root) {
-      const images = [...root.querySelectorAll("img[data-src]")];
-      if (!("IntersectionObserver" in window)) {
-        images.slice(0, 24).forEach(img => { img.src=img.dataset.src; delete img.dataset.src; });
-        return;
-      }
-      const observer = new IntersectionObserver(changes => changes.forEach(change => {
-        if (!change.isIntersecting) return;
-        const img=change.target; img.src=img.dataset.src; delete img.dataset.src; observer.unobserve(img);
-      }), {root: root.closest(".timeline-strip") || null, rootMargin:"400px"});
-      images.forEach(img => observer.observe(img));
     }
 
     function filteredEntries(term) {
@@ -3961,14 +3934,7 @@
     const geodesicSizeValue = document.getElementById("geodesicSizeValue");
 
     function setMode(mode) {
-      const previousMode = currentMode;
       currentMode = mode;
-      if (previousMode === "flow" && mode !== "flow") {
-        if (flowTravelAnimation) cancelAnimationFrame(flowTravelAnimation);
-        flowTravelAnimation = null;
-        if (flowTrack) flowTrack.replaceChildren();
-        flowInitialised = false;
-      }
       timelineMode.classList.toggle("hidden", mode !== "timeline");
       slotMode.classList.toggle("hidden", mode !== "slot");
       photosMode.classList.toggle("hidden", mode !== "photos");
@@ -4045,7 +4011,8 @@
       }
 
       if (mode === "flow") {
-        showFlowControls();
+        measureFlow();
+        startFlowAnimation();
       }
 
       if (mode === "sphere") {
@@ -4266,117 +4233,102 @@
       if (nextHit) nextHit.addEventListener("click", () => showCuratedRelative(1));
     }
 
-    function flowViewportHeight() {
-      return Math.max(1, flowStage ? flowStage.clientHeight : window.innerHeight);
-    }
+    function renderFlowMode() {
+      if (!flowTrack) return;
+      const doubled = [...entries, ...entries];
 
-    function populateFlowDateControls() {
-      const year = document.getElementById("flowYearSelect");
-      const month = document.getElementById("flowMonthSelect");
-      const day = document.getElementById("flowDaySelect");
-      if (!year || !month || !day || year.options.length > 1) return;
-      [...new Set(entries.map(e => e.year).filter(Number.isFinite))].sort((a,b) => a-b)
-        .forEach(v => year.add(new Option(String(v), String(v))));
-      for (let i=1;i<=12;i++) month.add(new Option(new Date(2000,i-1,1).toLocaleString(undefined,{month:"short"}), String(i)));
-      for (let i=1;i<=31;i++) day.add(new Option(String(i), String(i)));
-    }
+      flowTrack.innerHTML = doubled.map((entry, i) => {
+        const index = i % entries.length;
+        return `
+          <div class="flow-item" data-flow-index="${index}">
+            <img src="${escapeHtml(entry.mediaSmall)}" alt="${escapeHtml(entry.headline)}" loading="lazy" decoding="async" draggable="false" />
+            <div class="flow-caption">${escapeHtml(entry.headline)}<br>${escapeHtml(formatDate(entry))}</div>
+          </div>
+        `;
+      }).join("");
 
-    function updateFlowWindow(index = flowCurrentIndex) {
-      if (!flowTrack || !entries.length) return;
-      flowCurrentIndex = Math.max(0, Math.min(entries.length - 1, index));
-      const start = Math.max(0, flowCurrentIndex - FLOW_WINDOW_RADIUS);
-      const end = Math.min(entries.length - 1, flowCurrentIndex + FLOW_WINDOW_RADIUS);
-      const wanted = new Set();
-      for (let i=start;i<=end;i++) wanted.add(i);
       flowTrack.querySelectorAll(".flow-item").forEach(item => {
-        if (!wanted.has(Number(item.dataset.flowIndex))) item.remove();
-      });
-      for (let i=start;i<=end;i++) {
-        if (flowTrack.querySelector(`[data-flow-index="${i}"]`)) continue;
-        const entry = entries[i];
-        const item = document.createElement("div");
-        item.className = "flow-item";
-        item.dataset.flowIndex = String(i);
-        item.style.top = `${i * flowViewportHeight()}px`;
-        item.innerHTML = `<img src="${escapeHtml(entry.mediaSmall)}" alt="${escapeHtml(entry.headline)}" decoding="async" draggable="false" fetchpriority="${i===flowCurrentIndex?"high":"low"}" /><div class="flow-caption">${escapeHtml(formatDate(entry))}</div>`;
         item.addEventListener("click", () => {
-          if (Math.abs(flowStage.scrollTop - i * flowViewportHeight()) < 8) openLightbox(entry.mediaLarge, entry.headline, i);
+          if (flowMoved) return;
+          const index = Number(item.dataset.flowIndex);
+          const entry = entries[index];
+          if (entry) openLightbox(entry.mediaLarge, entry.headline, index);
         });
-        flowTrack.appendChild(item);
-      }
-    }
-
-    function renderFlowMode(forceRandom = false) {
-      if (!flowTrack || !entries.length) return;
-      populateFlowDateControls();
-      const h = flowViewportHeight();
-      flowTrack.style.height = `${entries.length * h}px`;
-      if (!flowInitialised || forceRandom) {
-        flowCurrentIndex = Math.floor(Math.random() * entries.length);
-        flowInitialised = true;
-      }
-      updateFlowWindow(flowCurrentIndex);
-      requestAnimationFrame(() => { flowStage.scrollTop = flowCurrentIndex * h; });
-    }
-
-    function startFlowAnimation() { /* Native scrolling replaces the old permanent animation loop. */ }
-
-    function showFlowControls() {
-      if (!flowMode) return;
-      flowMode.classList.remove("flow-controls-idle");
-      clearTimeout(flowControlsTimer);
-      flowControlsTimer = setTimeout(() => flowMode.classList.add("flow-controls-idle"), 3200);
-    }
-
-    function flowTargetIndex() {
-      const y = Number(document.getElementById("flowYearSelect")?.value || 0);
-      const m = Number(document.getElementById("flowMonthSelect")?.value || 0);
-      const d = Number(document.getElementById("flowDaySelect")?.value || 0);
-      if (!y) return flowCurrentIndex;
-      let best = 0, score = Infinity;
-      entries.forEach((e,i) => {
-        const value = Math.abs((e.year-y)*372 + (m ? (e.month-m)*31 : 0) + (d ? e.day-d : 0));
-        if (value < score) { score=value; best=i; }
       });
-      return best;
+
+      requestAnimationFrame(measureFlow);
+      formatFlowSpeedLabel();
     }
 
-    function travelFlowTo(target) {
-      if (!flowStage || target === flowCurrentIndex) return;
-      if (flowTravelAnimation) cancelAnimationFrame(flowTravelAnimation);
-      const from = flowStage.scrollTop, to = target * flowViewportHeight();
-      const distance = Math.abs(target-flowCurrentIndex);
-      const duration = Math.min(3200, 850 + Math.sqrt(distance) * 105);
-      const start = performance.now();
-      const status = document.getElementById("flowTravelStatus");
-      status?.classList.add("active");
-      flowStage.style.scrollSnapType = "none";
-      const tick = now => {
-        const t = Math.min(1,(now-start)/duration);
-        const eased = t<.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2;
-        flowStage.scrollTop = from + (to-from)*eased;
-        updateFlowWindow(Math.max(0,Math.min(entries.length-1,Math.round(flowStage.scrollTop/flowViewportHeight()))));
-        if (t<1) flowTravelAnimation=requestAnimationFrame(tick);
-        else { flowTravelAnimation=null; flowCurrentIndex=target; updateFlowWindow(target); flowStage.style.scrollSnapType="y mandatory"; status?.classList.remove("active"); }
+    function startFlowAnimation() {
+      if (flowAnimationId) return;
+
+      const tick = (ts) => {
+        if (!flowLastTs) flowLastTs = ts;
+        const dt = Math.min(0.05, (ts - flowLastTs) / 1000);
+        flowLastTs = ts;
+
+        if (currentMode === "flow" && !flowDragging) {
+          flowPosition += (flowSpeed + flowVelocity) * dt;
+          const decay = Math.exp(-dt * 3.2);
+          flowVelocity *= decay;
+          if (Math.abs(flowVelocity) < 0.5) flowVelocity = 0;
+          applyFlowTransform();
+        }
+
+        flowAnimationId = requestAnimationFrame(tick);
       };
-      flowTravelAnimation=requestAnimationFrame(tick);
+
+      flowAnimationId = requestAnimationFrame(tick);
     }
 
     function setupFlowPointerControls() {
-      if (!flowStage || flowStage.dataset.ready) return;
-      flowStage.dataset.ready = "1";
-      let queued = false;
-      flowStage.addEventListener("scroll", () => {
-        showFlowControls();
-        if (flowTravelAnimation || queued) return;
-        queued = true;
-        requestAnimationFrame(() => { queued=false; updateFlowWindow(Math.round(flowStage.scrollTop/flowViewportHeight())); });
-      }, {passive:true});
-      ["pointerdown","touchstart","mousemove"].forEach(type => flowStage.addEventListener(type, showFlowControls, {passive:true}));
-      document.getElementById("flowDatesToggle")?.addEventListener("change", e => flowMode.classList.toggle("show-dates", e.target.checked));
-      document.getElementById("flowGoBtn")?.addEventListener("click", () => travelFlowTo(flowTargetIndex()));
-      document.getElementById("flowCloseBtn")?.addEventListener("click", () => openModeFromUi("timeline"));
-      window.addEventListener("resize", () => { if(currentMode==="flow") { flowTrack.innerHTML=""; renderFlowMode(false); } });
+      if (!flowStage) return;
+
+      flowStage.addEventListener("pointerdown", (e) => {
+        if (!flowBaseWidth) measureFlow();
+        flowDragging = true;
+        flowMoved = false;
+        flowPointerId = e.pointerId;
+        flowLastX = e.clientX;
+        flowLastT = performance.now();
+        flowVelocity = 0;
+        flowStage.classList.add("dragging");
+        flowStage.setPointerCapture(e.pointerId);
+      });
+
+      flowStage.addEventListener("pointermove", (e) => {
+        if (!flowDragging || e.pointerId !== flowPointerId) return;
+
+        const now = performance.now();
+        const dx = e.clientX - flowLastX;
+        const dt = Math.max(16, now - flowLastT) / 1000;
+
+        if (Math.abs(dx) > 2) flowMoved = true;
+
+        flowPosition -= dx;
+        flowVelocity = -dx / dt;
+        flowLastX = e.clientX;
+        flowLastT = now;
+        applyFlowTransform();
+        e.preventDefault();
+      }, { passive: false });
+
+      const endDrag = (e) => {
+        if (!flowDragging || e.pointerId !== flowPointerId) return;
+        flowDragging = false;
+        flowPointerId = null;
+        flowStage.classList.remove("dragging");
+        setTimeout(() => { flowMoved = false; }, 80);
+      };
+
+      flowStage.addEventListener("pointerup", endDrag);
+      flowStage.addEventListener("pointercancel", endDrag);
+      flowStage.addEventListener("pointerleave", endDrag);
+
+      window.addEventListener("resize", () => {
+        if (currentMode === "flow") requestAnimationFrame(measureFlow);
+      });
     }
 
 
@@ -6542,7 +6494,7 @@
 
       if (mode === "photos") renderPhotosMode(currentPhotoView || "years");
       if (mode === "field") renderFieldMode();
-      if (mode === "flow") renderFlowMode(true);
+      if (mode === "flow") renderFlowMode();
       if (mode === "story") renderStoryMode();
       if (mode === "curated") renderCuratedMode();
       if (mode === "videos") renderVideosMode();
@@ -6664,13 +6616,20 @@
         buildTimeline();
         renderEntry(0);
         buildSlotGrid();
-        // Image-heavy modes are built only when opened. This is critical on iOS,
-        // where hidden decoded images still count against the page memory limit.
+        renderPhotosMode("years");
+        renderCardsMode(true);
+        renderFieldMode();
+        renderFlowMode();
+        renderStoryMode();
         buildCuratedEntries();
+        renderCuratedMode();
         setupCuratedControls();
         setupCuratedPublicSetSelect();
         setupFlowPointerControls();
+        startFlowAnimation();
         setupGeodesicPointerControls();
+        renderSphereMode();
+        startSphereAnimation();
         // Geodesic is intentionally lazy-built only when the tab opens.
         // This avoids hidden-panel zero-size rendering and iPad Safari WebGL memory crashes.
 
