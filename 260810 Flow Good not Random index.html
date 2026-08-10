@@ -2637,7 +2637,7 @@
             Drag or flick left and right through the archive.
           </div>
           <div class="flow-tools">
-            <label>Speed <input id="flowSpeedSlider" type="range" min="-240" max="240" value="18" step="1" /><span id="flowSpeedValue" class="flow-speed-label">Left 18</span></label>
+            <label>Speed <input id="flowSpeedSlider" type="range" min="-90" max="90" value="18" step="1" /><span id="flowSpeedValue" class="flow-speed-label">Left 18</span></label>
             <label><input id="flowDatesToggle" type="checkbox" /> Dates</label>
             <select id="flowYearSelect" aria-label="Go to year"><option value="">Year</option></select>
             <select id="flowMonthSelect" aria-label="Go to month"><option value="">Month</option></select>
@@ -4372,23 +4372,9 @@
       const m = Number(document.getElementById("flowMonthSelect")?.value || 0);
       const d = Number(document.getElementById("flowDaySelect")?.value || 0);
       if (!y) return flowCurrentIndex;
-      const targetTime = Date.UTC(y, m ? m - 1 : 0, d || 1);
-      const exactPeriod = entries
-        .map((e, i) => ({ e, i }))
-        .filter(({ e }) => e.year === y && (!m || e.month === m) && (!d || e.day === d));
-      if (exactPeriod.length) {
-        return exactPeriod.reduce((best, candidate) => {
-          const bestTime = Date.UTC(best.e.year, (best.e.month || 1) - 1, best.e.day || 1);
-          const candidateTime = Date.UTC(candidate.e.year, (candidate.e.month || 1) - 1, candidate.e.day || 1);
-          return Math.abs(candidateTime - targetTime) < Math.abs(bestTime - targetTime) ? candidate : best;
-        }).i;
-      }
-      let best = flowCurrentIndex, score = Infinity;
+      let best = 0, score = Infinity;
       entries.forEach((e,i) => {
-        if (!Number.isFinite(e.year)) return;
-        const entryMonth = Number.isFinite(e.month) ? e.month : 1;
-        const entryDay = Number.isFinite(e.day) ? e.day : 1;
-        const value = Math.abs(Date.UTC(e.year, entryMonth - 1, entryDay) - targetTime);
+        const value = Math.abs((e.year-y)*372 + (m ? (e.month-m)*31 : 0) + (d ? e.day-d : 0));
         if (value < score) { score=value; best=i; }
       });
       return best;
@@ -5461,6 +5447,7 @@
     });
     flowModeBtn.addEventListener("click", () => {
       openModeFromUi("flow");
+      renderFlowMode();
     });
     storyModeBtn.addEventListener("click", () => {
       openModeFromUi("story");
