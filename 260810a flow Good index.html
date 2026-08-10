@@ -765,16 +765,7 @@
     .flow-close { width:34px; padding:0 !important; font-size:18px !important; line-height:1; }
     .flow-travel-status { position:absolute; left:50%; bottom:max(18px,env(safe-area-inset-bottom)); z-index:9; transform:translateX(-50%); padding:6px 11px; border-radius:999px; background:rgba(0,0,0,.55); color:#fff; font-size:12px; opacity:0; transition:opacity .2s; pointer-events:none; }
     .flow-travel-status.active { opacity:1; }
-    @media (max-width:760px) {
-      .flow-copy{display:none}
-      .flow-intro{padding-inline:max(8px,env(safe-area-inset-left)) max(8px,env(safe-area-inset-right))}
-      .flow-tools{width:100%;justify-content:flex-end;gap:5px;flex-wrap:wrap;white-space:normal}
-      .flow-speed-control{order:-1;width:100%;justify-content:flex-end}
-      #flowSpeedSlider{display:block;flex:1 1 120px;width:auto;min-width:90px;max-width:230px}
-      .flow-speed-label{min-width:48px}
-      .flow-tools select{width:62px;padding-inline:4px}
-      .flow-item{height:calc(100dvh - 72px);top:36px;border-radius:14px}
-    }
+    @media (max-width:760px) { .flow-copy{display:none}.flow-tools{width:100%;justify-content:flex-end;gap:5px}.flow-tools select{width:66px;padding-inline:5px}.flow-item{height:calc(100dvh - 72px);top:36px;border-radius:14px} }
 
     .flow-stage::before,
     .flow-stage::after {
@@ -2646,7 +2637,7 @@
             Drag or flick left and right through the archive.
           </div>
           <div class="flow-tools">
-            <label class="flow-speed-control">Speed <input id="flowSpeedSlider" type="range" min="-240" max="240" value="18" step="1" /><span id="flowSpeedValue" class="flow-speed-label">Left 18</span></label>
+            <label>Speed <input id="flowSpeedSlider" type="range" min="-240" max="240" value="18" step="1" /><span id="flowSpeedValue" class="flow-speed-label">Left 18</span></label>
             <label><input id="flowDatesToggle" type="checkbox" /> Dates</label>
             <select id="flowYearSelect" aria-label="Go to year"><option value="">Year</option></select>
             <select id="flowMonthSelect" aria-label="Go to month"><option value="">Month</option></select>
@@ -3010,7 +3001,6 @@
     let flowAnimationId = null;
     let flowInitialised = false;
     let flowCurrentIndex = 0;
-    let flowLastRandomIndex = -1;
     let flowTravelAnimation = null;
     let flowControlsTimer = null;
     const FLOW_WINDOW_RADIUS = 3;
@@ -4336,18 +4326,7 @@
       if (!flowTrack || !entries.length) return;
       populateFlowDateControls();
       if (!flowInitialised || forceRandom) {
-        const minimumChange = Math.min(Math.max(1, Math.floor(entries.length * .12)), Math.max(1, entries.length - 1));
-        let nextIndex = Math.floor(Math.random() * entries.length);
-        if (entries.length > 1 && flowLastRandomIndex >= 0) {
-          for (let attempt = 0; attempt < 12 && Math.abs(nextIndex - flowLastRandomIndex) < minimumChange; attempt++) {
-            nextIndex = Math.floor(Math.random() * entries.length);
-          }
-          if (Math.abs(nextIndex - flowLastRandomIndex) < minimumChange) {
-            nextIndex = (flowLastRandomIndex + minimumChange) % entries.length;
-          }
-        }
-        flowCurrentIndex = nextIndex;
-        flowLastRandomIndex = nextIndex;
+        flowCurrentIndex = Math.floor(Math.random() * entries.length);
         flowInitialised = true;
       }
       updateFlowWindow(flowCurrentIndex);
@@ -6609,8 +6588,7 @@
 
     function replaceHash(hash) {
       const clean = String(hash || "").replace(/^#/, "");
-      const nextUrl = clean ? "#" + clean : location.pathname + location.search;
-      if (location.hash !== (clean ? "#" + clean : "")) history.pushState({}, "", nextUrl);
+      history.replaceState({}, "", clean ? "#" + clean : location.pathname + location.search);
     }
 
     function updateModeHash(mode, extra = {}) {
