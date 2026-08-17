@@ -487,14 +487,13 @@
 
     .photo-group-label {
       position: absolute;
-      left: 14px;
-      top: 14px;
+      left: 16px;
+      top: 16px;
       z-index: 2;
       color: #fff;
-      font-size: clamp(20px, 2vw, 34px);
-      line-height: 1;
+      font-size: clamp(28px, 3vw, 54px);
       font-weight: 700;
-      letter-spacing: -0.035em;
+      letter-spacing: -0.04em;
       text-shadow: 0 1px 6px rgba(0,0,0,0.25);
     }
 
@@ -638,61 +637,6 @@
     .lightbox-action-btn:hover,
     .lightbox-close:hover {
       background: rgba(255,255,255,0.24);
-    }
-
-    .lightbox-nav {
-      position: fixed;
-      top: 50%;
-      transform: translateY(-50%);
-      z-index: 10002;
-      width: 38px;
-      min-width: 38px;
-      height: 56px;
-      padding: 0;
-      border: 0;
-      border-radius: 19px;
-      background: rgba(0,0,0,0.18);
-      color: rgba(255,255,255,0.92);
-      font-size: 30px;
-      line-height: 1;
-      font-weight: 300;
-      box-shadow: none;
-      opacity: 0;
-      transition: opacity 0.18s ease, background 0.18s ease;
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-    }
-
-    .lightbox-nav.prev { left: max(10px, env(safe-area-inset-left)); }
-    .lightbox-nav.next { right: max(10px, env(safe-area-inset-right)); }
-
-    .lightbox:hover .lightbox-nav:not(:disabled),
-    .lightbox-nav:focus-visible {
-      opacity: 0.78;
-    }
-
-    .lightbox-nav:hover:not(:disabled) {
-      opacity: 1;
-      background: rgba(255,255,255,0.16);
-    }
-
-    .lightbox-nav:disabled {
-      opacity: 0 !important;
-      pointer-events: none;
-    }
-
-    @media (hover: none) {
-      .lightbox-nav:not(:disabled) { opacity: 0.42; }
-    }
-
-    @media (max-width: 700px) {
-      .lightbox-nav {
-        width: 32px;
-        min-width: 32px;
-        height: 48px;
-        font-size: 26px;
-        background: rgba(0,0,0,0.12);
-      }
     }
 
 
@@ -3014,8 +2958,6 @@
   </div>
 
   <div id="lightbox" class="lightbox hidden" aria-hidden="true">
-    <button id="lightboxPrev" class="lightbox-nav prev" type="button" aria-label="Previous image">‹</button>
-    <button id="lightboxNext" class="lightbox-nav next" type="button" aria-label="Next image">›</button>
     <div class="lightbox-inner">
       <button id="lightboxClose" class="lightbox-close" aria-label="Close image">×</button>
       <img id="lightboxImage" src="" alt="" decoding="async" />
@@ -3706,40 +3648,6 @@
       lightbox.classList.add("open");
       lightbox.setAttribute("aria-hidden", "false");
       document.body.style.overflow = "hidden";
-      updateLightboxNavButtons();
-    }
-
-    function updateLightboxNavButtons() {
-      const prev = document.getElementById("lightboxPrev");
-      const next = document.getElementById("lightboxNext");
-      const valid = Number.isInteger(lightboxEntryIndex) && lightboxEntryIndex >= 0 && lightboxEntryIndex < entries.length;
-      if (prev) prev.disabled = !valid || lightboxEntryIndex <= 0;
-      if (next) next.disabled = !valid || lightboxEntryIndex >= entries.length - 1;
-    }
-
-    function showLightboxEntry(index) {
-      if (!entries.length) return;
-      const nextIndex = Math.max(0, Math.min(entries.length - 1, Number(index)));
-      const entry = entries[nextIndex];
-      if (!entry) return;
-
-      lightboxEntryIndex = nextIndex;
-      const lightboxImage = document.getElementById("lightboxImage");
-
-      // Preload adjacent full-size images so swiping feels immediate.
-      [nextIndex - 1, nextIndex + 1].forEach(i => {
-        if (entries[i]) preloadImage(entries[i].mediaLarge);
-      });
-
-      lightboxImage.src = entry.mediaLarge;
-      lightboxImage.alt = entry.headline || "";
-      history.replaceState({}, "", "#image=" + encodeURIComponent(entry.fileName));
-      updateLightboxNavButtons();
-    }
-
-    function moveLightbox(delta) {
-      if (!Number.isInteger(lightboxEntryIndex)) return;
-      showLightboxEntry(lightboxEntryIndex + delta);
     }
 
 
@@ -5781,93 +5689,24 @@
     document.getElementById("lightboxPhotosBtn").addEventListener("click", openCurrentLightboxImageInPhotos);
 
     document.getElementById("lightboxClose").addEventListener("click", closeLightbox);
-    document.getElementById("lightboxPrev").addEventListener("click", (e) => {
-      e.stopPropagation();
-      moveLightbox(-1);
-    });
-    document.getElementById("lightboxNext").addEventListener("click", (e) => {
-      e.stopPropagation();
-      moveLightbox(1);
-    });
 
-    const lightboxEl = document.getElementById("lightbox");
-    lightboxEl.addEventListener("click", (e) => {
+    document.getElementById("lightbox").addEventListener("click", (e) => {
       if (e.target.id === "lightbox") {
         closeLightbox();
       }
     });
 
-    // Horizontal swipe in any full-screen image, regardless of which mode opened it.
-    let lightboxTouchStartX = null;
-    let lightboxTouchStartY = null;
-    lightboxEl.addEventListener("touchstart", (e) => {
-      if (e.touches.length !== 1) return;
-      lightboxTouchStartX = e.touches[0].clientX;
-      lightboxTouchStartY = e.touches[0].clientY;
-    }, { passive: true });
-
-    lightboxEl.addEventListener("touchend", (e) => {
-      if (lightboxTouchStartX === null || lightboxTouchStartY === null || !e.changedTouches.length) return;
-      const dx = e.changedTouches[0].clientX - lightboxTouchStartX;
-      const dy = e.changedTouches[0].clientY - lightboxTouchStartY;
-      lightboxTouchStartX = null;
-      lightboxTouchStartY = null;
-
-      // Deliberately require a clear horizontal gesture so ordinary taps/vertical movement do nothing.
-      if (Math.abs(dx) < 46 || Math.abs(dx) <= Math.abs(dy) * 1.15) return;
-      moveLightbox(dx < 0 ? 1 : -1);
-    }, { passive: true });
-
-    function photosBackOneLevel() {
-      if (currentMode !== "photos") return false;
-
-      if (currentPhotoView === "all") {
-        currentPhotoView = "days";
-        photoNav.day = null;
-      } else if (currentPhotoView === "days") {
-        currentPhotoView = "months";
-        photoNav.month = null;
-        photoNav.day = null;
-      } else if (currentPhotoView === "months") {
-        currentPhotoView = "years";
-        photoNav.year = null;
-        photoNav.month = null;
-        photoNav.day = null;
-      } else {
-        return false;
-      }
-
-      renderPhotosMode(currentPhotoView);
-      updatePhotosHash();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return true;
-    }
-
     document.addEventListener("keydown", (e) => {
-      const lightbox = document.getElementById("lightbox");
-      const lightboxOpen = lightbox && lightbox.classList.contains("open");
-
-      // Full-screen image navigation always takes priority over the underlying mode.
-      if (lightboxOpen && (e.key === "ArrowRight" || e.key === "ArrowLeft")) {
-        e.preventDefault();
-        moveLightbox(e.key === "ArrowRight" ? 1 : -1);
-        return;
-      }
-
-      if (currentMode === "curated" && !lightboxOpen && (e.key === "ArrowRight" || e.key === "ArrowLeft")) {
+      if (currentMode === "curated" && (e.key === "ArrowRight" || e.key === "ArrowLeft")) {
         showCuratedRelative(e.key === "ArrowRight" ? 1 : -1);
         return;
       }
-
       if (e.key !== "Escape") return;
 
-      if (lightboxOpen) {
-        closeLightbox();
-        return;
-      }
+      const lightbox = document.getElementById("lightbox");
 
-      // Photos behaves like a hierarchy: All/Day -> Days -> Months -> Years.
-      if (photosBackOneLevel()) {
+      if (lightbox && lightbox.classList.contains("open")) {
+        closeLightbox();
         return;
       }
 
