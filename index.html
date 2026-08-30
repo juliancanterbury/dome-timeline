@@ -487,14 +487,13 @@
 
     .photo-group-label {
       position: absolute;
-      left: 14px;
-      top: 14px;
+      left: 16px;
+      top: 16px;
       z-index: 2;
       color: #fff;
-      font-size: clamp(20px, 2vw, 34px);
-      line-height: 1;
+      font-size: clamp(28px, 3vw, 54px);
       font-weight: 700;
-      letter-spacing: -0.035em;
+      letter-spacing: -0.04em;
       text-shadow: 0 1px 6px rgba(0,0,0,0.25);
     }
 
@@ -640,64 +639,9 @@
       background: rgba(255,255,255,0.24);
     }
 
-    .lightbox-nav {
-      position: fixed;
-      top: 50%;
-      transform: translateY(-50%);
-      z-index: 10002;
-      width: 38px;
-      min-width: 38px;
-      height: 56px;
-      padding: 0;
-      border: 0;
-      border-radius: 19px;
-      background: rgba(0,0,0,0.18);
-      color: rgba(255,255,255,0.92);
-      font-size: 30px;
-      line-height: 1;
-      font-weight: 300;
-      box-shadow: none;
-      opacity: 0;
-      transition: opacity 0.18s ease, background 0.18s ease;
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-    }
-
-    .lightbox-nav.prev { left: max(10px, env(safe-area-inset-left)); }
-    .lightbox-nav.next { right: max(10px, env(safe-area-inset-right)); }
-
-    .lightbox:hover .lightbox-nav:not(:disabled),
-    .lightbox-nav:focus-visible {
-      opacity: 0.78;
-    }
-
-    .lightbox-nav:hover:not(:disabled) {
-      opacity: 1;
-      background: rgba(255,255,255,0.16);
-    }
-
-    .lightbox-nav:disabled {
-      opacity: 0 !important;
-      pointer-events: none;
-    }
-
-    @media (hover: none) {
-      .lightbox-nav:not(:disabled) { opacity: 0.42; }
-    }
-
-    @media (max-width: 700px) {
-      .lightbox-nav {
-        width: 32px;
-        min-width: 32px;
-        height: 48px;
-        font-size: 26px;
-        background: rgba(0,0,0,0.12);
-      }
-    }
 
 
-
-    /* FLOW MODE: original horizontal portrait stream, full-viewport and virtualised */
+    /* FLOW MODE: full-screen and virtualised for mobile */
     #flowMode {
       position: fixed; inset: 0; z-index: 50;
       display: flex;
@@ -750,13 +694,12 @@
 
     .flow-stage {
       width: 100%; height: 100vh; height: 100dvh;
-      overflow: hidden;
+      overflow-x: hidden; overflow-y: auto;
       position: relative;
       border-radius: 0; background: #000;
-      overscroll-behavior: contain;
-      touch-action: pan-y;
+      overscroll-behavior: contain; scroll-snap-type: y mandatory;
+      -webkit-overflow-scrolling: touch;
       user-select: none;
-      cursor: grab;
     }
 
     .flow-stage.dragging {
@@ -764,30 +707,23 @@
     }
 
     .flow-track {
-      position: absolute; inset: 0 auto 0 0;
-      height: 100%; padding: 0;
-      will-change: transform;
-      transform: translate3d(0,0,0);
+      position: relative; width: 100%; min-height: 100%; padding: 0;
     }
 
     .flow-item {
-      position: absolute;
-      top: max(30px, env(safe-area-inset-top));
-      height: calc(100vh - 60px); height: calc(100dvh - 60px);
-      aspect-ratio: .72;
-      border-radius: 18px;
-      overflow: visible;
-      background: #c8bead;
+      position: absolute; left: 0; width: 100%; height: 100vh; height: 100dvh;
+      border-radius: 0;
+      overflow: hidden;
+      background: #000;
       cursor: zoom-in;
-      box-shadow: 0 16px 38px rgba(0,0,0,.38);
+      scroll-snap-align: start;
     }
 
     .flow-item img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain;
       display: block;
-      border-radius: inherit;
       -webkit-user-drag: none;
       user-select: none;
       pointer-events: none;
@@ -795,14 +731,14 @@
 
     .flow-caption {
       position: absolute;
-      left: 2px;
-      right: 2px;
-      bottom: calc(100% + 7px); top: auto;
+      left: 10px;
+      right: 10px;
+      bottom: auto; top: max(58px, calc(env(safe-area-inset-top) + 48px));
       z-index: 2;
       color: white;
       font-size: 12px;
       line-height: 1.15;
-      text-shadow: 0 1px 8px rgba(0,0,0,0.7);
+      text-shadow: 0 1px 8px rgba(0,0,0,0.45);
       opacity: 1;
       transition: opacity 0.18s ease;
       pointer-events: none;
@@ -821,16 +757,7 @@
     .flow-close { width:34px; padding:0 !important; font-size:18px !important; line-height:1; }
     .flow-travel-status { position:absolute; left:50%; bottom:max(18px,env(safe-area-inset-bottom)); z-index:9; transform:translateX(-50%); padding:6px 11px; border-radius:999px; background:rgba(0,0,0,.55); color:#fff; font-size:12px; opacity:0; transition:opacity .2s; pointer-events:none; }
     .flow-travel-status.active { opacity:1; }
-    @media (max-width:760px) {
-      .flow-copy{display:none}
-      .flow-intro{padding-inline:max(8px,env(safe-area-inset-left)) max(8px,env(safe-area-inset-right))}
-      .flow-tools{width:100%;justify-content:flex-end;gap:5px;flex-wrap:wrap;white-space:normal}
-      .flow-speed-control{order:-1;width:100%;justify-content:flex-end}
-      #flowSpeedSlider{display:block;flex:1 1 120px;width:auto;min-width:90px;max-width:230px}
-      .flow-speed-label{min-width:48px}
-      .flow-tools select{width:62px;padding-inline:4px}
-      .flow-item{height:calc(100dvh - 72px);top:36px;border-radius:14px}
-    }
+    @media (max-width:760px) { .flow-copy{display:none}.flow-tools{width:100%;justify-content:flex-end;gap:5px}.flow-tools select{width:66px;padding-inline:5px} }
 
     .flow-stage::before,
     .flow-stage::after {
@@ -1117,6 +1044,32 @@
       transition: all 0.25s ease;
     }
 
+    .field-commandbar { display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:10px 0 14px; border-top:1px solid var(--line); }
+    .field-commandbar input, .field-commandbar select { min-height:34px; border:1px solid var(--line); border-radius:999px; background:rgba(255,255,255,.2); color:var(--text); padding:0 12px; font:inherit; }
+    .field-commandbar input { flex:1 1 210px; min-width:150px; }
+    .field-commandbar select { max-width:190px; }
+    .field-commandbar .field-curate-toggle { margin-left:auto; }
+    .field-curate-toggle.active { background:var(--text); color:var(--bg); border-color:var(--text); }
+    .field-selection-actions { display:none; align-items:center; gap:8px; width:100%; color:var(--muted); }
+    .field-editing .field-selection-actions { display:flex; }
+    .field-check { position:absolute; z-index:7; top:8px; left:8px; width:25px; height:25px; display:none; place-items:center; border:1px solid rgba(255,255,255,.7); border-radius:50%; background:rgba(25,20,16,.5); color:#fff; font-size:15px; backdrop-filter:blur(6px); }
+    .field-editing .field-check { display:grid; }
+    .field-item.selected { box-shadow:0 0 0 3px var(--accent); }
+    .field-item.selected .field-check { background:var(--accent); border-color:var(--accent); }
+    .field-editing .field-item { cursor:grab; }
+    .presentation-tray { position:fixed; z-index:120; left:14px; right:14px; bottom:14px; display:none; grid-template-columns:minmax(150px,220px) 1fr auto; gap:12px; align-items:center; padding:11px; border:1px solid rgba(255,255,255,.35); border-radius:16px; background:rgba(38,31,24,.9); color:#fff; box-shadow:0 18px 50px rgba(0,0,0,.3); backdrop-filter:blur(14px); }
+    .field-editing .presentation-tray { display:grid; }
+    .presentation-tray-title strong, .presentation-tray-title span { display:block; }
+    .presentation-tray-title span { opacity:.65; font-size:11px; margin-top:3px; }
+    .presentation-strip { min-height:62px; display:flex; gap:7px; overflow-x:auto; padding:2px; }
+    .presentation-strip:empty::after { content:'Drag images here or tick them above'; align-self:center; opacity:.6; font-size:12px; }
+    .presentation-item { position:relative; flex:0 0 45px; height:58px; border-radius:7px; overflow:hidden; border:1px solid rgba(255,255,255,.35); cursor:grab; }
+    .presentation-item img { width:100%; height:100%; object-fit:cover; display:block; }
+    .presentation-remove { position:absolute; top:2px; right:2px; width:18px; height:18px; padding:0; border:0; border-radius:50%; background:rgba(0,0,0,.65); color:#fff; line-height:18px; }
+    .presentation-actions { display:flex; gap:7px; }
+    .presentation-actions button { color:#fff; border-color:rgba(255,255,255,.35); background:rgba(255,255,255,.1); white-space:nowrap; }
+    body.field-editing { padding-bottom:102px; }
+
     .field-group-title {
       grid-column: 1 / -1;
       font-size: 11px;
@@ -1214,6 +1167,10 @@
       .field-behaviour-btn {
         width: 100%;
       }
+      .field-commandbar .field-curate-toggle { margin-left:0; }
+      .presentation-tray { grid-template-columns:1fr auto; }
+      .presentation-strip { grid-column:1 / -1; grid-row:2; }
+      .presentation-tray-title span { display:none; }
     }
 
     @media (max-width: 1100px) {
@@ -2550,16 +2507,16 @@
   <div class="wrap">
     <div class="topbar">
       <div>
-        <div class="mode-badge" id="modeBadge">Timeline Mode</div>
+        <div class="mode-badge" id="modeBadge">Field Mode</div>
         <h1 class="title">Dome Archive Prototype</h1>
       </div>
 
       <div class="controls">
-        <button id="timelineModeBtn" class="active-mode-btn">Timeline</button>
+        <button id="timelineModeBtn">Timeline</button>
         <button id="slotModeBtn">Explore / Slot</button>
         <button id="photosModeBtn">Photos</button>
         <button id="cardsModeBtn">Cards</button>
-        <button id="fieldModeBtn">Field</button>
+        <button id="fieldModeBtn" class="active-mode-btn">Field</button>
         <button id="flowModeBtn">Flow</button>
         <button id="storyModeBtn">Story</button>
         <button id="curatedModeBtn">Curated</button>
@@ -2595,7 +2552,7 @@
     <div id="loadingMessage" class="loading">Loading data…</div>
 
     <div id="appShell" class="hidden">
-      <div id="timelineMode">
+      <div id="timelineMode" class="hidden">
         <div class="controls timeline-top-controls">
           <button id="prevBtn">Previous</button>
           <button id="nextBtn">Next</button>
@@ -2674,10 +2631,10 @@
         </div>
       </div>
 
-      <div id="fieldMode" class="hidden">
+      <div id="fieldMode">
         <div class="field-intro">
           <div class="field-copy">
-            <div>Tap an image to pull related images forward. Tap the same image again to open it. Press Escape or tap All Images to return to the full grid.</div>
+            <div>Browse the complete Dome archive. Filter the field, or open Curate to assemble a presentation.</div>
             <div id="fieldStatus"></div>
           </div>
           <div class="field-tools">
@@ -2691,30 +2648,47 @@
             <button class="field-behaviour-btn" data-field-behaviour="groups">Groups</button>
             <button id="fieldReleaseBtn" class="field-behaviour-btn" type="button">All Images</button>
           </div>
+          <div class="field-commandbar" aria-label="Filter the Field">
+            <input id="fieldSearch" type="search" placeholder="Search titles, captions and notes" aria-label="Search Field" />
+            <select id="fieldCategoryFilter" aria-label="Filter by category"><option value="">All categories</option></select>
+            <select id="fieldYearFilter" aria-label="Filter by year"><option value="">All years</option></select>
+            <button id="fieldClearFilters" type="button">Clear</button>
+            <button id="fieldCurateToggle" class="field-curate-toggle" type="button" aria-pressed="false">Curate / Edit</button>
+            <div class="field-selection-actions">
+              <span id="fieldSelectionStatus">0 selected</span>
+              <button id="fieldSelectVisible" type="button">Select visible</button>
+              <button id="fieldAddSelected" type="button">Add selected</button>
+              <button id="fieldClearSelection" type="button">Clear selection</button>
+            </div>
+          </div>
         </div>
         <div id="fieldGrid" class="field-grid"></div>
+        <aside id="presentationTray" class="presentation-tray" aria-label="Presentation tray">
+          <div class="presentation-tray-title"><strong>Presentation · <span id="presentationCount">0</span></strong><span id="presentationSetName">New local draft</span></div>
+          <div id="presentationStrip" class="presentation-strip" aria-label="Presentation items"></div>
+          <div class="presentation-actions"><button id="presentationClear" type="button">Clear</button><button id="presentationPresent" type="button">Present</button></div>
+        </aside>
       </div>
 
 
       <div id="flowMode" class="hidden">
         <div class="flow-intro">
           <div class="flow-copy">
-            Drag or flick left and right through the archive.
+            Full-screen image stream. Swipe or scroll vertically through time.
           </div>
           <div class="flow-tools">
-            <label class="flow-speed-control">Speed <input id="flowSpeedSlider" type="range" min="-240" max="240" value="18" step="1" /><span id="flowSpeedValue" class="flow-speed-label">Left 18</span></label>
             <label><input id="flowDatesToggle" type="checkbox" /> Dates</label>
             <select id="flowYearSelect" aria-label="Go to year"><option value="">Year</option></select>
             <select id="flowMonthSelect" aria-label="Go to month"><option value="">Month</option></select>
             <select id="flowDaySelect" aria-label="Go to day"><option value="">Day</option></select>
             <button id="flowGoBtn" type="button">Go</button>
-            <button id="flowCloseBtn" class="flow-close" type="button" aria-label="Close Flow">&times;</button>
+            <button id="flowCloseBtn" class="flow-close" type="button" aria-label="Close Flow">Ã—</button>
           </div>
         </div>
         <div id="flowStage" class="flow-stage">
           <div id="flowTrack" class="flow-track"></div>
         </div>
-        <div id="flowTravelStatus" class="flow-travel-status" aria-live="polite">Travelling through time&hellip;</div>
+        <div id="flowTravelStatus" class="flow-travel-status" aria-live="polite">Travelling through timeâ€¦</div>
       </div>
 
 
@@ -3014,8 +2988,6 @@
   </div>
 
   <div id="lightbox" class="lightbox hidden" aria-hidden="true">
-    <button id="lightboxPrev" class="lightbox-nav prev" type="button" aria-label="Previous image">‹</button>
-    <button id="lightboxNext" class="lightbox-nav next" type="button" aria-label="Next image">›</button>
     <div class="lightbox-inner">
       <button id="lightboxClose" class="lightbox-close" aria-label="Close image">×</button>
       <img id="lightboxImage" src="" alt="" decoding="async" />
@@ -3052,7 +3024,7 @@
     let entries = [];
     let currentIndex = 0;
     let timelineScale = 98;
-    let currentMode = "timeline";
+    let currentMode = "field";
     let flowSpeed = 18;
     let sphereSpeed = 10;
     let sphereScale = 100;
@@ -3068,7 +3040,6 @@
     let flowAnimationId = null;
     let flowInitialised = false;
     let flowCurrentIndex = 0;
-    let flowLastRandomIndex = -1;
     let flowTravelAnimation = null;
     let flowControlsTimer = null;
     const FLOW_WINDOW_RADIUS = 3;
@@ -3089,6 +3060,13 @@
     let fieldBehaviour = "default";
     let fieldSelectedEntry = null;
     let fieldShuffleSeed = 1;
+    let fieldSearchTerm = "";
+    let fieldCategory = "";
+    let fieldYear = "";
+    let fieldEditMode = false;
+    let fieldSelectedIds = new Set();
+    let presentationIds = [];
+    let presentationPreviewEntries = null;
     let videos = [];
     let shopProducts = [];
     let shopCart = [];
@@ -3266,6 +3244,9 @@
               headline: headline,
               text: row.Text ?? row.TEXT ?? "",
               caption: row.Caption ?? row.CAPTION ?? "",
+              category: String(row.Category ?? row.CATEGORY ?? row.Type ?? row.TYPE ?? "").trim(),
+              tags: String(row.Tags ?? row.TAGS ?? row.Keywords ?? row.KEYWORDS ?? "").trim(),
+              location: String(row.Location ?? row.LOCATION ?? "").trim(),
               fileName: fileName,
               mediaSmall: fileName ? getSmallPath(fileName) : "",
               mediaLarge: fileName ? getLargePath(fileName) : "",
@@ -3706,40 +3687,6 @@
       lightbox.classList.add("open");
       lightbox.setAttribute("aria-hidden", "false");
       document.body.style.overflow = "hidden";
-      updateLightboxNavButtons();
-    }
-
-    function updateLightboxNavButtons() {
-      const prev = document.getElementById("lightboxPrev");
-      const next = document.getElementById("lightboxNext");
-      const valid = Number.isInteger(lightboxEntryIndex) && lightboxEntryIndex >= 0 && lightboxEntryIndex < entries.length;
-      if (prev) prev.disabled = !valid || lightboxEntryIndex <= 0;
-      if (next) next.disabled = !valid || lightboxEntryIndex >= entries.length - 1;
-    }
-
-    function showLightboxEntry(index) {
-      if (!entries.length) return;
-      const nextIndex = Math.max(0, Math.min(entries.length - 1, Number(index)));
-      const entry = entries[nextIndex];
-      if (!entry) return;
-
-      lightboxEntryIndex = nextIndex;
-      const lightboxImage = document.getElementById("lightboxImage");
-
-      // Preload adjacent full-size images so swiping feels immediate.
-      [nextIndex - 1, nextIndex + 1].forEach(i => {
-        if (entries[i]) preloadImage(entries[i].mediaLarge);
-      });
-
-      lightboxImage.src = entry.mediaLarge;
-      lightboxImage.alt = entry.headline || "";
-      history.replaceState({}, "", "#image=" + encodeURIComponent(entry.fileName));
-      updateLightboxNavButtons();
-    }
-
-    function moveLightbox(delta) {
-      if (!Number.isInteger(lightboxEntryIndex)) return;
-      showLightboxEntry(lightboxEntryIndex + delta);
     }
 
 
@@ -4157,7 +4104,6 @@
 
       if (mode === "flow") {
         showFlowControls();
-        startFlowAnimation();
       }
 
       if (mode === "sphere") {
@@ -4378,11 +4324,8 @@
       if (nextHit) nextHit.addEventListener("click", () => showCuratedRelative(1));
     }
 
-    function flowMetrics() {
-      const stageWidth = Math.max(1, flowStage?.clientWidth || window.innerWidth);
-      const card = flowTrack?.querySelector(".flow-item");
-      const cardWidth = card?.getBoundingClientRect().width || Math.max(180, (flowStage?.clientHeight || window.innerHeight) * .72 - 44);
-      return { stageWidth, cardWidth, stride: cardWidth + 12 };
+    function flowViewportHeight() {
+      return Math.max(1, flowStage ? flowStage.clientHeight : window.innerHeight);
     }
 
     function populateFlowDateControls() {
@@ -4399,8 +4342,8 @@
     function updateFlowWindow(index = flowCurrentIndex) {
       if (!flowTrack || !entries.length) return;
       flowCurrentIndex = Math.max(0, Math.min(entries.length - 1, index));
-      const start = Math.max(0, flowCurrentIndex - FLOW_WINDOW_RADIUS - 1);
-      const end = Math.min(entries.length - 1, flowCurrentIndex + FLOW_WINDOW_RADIUS + 1);
+      const start = Math.max(0, flowCurrentIndex - FLOW_WINDOW_RADIUS);
+      const end = Math.min(entries.length - 1, flowCurrentIndex + FLOW_WINDOW_RADIUS);
       const wanted = new Set();
       for (let i=start;i<=end;i++) wanted.add(i);
       flowTrack.querySelectorAll(".flow-item").forEach(item => {
@@ -4412,66 +4355,29 @@
         const item = document.createElement("div");
         item.className = "flow-item";
         item.dataset.flowIndex = String(i);
-        item.innerHTML = `<img src="${escapeHtml(entry.mediaSmall)}" alt="${escapeHtml(entry.headline)}" loading="lazy" decoding="async" draggable="false" fetchpriority="${i===flowCurrentIndex?"high":"low"}" /><div class="flow-caption">${escapeHtml(formatDate(entry))}</div>`;
+        item.style.top = `${i * flowViewportHeight()}px`;
+        item.innerHTML = `<img src="${escapeHtml(entry.mediaSmall)}" alt="${escapeHtml(entry.headline)}" decoding="async" draggable="false" fetchpriority="${i===flowCurrentIndex?"high":"low"}" /><div class="flow-caption">${escapeHtml(formatDate(entry))}</div>`;
         item.addEventListener("click", () => {
-          if (!flowMoved) openLightbox(entry.mediaLarge, entry.headline, i);
+          if (Math.abs(flowStage.scrollTop - i * flowViewportHeight()) < 8) openLightbox(entry.mediaLarge, entry.headline, i);
         });
         flowTrack.appendChild(item);
       }
-      const { stride } = flowMetrics();
-      flowTrack.querySelectorAll(".flow-item").forEach(item => {
-        item.style.left = `${Number(item.dataset.flowIndex) * stride}px`;
-      });
     }
 
     function renderFlowMode(forceRandom = false) {
       if (!flowTrack || !entries.length) return;
       populateFlowDateControls();
+      const h = flowViewportHeight();
+      flowTrack.style.height = `${entries.length * h}px`;
       if (!flowInitialised || forceRandom) {
-        const minimumChange = Math.min(Math.max(1, Math.floor(entries.length * .12)), Math.max(1, entries.length - 1));
-        let nextIndex = Math.floor(Math.random() * entries.length);
-        if (entries.length > 1 && flowLastRandomIndex >= 0) {
-          for (let attempt = 0; attempt < 12 && Math.abs(nextIndex - flowLastRandomIndex) < minimumChange; attempt++) {
-            nextIndex = Math.floor(Math.random() * entries.length);
-          }
-          if (Math.abs(nextIndex - flowLastRandomIndex) < minimumChange) {
-            nextIndex = (flowLastRandomIndex + minimumChange) % entries.length;
-          }
-        }
-        flowCurrentIndex = nextIndex;
-        flowLastRandomIndex = nextIndex;
+        flowCurrentIndex = Math.floor(Math.random() * entries.length);
         flowInitialised = true;
       }
       updateFlowWindow(flowCurrentIndex);
-      requestAnimationFrame(() => {
-        const { stageWidth, cardWidth, stride } = flowMetrics();
-        flowPosition = flowCurrentIndex * stride - (stageWidth - cardWidth) / 2;
-        applyFlowTransform();
-        formatFlowSpeedLabel();
-      });
+      requestAnimationFrame(() => { flowStage.scrollTop = flowCurrentIndex * h; });
     }
 
-    function startFlowAnimation() {
-      if (flowAnimationId) return;
-      const tick = ts => {
-        if (!flowLastTs) flowLastTs = ts;
-        const dt = Math.min(.05, (ts - flowLastTs) / 1000);
-        flowLastTs = ts;
-        if (currentMode === "flow" && !flowDragging && !flowTravelAnimation) {
-          flowPosition += (flowSpeed + flowVelocity) * dt;
-          flowVelocity *= Math.exp(-dt * 3.2);
-          if (Math.abs(flowVelocity) < .5) flowVelocity = 0;
-          const { stageWidth, cardWidth, stride } = flowMetrics();
-          const max = Math.max(0, (entries.length - 1) * stride - (stageWidth - cardWidth) / 2);
-          flowPosition = Math.max(0, Math.min(max, flowPosition));
-          const centreIndex = Math.round((flowPosition + (stageWidth - cardWidth) / 2) / stride);
-          if (centreIndex !== flowCurrentIndex) updateFlowWindow(centreIndex);
-          applyFlowTransform();
-        }
-        flowAnimationId = requestAnimationFrame(tick);
-      };
-      flowAnimationId = requestAnimationFrame(tick);
-    }
+    function startFlowAnimation() { /* Native scrolling replaces the old permanent animation loop. */ }
 
     function showFlowControls() {
       if (!flowMode) return;
@@ -4485,23 +4391,9 @@
       const m = Number(document.getElementById("flowMonthSelect")?.value || 0);
       const d = Number(document.getElementById("flowDaySelect")?.value || 0);
       if (!y) return flowCurrentIndex;
-      const targetTime = Date.UTC(y, m ? m - 1 : 0, d || 1);
-      const exactPeriod = entries
-        .map((e, i) => ({ e, i }))
-        .filter(({ e }) => e.year === y && (!m || e.month === m) && (!d || e.day === d));
-      if (exactPeriod.length) {
-        return exactPeriod.reduce((best, candidate) => {
-          const bestTime = Date.UTC(best.e.year, (best.e.month || 1) - 1, best.e.day || 1);
-          const candidateTime = Date.UTC(candidate.e.year, (candidate.e.month || 1) - 1, candidate.e.day || 1);
-          return Math.abs(candidateTime - targetTime) < Math.abs(bestTime - targetTime) ? candidate : best;
-        }).i;
-      }
-      let best = flowCurrentIndex, score = Infinity;
+      let best = 0, score = Infinity;
       entries.forEach((e,i) => {
-        if (!Number.isFinite(e.year)) return;
-        const entryMonth = Number.isFinite(e.month) ? e.month : 1;
-        const entryDay = Number.isFinite(e.day) ? e.day : 1;
-        const value = Math.abs(Date.UTC(e.year, entryMonth - 1, entryDay) - targetTime);
+        const value = Math.abs((e.year-y)*372 + (m ? (e.month-m)*31 : 0) + (d ? e.day-d : 0));
         if (value < score) { score=value; best=i; }
       });
       return best;
@@ -4510,21 +4402,20 @@
     function travelFlowTo(target) {
       if (!flowStage || target === flowCurrentIndex) return;
       if (flowTravelAnimation) cancelAnimationFrame(flowTravelAnimation);
-      const { stageWidth, cardWidth, stride } = flowMetrics();
-      const from = flowPosition, to = Math.max(0, target * stride - (stageWidth - cardWidth) / 2);
+      const from = flowStage.scrollTop, to = target * flowViewportHeight();
       const distance = Math.abs(target-flowCurrentIndex);
       const duration = Math.min(3200, 850 + Math.sqrt(distance) * 105);
       const start = performance.now();
       const status = document.getElementById("flowTravelStatus");
       status?.classList.add("active");
+      flowStage.style.scrollSnapType = "none";
       const tick = now => {
         const t = Math.min(1,(now-start)/duration);
         const eased = t<.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2;
-        flowPosition = from + (to-from)*eased;
-        updateFlowWindow(Math.max(0,Math.min(entries.length-1,Math.round((flowPosition+(stageWidth-cardWidth)/2)/stride))));
-        applyFlowTransform();
+        flowStage.scrollTop = from + (to-from)*eased;
+        updateFlowWindow(Math.max(0,Math.min(entries.length-1,Math.round(flowStage.scrollTop/flowViewportHeight()))));
         if (t<1) flowTravelAnimation=requestAnimationFrame(tick);
-        else { flowTravelAnimation=null; flowCurrentIndex=target; updateFlowWindow(target); status?.classList.remove("active"); }
+        else { flowTravelAnimation=null; flowCurrentIndex=target; updateFlowWindow(target); flowStage.style.scrollSnapType="y mandatory"; status?.classList.remove("active"); }
       };
       flowTravelAnimation=requestAnimationFrame(tick);
     }
@@ -4532,31 +4423,13 @@
     function setupFlowPointerControls() {
       if (!flowStage || flowStage.dataset.ready) return;
       flowStage.dataset.ready = "1";
-      flowStage.addEventListener("pointerdown", e => {
-        if (flowTravelAnimation) cancelAnimationFrame(flowTravelAnimation);
-        flowTravelAnimation = null; flowDragging = true; flowMoved = false;
-        flowPointerId = e.pointerId; flowLastX = e.clientX; flowLastT = performance.now(); flowVelocity = 0;
-        flowStage.classList.add("dragging");
-        try { flowStage.setPointerCapture(e.pointerId); } catch (err) {}
+      let queued = false;
+      flowStage.addEventListener("scroll", () => {
         showFlowControls();
-      });
-      flowStage.addEventListener("pointermove", e => {
-        if (!flowDragging || e.pointerId !== flowPointerId) return;
-        const now = performance.now(), dx = e.clientX - flowLastX, dt = Math.max(16, now-flowLastT)/1000;
-        if (Math.abs(dx) > 2) flowMoved = true;
-        flowPosition -= dx; flowVelocity = -dx/dt; flowLastX = e.clientX; flowLastT = now;
-        const { stageWidth, cardWidth, stride } = flowMetrics();
-        updateFlowWindow(Math.max(0,Math.min(entries.length-1,Math.round((flowPosition+(stageWidth-cardWidth)/2)/stride))));
-        applyFlowTransform(); e.preventDefault();
-      }, {passive:false});
-      const endFlowDrag = e => {
-        if (!flowDragging || e.pointerId !== flowPointerId) return;
-        flowDragging=false; flowPointerId=null; flowStage.classList.remove("dragging");
-        try { flowStage.releasePointerCapture(e.pointerId); } catch (err) {}
-        setTimeout(() => { flowMoved=false; }, 90);
-      };
-      flowStage.addEventListener("pointerup", endFlowDrag);
-      flowStage.addEventListener("pointercancel", endFlowDrag);
+        if (flowTravelAnimation || queued) return;
+        queued = true;
+        requestAnimationFrame(() => { queued=false; updateFlowWindow(Math.round(flowStage.scrollTop/flowViewportHeight())); });
+      }, {passive:true});
       ["pointerdown","touchstart","mousemove"].forEach(type => flowStage.addEventListener(type, showFlowControls, {passive:true}));
       document.getElementById("flowDatesToggle")?.addEventListener("change", e => flowMode.classList.toggle("show-dates", e.target.checked));
       document.getElementById("flowGoBtn")?.addEventListener("click", () => travelFlowTo(flowTargetIndex()));
@@ -4731,6 +4604,11 @@
     function fieldSourceList(selectedEntry = null) {
       let list = [...entries];
 
+      const term = fieldSearchTerm.trim().toLowerCase();
+      if (term) list = list.filter(entry => [entry.headline, entry.caption, entry.text, entry.category, entry.tags, entry.location, formatDate(entry)].join(" ").toLowerCase().includes(term));
+      if (fieldCategory) list = list.filter(entry => String(entry.category || "").toLowerCase() === fieldCategory.toLowerCase());
+      if (fieldYear) list = list.filter(entry => String(entry.year) === String(fieldYear));
+
       // Selection should not reorder the grid.
       // It only highlights/dims items so the tapped image stays in place.
 
@@ -4756,6 +4634,9 @@
       const index = entries.indexOf(entry);
       const item = document.createElement("div");
       item.className = "field-item";
+      item.dataset.entryId = entry.id;
+      item.classList.toggle("selected", fieldSelectedIds.has(entry.id));
+      item.draggable = fieldEditMode;
 
       if (selectedEntry) {
         const sameYear = entry.year === selectedEntry.year;
@@ -4770,12 +4651,19 @@
 
       item.innerHTML = `
         <img src="${escapeHtml(entry.mediaSmall)}" alt="${escapeHtml(entry.headline)}" loading="lazy" decoding="async" fetchpriority="low">
+        <span class="field-check" aria-hidden="true">${fieldSelectedIds.has(entry.id) ? "✓" : ""}</span>
         <div class="field-caption">${escapeHtml(entry.headline)}<br>${escapeHtml(formatDate(entry))}</div>
         <div class="field-open-label">Open</div>
       `;
 
       item.addEventListener("click", (e) => {
         e.stopPropagation();
+
+        if (fieldEditMode) {
+          fieldSelectedIds.has(entry.id) ? fieldSelectedIds.delete(entry.id) : fieldSelectedIds.add(entry.id);
+          renderFieldMode(null);
+          return;
+        }
 
         if (fieldSelectedEntry === entry || item.classList.contains("active")) {
           openLightbox(entry.mediaLarge, entry.headline, index);
@@ -4784,6 +4672,12 @@
 
         fieldSelectedEntry = entry;
         renderFieldMode(entry);
+      });
+
+      item.addEventListener("dragstart", e => {
+        if (!fieldEditMode) { e.preventDefault(); return; }
+        e.dataTransfer.setData("text/dome-entry", entry.id);
+        e.dataTransfer.effectAllowed = "copy";
       });
 
       item.addEventListener("dblclick", (e) => {
@@ -4823,7 +4717,9 @@
 
       status.textContent = selectedEntry
         ? `${behaviourLabel} / ${selectedEntry.headline} / ${formatDate(selectedEntry)}`
-        : `${behaviourLabel} / ${entries.length} images`;
+        : `${behaviourLabel} / ${source.length} of ${entries.length} images`;
+      const selectionStatus = document.getElementById("fieldSelectionStatus");
+      if (selectionStatus) selectionStatus.textContent = `${fieldSelectedIds.size} selected`;
 
       if (fieldBehaviour === "groups") {
         let currentGroup = "";
@@ -5562,6 +5458,80 @@
     }
 
     timelineModeBtn.addEventListener("click", () => openModeFromUi("timeline"));
+    function presentationStorageKey() { return `domeFieldPresentation:${currentCuratedSetId || "main"}`; }
+
+    function savePresentationDraft() {
+      try { localStorage.setItem(presentationStorageKey(), JSON.stringify(presentationIds)); } catch (e) {}
+    }
+
+    function loadPresentationDraft() {
+      const existingIds = curatedRowsForCurrentSet().map(normaliseCuratedSetRow).map(row => entries.find(entry => entry.fileName === row.filename)?.id).filter(Boolean);
+      try {
+        const saved = JSON.parse(localStorage.getItem(presentationStorageKey()) || "null");
+        presentationIds = Array.isArray(saved) ? saved.filter(id => entries.some(entry => entry.id === id)) : existingIds;
+      } catch (e) { presentationIds = existingIds; }
+      renderPresentationTray();
+    }
+
+    function addToPresentation(ids) {
+      ids.forEach(id => { if (entries.some(entry => entry.id === id) && !presentationIds.includes(id)) presentationIds.push(id); });
+      savePresentationDraft();
+      renderPresentationTray();
+    }
+
+    function renderPresentationTray() {
+      const strip = document.getElementById("presentationStrip");
+      if (!strip) return;
+      strip.innerHTML = "";
+      presentationIds.forEach(id => {
+        const entry = entries.find(item => item.id === id);
+        if (!entry) return;
+        const item = document.createElement("div");
+        item.className = "presentation-item";
+        item.draggable = true;
+        item.dataset.entryId = id;
+        item.title = `${entry.headline} — drag to reorder`;
+        item.innerHTML = `<img src="${escapeHtml(entry.mediaSmall)}" alt=""><button class="presentation-remove" type="button" aria-label="Remove ${escapeHtml(entry.headline)}">×</button>`;
+        item.querySelector("button").addEventListener("click", () => { presentationIds = presentationIds.filter(x => x !== id); savePresentationDraft(); renderPresentationTray(); });
+        item.addEventListener("dragstart", e => { e.dataTransfer.setData("text/dome-tray", id); e.dataTransfer.effectAllowed = "move"; });
+        item.addEventListener("dragover", e => e.preventDefault());
+        item.addEventListener("drop", e => {
+          e.preventDefault();
+          const moved = e.dataTransfer.getData("text/dome-tray");
+          if (!moved || moved === id) return;
+          presentationIds = presentationIds.filter(x => x !== moved);
+          presentationIds.splice(presentationIds.indexOf(id), 0, moved);
+          savePresentationDraft(); renderPresentationTray();
+        });
+        strip.appendChild(item);
+      });
+      document.getElementById("presentationCount").textContent = String(presentationIds.length);
+      document.getElementById("presentationSetName").textContent = `${currentPublicSet().setName || "New"} · local draft`;
+    }
+
+    function setupFieldWorkspace() {
+      const categorySelect = document.getElementById("fieldCategoryFilter");
+      const yearSelect = document.getElementById("fieldYearFilter");
+      const categories = [...new Set(entries.map(e => e.category).filter(Boolean))].sort((a,b) => a.localeCompare(b));
+      categorySelect.innerHTML = `<option value="">All categories</option>${categories.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("")}`;
+      const years = [...new Set(entries.map(e => e.year).filter(Number.isFinite))].sort((a,b) => b-a);
+      yearSelect.innerHTML = `<option value="">All years</option>${years.map(v => `<option value="${v}">${v}</option>`).join("")}`;
+      document.getElementById("fieldSearch").addEventListener("input", e => { fieldSearchTerm = e.target.value; renderFieldMode(null); });
+      categorySelect.addEventListener("change", e => { fieldCategory = e.target.value; renderFieldMode(null); });
+      yearSelect.addEventListener("change", e => { fieldYear = e.target.value; renderFieldMode(null); });
+      document.getElementById("fieldClearFilters").addEventListener("click", () => { fieldSearchTerm=""; fieldCategory=""; fieldYear=""; document.getElementById("fieldSearch").value=""; categorySelect.value=""; yearSelect.value=""; renderFieldMode(null); });
+      document.getElementById("fieldCurateToggle").addEventListener("click", e => { fieldEditMode=!fieldEditMode; document.body.classList.toggle("field-editing",fieldEditMode); e.currentTarget.classList.toggle("active",fieldEditMode); e.currentTarget.setAttribute("aria-pressed",String(fieldEditMode)); renderFieldMode(null); renderPresentationTray(); });
+      document.getElementById("fieldSelectVisible").addEventListener("click", () => { fieldSourceList().forEach(e => fieldSelectedIds.add(e.id)); renderFieldMode(null); });
+      document.getElementById("fieldAddSelected").addEventListener("click", () => { addToPresentation(fieldSourceList().filter(e => fieldSelectedIds.has(e.id)).map(e => e.id)); fieldSelectedIds.clear(); renderFieldMode(null); });
+      document.getElementById("fieldClearSelection").addEventListener("click", () => { fieldSelectedIds.clear(); renderFieldMode(null); });
+      const strip = document.getElementById("presentationStrip");
+      strip.addEventListener("dragover", e => e.preventDefault());
+      strip.addEventListener("drop", e => { e.preventDefault(); const id=e.dataTransfer.getData("text/dome-entry"); if(id) addToPresentation([id]); });
+      document.getElementById("presentationClear").addEventListener("click", () => { presentationIds=[]; savePresentationDraft(); renderPresentationTray(); });
+      document.getElementById("presentationPresent").addEventListener("click", () => { if(!presentationIds.length) return; presentationPreviewEntries=presentationIds.map(id=>entries.find(e=>e.id===id)).filter(Boolean); curatedIndex=0; openModeFromUi("curated"); });
+      loadPresentationDraft();
+    }
+
     slotModeBtn.addEventListener("click", () => openModeFromUi("slot"));
     photosModeBtn.addEventListener("click", () => openModeFromUi("photos"));
     cardsModeBtn.addEventListener("click", () => {
@@ -5574,6 +5544,7 @@
     });
     flowModeBtn.addEventListener("click", () => {
       openModeFromUi("flow");
+      renderFlowMode();
     });
     storyModeBtn.addEventListener("click", () => {
       openModeFromUi("story");
@@ -5781,93 +5752,24 @@
     document.getElementById("lightboxPhotosBtn").addEventListener("click", openCurrentLightboxImageInPhotos);
 
     document.getElementById("lightboxClose").addEventListener("click", closeLightbox);
-    document.getElementById("lightboxPrev").addEventListener("click", (e) => {
-      e.stopPropagation();
-      moveLightbox(-1);
-    });
-    document.getElementById("lightboxNext").addEventListener("click", (e) => {
-      e.stopPropagation();
-      moveLightbox(1);
-    });
 
-    const lightboxEl = document.getElementById("lightbox");
-    lightboxEl.addEventListener("click", (e) => {
+    document.getElementById("lightbox").addEventListener("click", (e) => {
       if (e.target.id === "lightbox") {
         closeLightbox();
       }
     });
 
-    // Horizontal swipe in any full-screen image, regardless of which mode opened it.
-    let lightboxTouchStartX = null;
-    let lightboxTouchStartY = null;
-    lightboxEl.addEventListener("touchstart", (e) => {
-      if (e.touches.length !== 1) return;
-      lightboxTouchStartX = e.touches[0].clientX;
-      lightboxTouchStartY = e.touches[0].clientY;
-    }, { passive: true });
-
-    lightboxEl.addEventListener("touchend", (e) => {
-      if (lightboxTouchStartX === null || lightboxTouchStartY === null || !e.changedTouches.length) return;
-      const dx = e.changedTouches[0].clientX - lightboxTouchStartX;
-      const dy = e.changedTouches[0].clientY - lightboxTouchStartY;
-      lightboxTouchStartX = null;
-      lightboxTouchStartY = null;
-
-      // Deliberately require a clear horizontal gesture so ordinary taps/vertical movement do nothing.
-      if (Math.abs(dx) < 46 || Math.abs(dx) <= Math.abs(dy) * 1.15) return;
-      moveLightbox(dx < 0 ? 1 : -1);
-    }, { passive: true });
-
-    function photosBackOneLevel() {
-      if (currentMode !== "photos") return false;
-
-      if (currentPhotoView === "all") {
-        currentPhotoView = "days";
-        photoNav.day = null;
-      } else if (currentPhotoView === "days") {
-        currentPhotoView = "months";
-        photoNav.month = null;
-        photoNav.day = null;
-      } else if (currentPhotoView === "months") {
-        currentPhotoView = "years";
-        photoNav.year = null;
-        photoNav.month = null;
-        photoNav.day = null;
-      } else {
-        return false;
-      }
-
-      renderPhotosMode(currentPhotoView);
-      updatePhotosHash();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return true;
-    }
-
     document.addEventListener("keydown", (e) => {
-      const lightbox = document.getElementById("lightbox");
-      const lightboxOpen = lightbox && lightbox.classList.contains("open");
-
-      // Full-screen image navigation always takes priority over the underlying mode.
-      if (lightboxOpen && (e.key === "ArrowRight" || e.key === "ArrowLeft")) {
-        e.preventDefault();
-        moveLightbox(e.key === "ArrowRight" ? 1 : -1);
-        return;
-      }
-
-      if (currentMode === "curated" && !lightboxOpen && (e.key === "ArrowRight" || e.key === "ArrowLeft")) {
+      if (currentMode === "curated" && (e.key === "ArrowRight" || e.key === "ArrowLeft")) {
         showCuratedRelative(e.key === "ArrowRight" ? 1 : -1);
         return;
       }
-
       if (e.key !== "Escape") return;
 
-      if (lightboxOpen) {
-        closeLightbox();
-        return;
-      }
+      const lightbox = document.getElementById("lightbox");
 
-      // Photos behaves like a hierarchy: All/Day -> Days -> Months -> Years.
-      if (photosBackOneLevel()) {
+      if (lightbox && lightbox.classList.contains("open")) {
+        closeLightbox();
         return;
       }
 
@@ -6770,8 +6672,7 @@
 
     function replaceHash(hash) {
       const clean = String(hash || "").replace(/^#/, "");
-      const nextUrl = clean ? "#" + clean : location.pathname + location.search;
-      if (location.hash !== (clean ? "#" + clean : "")) history.pushState({}, "", nextUrl);
+      history.replaceState({}, "", clean ? "#" + clean : location.pathname + location.search);
     }
 
     function updateModeHash(mode, extra = {}) {
@@ -6923,6 +6824,7 @@
         buildCuratedEntries();
         setupCuratedControls();
         setupCuratedPublicSetSelect();
+        setupFieldWorkspace();
         setupFlowPointerControls();
         setupGeodesicPointerControls();
         // Geodesic is intentionally lazy-built only when the tab opens.
@@ -6945,7 +6847,11 @@
 
         await preloadEntriesImages(entries, 2);
         slotPreviewPool = sampleEntries(entries, 8);
-        openDeepLinkFromHash();
+        if (!openDeepLinkFromHash()) {
+          setMode("field");
+          renderFieldMode();
+          updateModeHash("field");
+        }
 
         document.getElementById("loadingMessage").classList.add("hidden");
         document.getElementById("appShell").classList.remove("hidden");
@@ -7031,10 +6937,12 @@ function setupCuratedPublicSetSelect() {
   sel.innerHTML = curatedPublicSets.map(s => `<option value="${escapeHtml(s.setId)}" ${s.setId===currentCuratedSetId?"selected":""}>${escapeHtml(s.setName)}</option>`).join("");
   sel.onchange = () => {
     currentCuratedSetId = sel.value || currentCuratedSetId;
+    presentationPreviewEntries = null;
     curatedIndex = 0;
     applyCurrentCuratedSetConfig();
     buildCuratedEntries();
     renderCuratedMode();
+    loadPresentationDraft();
     history.replaceState({}, "", "#mode=curated&curated=" + encodeURIComponent(currentCuratedSetId));
   };
 }
@@ -7054,6 +6962,11 @@ function normaliseCuratedSetRow(row) {
 }
 
 function buildCuratedEntries() {
+  if (Array.isArray(presentationPreviewEntries) && presentationPreviewEntries.length) {
+    curatedEntries = presentationPreviewEntries.slice();
+    if (curatedIndex >= curatedEntries.length) curatedIndex = 0;
+    return;
+  }
   const rows = curatedRowsForCurrentSet().map(normaliseCuratedSetRow).filter(r => r.filename);
   if (rows.length) {
     const byFile = new Map(entries.map(e => [e.fileName, e]));
